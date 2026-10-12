@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flexpick · Pro esports analytics for teams</title>
+<meta name="description" content="Flexpick rates professional League of Legends players across leagues with league strength built in. Scouting shortlists and player profiles for teams and agencies.">
+<meta property="og:title" content="Flexpick · Every pick, backed.">
+<meta property="og:description" content="Scouting shortlists and player profiles for professional League of Legends teams, with league strength built into every rating.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://flexpick.gg/">
+<meta name="theme-color" content="#0d0e12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c6f034'/%3E%3Cpath d='M9 8h14v4.4h-9.4v2.2H22l-1.7 4.3h-6.7V24H9z' fill='%230d0e12'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Public one-page site. Flexpick brand: near-black, lime, Archivo wide, JetBrains Mono. No player names, no ratings, no scripts. */
+:root{color-scheme:dark;--bg:#0d0e12;--panel:#161920;--raise:#1e222b;--line:#2a2f3a;--ink:#edf0e9;--dim:#9aa1ab;--lime:#c6f034;--lime-ink:#0d0e12;
+  --display:"Archivo","Arial Black","Helvetica Neue",Arial,sans-serif;--body:"Archivo","Helvetica Neue",Arial,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--body)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:18px 48px;display:flex;flex-direction:column;gap:56px}
+header{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;margin:0;font:800 24px/1 var(--display);font-stretch:118%;letter-spacing:-.01em;text-decoration:none}
+.mark{width:30px;height:30px;border-radius:7px;background:var(--lime);display:grid;place-items:center}
+nav{display:flex;flex-wrap:wrap;gap:4px 18px;align-items:center;font-weight:600;font-size:14px}
+nav a{text-decoration:none;color:var(--dim)} nav a:hover{color:var(--ink)}
+.btn{font:700 15px var(--body);border-radius:10px;padding:12px 18px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;display:inline-block}
+.btn.go{background:var(--lime);border-color:var(--lime);color:var(--lime-ink)}
+nav .btn{padding:8px 14px;font-size:14px;color:var(--lime-ink)}
+.eyebrow{font:500 12px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--lime);margin:0 0 14px}
+h1{font:800 clamp(36px,6.4vw,70px)/1.02 var(--display);font-stretch:122%;letter-spacing:-.015em;margin:0;max-width:15ch;text-wrap:balance}
+.lead{color:var(--dim);font-size:clamp(16px,1.7vw,19px);max-width:56ch;margin:18px 0 0}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+h2{font:800 clamp(24px,3.2vw,32px)/1.1 var(--display);font-stretch:118%;margin:0 0 12px;text-wrap:balance}
+p{margin:0 0 12px;max-width:68ch} .dim{color:var(--dim)}
+.sample{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+.sample .hd{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:baseline;margin-bottom:8px}
+.sample h3{font:700 19px var(--display);font-stretch:112%;margin:0}
+.meta{font:12px var(--mono);color:var(--dim)}
+.srow{display:grid;grid-template-columns:28px minmax(0,140px) 1fr 120px;gap:12px;align-items:center;padding:13px 0;border-top:1px solid var(--line);font-size:15px}
+.srow .i{font:12px var(--mono);color:var(--dim)} .srow .nm{font-weight:700} .srow .nm small{display:block;font:12px var(--mono);color:var(--dim);font-weight:400}
+.srow .tr{height:5px;border-radius:3px;background:var(--raise);position:relative} .srow .tr i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--lime)}
+.srow .val{font:500 13px var(--mono);text-align:right} .srow .val small{display:block;color:var(--dim);font-size:11px}
+.note{font:12px var(--mono);color:var(--dim);margin:10px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+.grid>div{border:1px solid var(--line);border-radius:14px;padding:18px}
+.grid h3{font:700 17px var(--display);font-stretch:110%;margin:0 0 6px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.grid h3 span{font:500 10px var(--mono);letter-spacing:.12em;color:var(--lime)}
+.grid p{margin:0;color:var(--dim);font-size:14.5px}
+.statement{background:var(--lime);color:var(--lime-ink);border-radius:18px;padding:36px 30px}
+.statement h2{font-size:clamp(28px,4vw,42px);max-width:17ch;margin-bottom:14px}
+.statement p{margin:0;max-width:60ch}
+.steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;list-style:none;margin:0;padding:0}
+.steps li{counter-increment:s;border-top:2px solid var(--lime);padding-top:12px;color:var(--dim);font-size:15px}
+.steps li b{display:block;color:var(--ink);font:700 17px var(--display);font-stretch:110%;margin-bottom:4px}
+.steps li::before{content:"0" counter(s);font:500 12px var(--mono);color:var(--lime);display:block;margin-bottom:6px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:7px;color:var(--dim);max-width:60ch}
+ul.plain b{color:var(--ink);font-weight:600}
+.evi{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:6px}
+.evi div{background:var(--panel);padding:22px}
+.evi b{display:block;font:800 clamp(38px,5vw,54px)/1 var(--display);font-stretch:120%}
+.evi div.me{background:var(--lime);color:var(--lime-ink)} .evi span{display:block;margin-top:8px;font-size:14.5px} .evi small{display:block;margin-top:6px;font:12px var(--mono);opacity:.75}
+.contact{border:1px solid var(--line);border-radius:18px;padding:30px;background:var(--panel)}
+.mail{font:500 clamp(17px,2.4vw,22px) var(--mono);color:var(--lime)}
+footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:8px}
+@media (max-width:560px){.srow{grid-template-columns:22px minmax(0,1fr) 104px}.srow .tr{display:none}.brand{font-size:21px}.wrap{gap:44px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="#top" id="top"><span class="mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 16 16"><path d="M3 2h10v3.2H6.4v1.7H12l-1.2 3.1H6.4V14H3z" fill="#0d0e12"/></svg></span>flexpick</a>
+    <nav aria-label="Sections"><a href="#product">Product</a><a href="#method">Method</a><a href="#players">For players</a><a href="#contact">Contact</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Request access</a></nav>
+  </header>
+
+  <section>
+    <p class="eyebrow">Pro esports analytics for teams</p>
+    <h1>Find the player before the market does.</h1>
+    <p class="lead">Flexpick ranks professional League of Legends players across leagues with league strength built in, so a strong number in a weak league is never mistaken for the real thing.</p>
+    <div class="cta"><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Request access</a><a class="btn" href="#method">See the method</a></div>
+  </section>
+
+  <section class="sample" aria-label="Sample layout of a shortlist">
+    <div class="hd"><h3>Top lane shortlist, regional leagues</h3><span class="meta">min 20 games per player · data to 10 October 2026 · patches 15.13 to 16.20</span></div>
+    <div class="srow"><span class="i">01</span><span class="nm">Player A<small>League 1 · 120 games</small></span><span class="tr"><i style="width:92%"></i></span><span class="val">tier 1<small>could be 1 to 7</small></span></div>
+    <div class="srow"><span class="i">02</span><span class="nm">Player B<small>League 1 · 134 games</small></span><span class="tr"><i style="width:80%"></i></span><span class="val">tier 2<small>could be 1 to 16</small></span></div>
+    <div class="srow"><span class="i">03</span><span class="nm">Player C<small>League 2 · 131 games</small></span><span class="tr"><i style="width:75%"></i></span><span class="val">tier 2<small>could be 1 to 16</small></span></div>
+    <div class="srow"><span class="i">04</span><span class="nm">Player D<small>League 1 · 54 games</small></span><span class="tr"><i style="width:72%"></i></span><span class="val">tier 2<small>could be 1 to 20</small></span></div>
+    <p class="note">Sample layout with placeholder names. Real shortlists are shared privately with teams.</p>
+  </section>
+
+  <section id="product">
+    <h2>What teams get</h2>
+    <div class="grid">
+      <div><h3>Scouting</h3><p>Shortlists for every role in LCK, LEC, LCS, LCK CL, NACL, CBLOL, LCP and the EMEA regional leagues. Filter by league, nationality, age and games.</p></div>
+      <div><h3>Roster building</h3><p>Win now signings and developmental prospects side by side, with a profile per player: form split by split, stat profile and playstyle.</p></div>
+      <div><h3>Draft <span>SOON</span></h3><p>Expected numbers from the draft, compared with what players delivered.</p></div>
+      <div><h3>Solo queue <span>SOON</span></h3><p>Champion pool, form and trends alongside stage performance.</p></div>
+    </div>
+  </section>
+
+  <section class="statement">
+    <h2>No number without its sample size.</h2>
+    <p>Every list shows the games it covers and the patch range. Ranks come with tiers and ranges, because neighbours on a list are rarely a real difference. When the data is missing, we say so.</p>
+  </section>
+
+  <section id="method">
+    <h2>How a rating is built</h2>
+    <ol class="steps">
+      <li><b>Champion and matchup</b>Every stat is compared with what the same champion normally produces that season, lane leads with the exact matchup.</li>
+      <li><b>The player's own</b>Stats are weighed by whether they follow a player to a new team and go with later results, not by how they look on a scoreboard.</li>
+      <li><b>League strength</b>Each league gets a level from how players' numbers change when they move between leagues and from head-to-head results across leagues. Every level carries an error range.</li>
+      <li><b>Tiers and ranges</b>The rating becomes a tier and a range of ranks, taken from how far ratings really move from one season to the next.</li>
+    </ol>
+
+  </section>
+
+  <section class="two">
+    <div><h2>What it is for</h2><ul class="plain">
+      <li><b>Deciding who to look at.</b> A shortlist to take into video review, interviews and tryouts.</li>
+      <li><b>Comparing across leagues.</b> A regional-league player and a top-league player on one scale.</li>
+      <li><b>Asking better questions.</b> Where a player is strong against his own league, and where he is not.</li>
+    </ul></div>
+    <div><h2>What it does not do</h2><ul class="plain">
+      <li><b>No betting or gambling use.</b></li>
+      <li><b>No raw match data.</b> Flexpick shows derived ratings only.</li>
+      <li><b>No verdict on a person.</b> It knows nothing about communication, attitude, contracts or how someone plays in scrims.</li>
+      <li><b>No LPL and no solo queue</b> ratings today.</li>
+    </ul></div>
+  </section>
+
+  <section id="players">
+    <h2>For players</h2>
+    <p class="dim">Flexpick uses statistics from public professional matches, together with a player's in-game name, team, league, role, nationality and age as published. It does not collect contact details, private accounts or anything from outside professional play. Ratings are produced by a statistical model and are one input among many for the teams that read them; Flexpick makes no decisions about anyone.</p>
+    <p class="dim">If you are a player and want to see, correct or remove your data, or object to its use, write to <a href="mailto:can@flexpick.gg?subject=Player%20data%20request">can@flexpick.gg</a>. Requests are answered within one month and are free. Requests about players under 18 are honoured without asking for reasons.</p>
+  </section>
+
+  <section class="contact" id="contact">
+    <h2>Request access</h2>
+    <p class="dim">Flexpick is in private preview for professional teams and player agencies during the 2027 off-season. Write to ask for a walkthrough or a shortlist for your roster.</p>
+    <a class="mail" href="mailto:can@flexpick.gg?subject=Flexpick%20access">can@flexpick.gg</a>
+  </section>
+
+  <footer>
+    <span>© 2026 Flexpick · Amsterdam, the Netherlands · flexpick.gg</span>
+    <span>Flexpick isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</span>
+  </footer>
+</div>
+</body>
+</html>
