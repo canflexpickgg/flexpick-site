@@ -12,13 +12,23 @@
 <link rel="alternate" hreflang="en" href="https://flexpick.gg/">
 <link rel="alternate" hreflang="ko" href="https://flexpick.gg/ko/">
 <link rel="alternate" hreflang="de" href="https://flexpick.gg/de/">
+<link rel="alternate" hreflang="pl" href="https://flexpick.gg/pl/">
 <link rel="alternate" hreflang="tr" href="https://flexpick.gg/tr/">
 <link rel="alternate" hreflang="fr" href="https://flexpick.gg/fr/">
+<link rel="alternate" hreflang="cs" href="https://flexpick.gg/cs/">
 <link rel="alternate" hreflang="pt" href="https://flexpick.gg/pt/">
+<link rel="alternate" hreflang="es" href="https://flexpick.gg/es/">
+<link rel="alternate" hreflang="ar" href="https://flexpick.gg/ar/">
 <link rel="alternate" hreflang="el" href="https://flexpick.gg/el/">
 <link rel="alternate" hreflang="it" href="https://flexpick.gg/it/">
-<link rel="alternate" hreflang="es" href="https://flexpick.gg/es/">
+<link rel="alternate" hreflang="da" href="https://flexpick.gg/da/">
 <link rel="alternate" hreflang="nl" href="https://flexpick.gg/nl/">
+<link rel="alternate" hreflang="vi" href="https://flexpick.gg/vi/">
+<link rel="alternate" hreflang="sr-Latn" href="https://flexpick.gg/sr/">
+<link rel="alternate" hreflang="sv" href="https://flexpick.gg/sv/">
+<link rel="alternate" hreflang="zh-Hant" href="https://flexpick.gg/zh/">
+<link rel="alternate" hreflang="ro" href="https://flexpick.gg/ro/">
+<link rel="alternate" hreflang="sk" href="https://flexpick.gg/sk/">
 <link rel="alternate" hreflang="x-default" href="https://flexpick.gg/">
 <meta name="theme-color" content="#0d0e12">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c6f034'/%3E%3Cpath d='M9 8h14v4.4h-9.4v2.2H22l-1.7 4.3h-6.7V24H9z' fill='%230d0e12'/%3E%3C/svg%3E">
@@ -120,17 +130,18 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
 .langs summary{list-style:none;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:7px 10px;color:var(--ink);background:var(--panel);white-space:nowrap}
 .langs summary::-webkit-details-marker{display:none}
 .langs summary::after{content:" ▾";color:var(--dim)}
-.langs div{position:absolute;right:0;top:calc(100% + 6px);z-index:5;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;display:grid;gap:2px;min-width:150px;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+.langs div{position:absolute;right:0;top:calc(100% + 6px);z-index:5;max-height:70vh;overflow:auto;grid-template-columns:1fr 1fr;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;display:grid;gap:2px;min-width:260px;box-shadow:0 12px 30px rgba(0,0,0,.45)}
 .langs a{padding:7px 10px;border-radius:6px;color:var(--dim);text-decoration:none;white-space:nowrap}
 .langs a:hover{color:var(--ink);background:var(--raise)}
 .langs a[aria-current]{color:var(--lime)}
+@media (max-width:560px){header{position:relative}.langs{position:static}.langs div{left:0!important;right:0!important;top:100%;min-width:0}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <a class="brand" href="#top" id="top"><span class="mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 16 16"><path d="M3 2h10v3.2H6.4v1.7H12l-1.2 3.1H6.4V14H3z" fill="#0d0e12"/></svg></span>flexpick</a>
-    <nav aria-label="Sezioni"><a href="#product">Prodotto</a><a href="#tour">Tour</a><a href="#method">Metodo</a><a href="#players">Per i giocatori</a><a href="#contact">Contatti</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Richiedi accesso</a><details class="langs"><summary aria-label="Language">Italiano</summary><div><a href="/" lang="en" hreflang="en">English</a><a href="/ko/" lang="ko" hreflang="ko">한국어</a><a href="/de/" lang="de" hreflang="de">Deutsch</a><a href="/tr/" lang="tr" hreflang="tr">Türkçe</a><a href="/fr/" lang="fr" hreflang="fr">Français</a><a href="/pt/" lang="pt" hreflang="pt">Português</a><a href="/el/" lang="el" hreflang="el">Ελληνικά</a><a href="/it/" lang="it" hreflang="it" aria-current="page">Italiano</a><a href="/es/" lang="es" hreflang="es">Español</a><a href="/nl/" lang="nl" hreflang="nl">Nederlands</a></div></details></nav>
+    <nav aria-label="Sezioni"><a href="#product">Prodotto</a><a href="#tour">Tour</a><a href="#method">Metodo</a><a href="#players">Per i giocatori</a><a href="#contact">Contatti</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Richiedi accesso</a><details class="langs"><summary aria-label="Language">Italiano</summary><div><a href="/" lang="en" hreflang="en">English</a><a href="/ko/" lang="ko" hreflang="ko">한국어</a><a href="/de/" lang="de" hreflang="de">Deutsch</a><a href="/pl/" lang="pl" hreflang="pl">Polski</a><a href="/tr/" lang="tr" hreflang="tr">Türkçe</a><a href="/fr/" lang="fr" hreflang="fr">Français</a><a href="/cs/" lang="cs" hreflang="cs">Čeština</a><a href="/pt/" lang="pt" hreflang="pt">Português</a><a href="/es/" lang="es" hreflang="es">Español</a><a href="/ar/" lang="ar" hreflang="ar">العربية</a><a href="/el/" lang="el" hreflang="el">Ελληνικά</a><a href="/it/" lang="it" hreflang="it" aria-current="page">Italiano</a><a href="/da/" lang="da" hreflang="da">Dansk</a><a href="/nl/" lang="nl" hreflang="nl">Nederlands</a><a href="/vi/" lang="vi" hreflang="vi">Tiếng Việt</a><a href="/sr/" lang="sr-Latn" hreflang="sr-Latn">Srpski</a><a href="/sv/" lang="sv" hreflang="sv">Svenska</a><a href="/zh/" lang="zh-Hant" hreflang="zh-Hant">繁體中文</a><a href="/ro/" lang="ro" hreflang="ro">Română</a><a href="/sk/" lang="sk" hreflang="sk">Slovenčina</a></div></details></nav>
   </header>
 
   <section>
@@ -180,7 +191,7 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
         <p>Nazionalità e residenza, team, stile di gioco e tag sono accanto a ogni nome. I giocatori sono raggruppati in tier e hanno una fascia di posizione invece di una posizione unica.</p></div>
 
       <div class="pn"><span class="kick">Scheda giocatore</span><h3>Una pagina per giocatore</h3>
-        <div class="chips"><span><b>Stile di gioco</b> Dominante in lane</span><span><b>Tag</b> Pick da mago</span><span><b>Affidabilità</b> Alta</span><span><b>Tendenza</b> In crescita</span></div>
+        <div class="chips"><span><b>Stile di gioco</b> Dominante in lane</span><span><b>Tag</b> Pick mage</span><span><b>Affidabilità</b> Alta</span><span><b>Tendenza</b> In crescita</span></div>
         <div class="duo">
           <svg viewBox="0 0 300 150" role="img" aria-label="Grafico di esempio di un rating split per split"><g stroke="#2a2f3a"><line x1="20" x2="290" y1="30" y2="30"/><line x1="20" x2="290" y1="75" y2="75" stroke-dasharray="3 4"/><line x1="20" x2="290" y1="120" y2="120"/></g><polyline fill="none" stroke="#c6f034" stroke-width="2.5" points="30,104 82,92 134,97 186,70 238,56 280,40"/><g fill="#c6f034"><circle cx="30" cy="104" r="4"/><circle cx="82" cy="92" r="4"/><circle cx="134" cy="97" r="4"/><circle cx="186" cy="70" r="4"/><circle cx="238" cy="56" r="4"/><circle cx="280" cy="40" r="4"/></g></svg>
           <svg viewBox="0 0 200 170" role="img" aria-label="Esempio di profilo statistico"><g fill="none" stroke="#2a2f3a"><polygon points="100,15 165,47 165,117 100,150 35,117 35,47"/><polygon points="100,49 133,65 133,100 100,116 67,100 67,65"/><g><line x1="100" y1="82" x2="100" y2="15"/><line x1="100" y1="82" x2="165" y2="47"/><line x1="100" y1="82" x2="165" y2="117"/><line x1="100" y1="82" x2="100" y2="150"/><line x1="100" y1="82" x2="35" y2="117"/><line x1="100" y1="82" x2="35" y2="47"/></g></g><polygon points="100,24 152,56 141,104 100,128 58,104 48,54" fill="#c6f034" fill-opacity=".22" stroke="#c6f034" stroke-width="2"/></svg>
@@ -210,7 +221,7 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
   <section id="method">
     <h2>Come nasce un rating</h2>
     <ol class="steps">
-      <li><b>Campione e matchup</b>Ogni statistica è confrontata con ciò che lo stesso campione produce normalmente in quella stagione, i vantaggi in lane con il matchup esatto.</li>
+      <li><b>Champion e matchup</b>Ogni statistica è confrontata con ciò che lo stesso champion produce normalmente in quella stagione, i vantaggi in lane con il matchup esatto.</li>
       <li><b>Ciò che è del giocatore</b>Le statistiche sono pesate in base a quanto seguono un giocatore in un nuovo team e si accompagnano ai risultati successivi, non in base a come appaiono su un tabellone.</li>
       <li><b>Forza delle leghe</b>Ogni lega riceve un livello da come cambiano i numeri dei giocatori quando passano da una lega all'altra e dagli scontri diretti tra leghe. Ogni livello ha un margine di errore.</li>
       <li><b>Tier e fasce</b>Il rating diventa un tier e una fascia di posizioni, ricavati da quanto i rating si muovono davvero da una stagione all'altra.</li>

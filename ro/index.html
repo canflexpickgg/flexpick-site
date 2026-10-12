@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flexpick · Analiză esports profesionistă pentru echipe</title>
+<meta name="description" content="Flexpick evaluează jucătorii profesioniști de League of Legends între ligi, ținând cont de forța fiecărei ligi. Shortlist-uri de scouting și fișe de jucător pentru echipe și agenții.">
+<meta property="og:title" content="Flexpick · Every pick, backed.">
+<meta property="og:description" content="Shortlist-uri de scouting și fișe de jucător pentru echipele profesioniste de League of Legends, cu forța ligilor în fiecare rating.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://flexpick.gg/ro/">
+<link rel="alternate" hreflang="en" href="https://flexpick.gg/">
+<link rel="alternate" hreflang="ko" href="https://flexpick.gg/ko/">
+<link rel="alternate" hreflang="de" href="https://flexpick.gg/de/">
+<link rel="alternate" hreflang="pl" href="https://flexpick.gg/pl/">
+<link rel="alternate" hreflang="tr" href="https://flexpick.gg/tr/">
+<link rel="alternate" hreflang="fr" href="https://flexpick.gg/fr/">
+<link rel="alternate" hreflang="cs" href="https://flexpick.gg/cs/">
+<link rel="alternate" hreflang="pt" href="https://flexpick.gg/pt/">
+<link rel="alternate" hreflang="es" href="https://flexpick.gg/es/">
+<link rel="alternate" hreflang="ar" href="https://flexpick.gg/ar/">
+<link rel="alternate" hreflang="el" href="https://flexpick.gg/el/">
+<link rel="alternate" hreflang="it" href="https://flexpick.gg/it/">
+<link rel="alternate" hreflang="da" href="https://flexpick.gg/da/">
+<link rel="alternate" hreflang="nl" href="https://flexpick.gg/nl/">
+<link rel="alternate" hreflang="vi" href="https://flexpick.gg/vi/">
+<link rel="alternate" hreflang="sr-Latn" href="https://flexpick.gg/sr/">
+<link rel="alternate" hreflang="sv" href="https://flexpick.gg/sv/">
+<link rel="alternate" hreflang="zh-Hant" href="https://flexpick.gg/zh/">
+<link rel="alternate" hreflang="ro" href="https://flexpick.gg/ro/">
+<link rel="alternate" hreflang="sk" href="https://flexpick.gg/sk/">
+<link rel="alternate" hreflang="x-default" href="https://flexpick.gg/">
+<meta name="theme-color" content="#0d0e12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c6f034'/%3E%3Cpath d='M9 8h14v4.4h-9.4v2.2H22l-1.7 4.3h-6.7V24H9z' fill='%230d0e12'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Product tour: layouts only. Player names are placeholders and every number is covered. */
+.tour{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.pn{grid-column:span 6;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.pn.wide{grid-column:span 12}
+.pn h3{font:700 18px var(--display);font-stretch:112%;margin:0}
+.pn>p{margin:0;color:var(--dim);font-size:14.5px;max-width:70ch}
+.kick{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--lime)}
+.rd{display:inline-block;height:9px;border-radius:5px;background:var(--line);vertical-align:middle}
+.rd.l{background:var(--lime);opacity:.85}
+.fl{display:flex;flex-wrap:wrap;gap:6px}
+.fl span{font:500 11px var(--mono);border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--dim)} .fl span b{color:var(--ink);font-weight:500}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.mt{border-collapse:collapse;width:100%;font-size:13.5px;min-width:720px}
+.mt th{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.mt td{padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.mt tr:last-child td{border-bottom:0}
+.mt .tier td{font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);background:var(--raise);padding:5px 10px}
+.mt b{font-weight:700}
+.cp{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line);padding:1px 6px;margin-left:8px;border-radius:4px}
+.lg{display:inline-block;width:16px;height:16px;border-radius:4px;background:var(--raise);border:1px solid var(--line);vertical-align:-3px;margin-right:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{font:500 11px var(--mono);border:1px solid var(--line);border-radius:5px;padding:2px 8px} .chips span b{color:var(--dim);font-weight:500}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:center}
+.pn svg{width:100%;height:auto;display:block}
+.bub{border-radius:12px;padding:10px 14px;font-size:14.5px;max-width:62ch}
+.bub.q{background:var(--raise);align-self:flex-end}
+.bub.a{border:1px solid var(--line);line-height:1.9}
+.lv{display:grid;grid-template-columns:150px 1fr;gap:8px 12px;align-items:center;font:500 12px var(--mono);color:var(--dim)}
+.lv .ax{position:relative;height:14px}
+.lv .ax::before{content:"";position:absolute;left:0;right:0;top:6px;height:2px;background:var(--line)}
+.lv .ax i{position:absolute;top:4px;height:6px;border-radius:3px;background:var(--lime);opacity:.35}
+.lv .ax u{position:absolute;top:1px;width:12px;height:12px;border-radius:50%;background:var(--lime);margin-left:-6px}
+.bands{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.bands div{background:var(--panel);padding:12px;font-size:13px;color:var(--dim)} .bands b{display:block;color:var(--ink);font:700 15px var(--display);margin-bottom:4px}
+@media (max-width:820px){.pn{grid-column:span 12}.bands{grid-template-columns:repeat(2,1fr)}.lv{grid-template-columns:110px 1fr}}
+/* Public one-page site. Flexpick brand: near-black, lime, Archivo wide, JetBrains Mono. No player names, no ratings, no scripts. */
+:root{color-scheme:dark;--bg:#0d0e12;--panel:#161920;--raise:#1e222b;--line:#2a2f3a;--ink:#edf0e9;--dim:#9aa1ab;--lime:#c6f034;--lime-ink:#0d0e12;
+  --display:"Archivo","Arial Black","Helvetica Neue",Arial,sans-serif;--body:"Archivo","Helvetica Neue",Arial,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--body)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:18px 48px;display:flex;flex-direction:column;gap:56px}
+header{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;margin:0;font:800 24px/1 var(--display);font-stretch:118%;letter-spacing:-.01em;text-decoration:none}
+.mark{width:30px;height:30px;border-radius:7px;background:var(--lime);display:grid;place-items:center}
+nav{display:flex;flex-wrap:wrap;gap:4px 18px;align-items:center;font-weight:600;font-size:14px}
+nav a{text-decoration:none;color:var(--dim)} nav a:hover{color:var(--ink)}
+.btn{font:700 15px var(--body);border-radius:10px;padding:12px 18px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;display:inline-block}
+.btn.go{background:var(--lime);border-color:var(--lime);color:var(--lime-ink)}
+nav .btn{padding:8px 14px;font-size:14px;color:var(--lime-ink)}
+.eyebrow{font:500 12px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--lime);margin:0 0 14px}
+h1{font:800 clamp(36px,6.4vw,70px)/1.02 var(--display);font-stretch:122%;letter-spacing:-.015em;margin:0;max-width:15ch;text-wrap:balance}
+.lead{color:var(--dim);font-size:clamp(16px,1.7vw,19px);max-width:56ch;margin:18px 0 0}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+h2{font:800 clamp(24px,3.2vw,32px)/1.1 var(--display);font-stretch:118%;margin:0 0 12px;text-wrap:balance}
+p{margin:0 0 12px;max-width:68ch} .dim{color:var(--dim)}
+.sample{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+.sample .hd{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:baseline;margin-bottom:8px}
+.sample h3{font:700 19px var(--display);font-stretch:112%;margin:0}
+.meta{font:12px var(--mono);color:var(--dim)}
+.srow{display:grid;grid-template-columns:28px minmax(0,140px) 1fr 120px;gap:12px;align-items:center;padding:13px 0;border-top:1px solid var(--line);font-size:15px}
+.srow .i{font:12px var(--mono);color:var(--dim)} .srow .nm{font-weight:700} .srow .nm small{display:block;font:12px var(--mono);color:var(--dim);font-weight:400}
+.srow .tr{height:5px;border-radius:3px;background:var(--raise);position:relative} .srow .tr i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--lime)}
+.srow .val{font:500 13px var(--mono);text-align:right} .srow .val small{display:block;color:var(--dim);font-size:11px}
+.note{font:12px var(--mono);color:var(--dim);margin:10px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+.grid>div{border:1px solid var(--line);border-radius:14px;padding:18px}
+.grid h3{font:700 17px var(--display);font-stretch:110%;margin:0 0 6px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.grid h3 span{font:500 10px var(--mono);letter-spacing:.12em;color:var(--lime)}
+.grid p{margin:0;color:var(--dim);font-size:14.5px}
+.statement{background:var(--lime);color:var(--lime-ink);border-radius:18px;padding:36px 30px}
+.statement h2{font-size:clamp(28px,4vw,42px);max-width:17ch;margin-bottom:14px}
+.statement p{margin:0;max-width:60ch}
+.steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;list-style:none;margin:0;padding:0}
+.steps li{counter-increment:s;border-top:2px solid var(--lime);padding-top:12px;color:var(--dim);font-size:15px}
+.steps li b{display:block;color:var(--ink);font:700 17px var(--display);font-stretch:110%;margin-bottom:4px}
+.steps li::before{content:"0" counter(s);font:500 12px var(--mono);color:var(--lime);display:block;margin-bottom:6px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:7px;color:var(--dim);max-width:60ch}
+ul.plain b{color:var(--ink);font-weight:600}
+.evi{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-top:6px}
+.evi div{background:var(--panel);padding:22px}
+.evi b{display:block;font:800 clamp(38px,5vw,54px)/1 var(--display);font-stretch:120%}
+.evi div.me{background:var(--lime);color:var(--lime-ink)} .evi span{display:block;margin-top:8px;font-size:14.5px} .evi small{display:block;margin-top:6px;font:12px var(--mono);opacity:.75}
+.contact{border:1px solid var(--line);border-radius:18px;padding:30px;background:var(--panel)}
+.mail{font:500 clamp(17px,2.4vw,22px) var(--mono);color:var(--lime)}
+footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:8px}
+@media (max-width:560px){.srow{grid-template-columns:22px minmax(0,1fr) 104px}.srow .tr{display:none}.brand{font-size:21px}.wrap{gap:44px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.langs{position:relative;font:500 13px var(--body)}
+.langs summary{list-style:none;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:7px 10px;color:var(--ink);background:var(--panel);white-space:nowrap}
+.langs summary::-webkit-details-marker{display:none}
+.langs summary::after{content:" ▾";color:var(--dim)}
+.langs div{position:absolute;right:0;top:calc(100% + 6px);z-index:5;max-height:70vh;overflow:auto;grid-template-columns:1fr 1fr;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;display:grid;gap:2px;min-width:260px;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+.langs a{padding:7px 10px;border-radius:6px;color:var(--dim);text-decoration:none;white-space:nowrap}
+.langs a:hover{color:var(--ink);background:var(--raise)}
+.langs a[aria-current]{color:var(--lime)}
+@media (max-width:560px){header{position:relative}.langs{position:static}.langs div{left:0!important;right:0!important;top:100%;min-width:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="#top" id="top"><span class="mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 16 16"><path d="M3 2h10v3.2H6.4v1.7H12l-1.2 3.1H6.4V14H3z" fill="#0d0e12"/></svg></span>flexpick</a>
+    <nav aria-label="Secțiuni"><a href="#product">Produs</a><a href="#tour">Tur</a><a href="#method">Metodă</a><a href="#players">Pentru jucători</a><a href="#contact">Contact</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Cere acces</a><details class="langs"><summary aria-label="Language">Română</summary><div><a href="/" lang="en" hreflang="en">English</a><a href="/ko/" lang="ko" hreflang="ko">한국어</a><a href="/de/" lang="de" hreflang="de">Deutsch</a><a href="/pl/" lang="pl" hreflang="pl">Polski</a><a href="/tr/" lang="tr" hreflang="tr">Türkçe</a><a href="/fr/" lang="fr" hreflang="fr">Français</a><a href="/cs/" lang="cs" hreflang="cs">Čeština</a><a href="/pt/" lang="pt" hreflang="pt">Português</a><a href="/es/" lang="es" hreflang="es">Español</a><a href="/ar/" lang="ar" hreflang="ar">العربية</a><a href="/el/" lang="el" hreflang="el">Ελληνικά</a><a href="/it/" lang="it" hreflang="it">Italiano</a><a href="/da/" lang="da" hreflang="da">Dansk</a><a href="/nl/" lang="nl" hreflang="nl">Nederlands</a><a href="/vi/" lang="vi" hreflang="vi">Tiếng Việt</a><a href="/sr/" lang="sr-Latn" hreflang="sr-Latn">Srpski</a><a href="/sv/" lang="sv" hreflang="sv">Svenska</a><a href="/zh/" lang="zh-Hant" hreflang="zh-Hant">繁體中文</a><a href="/ro/" lang="ro" hreflang="ro" aria-current="page">Română</a><a href="/sk/" lang="sk" hreflang="sk">Slovenčina</a></div></details></nav>
+  </header>
+
+  <section>
+    <p class="eyebrow">Analiză esports profesionistă pentru echipe</p>
+    <h1>Găsește jucătorul înaintea pieței.</h1>
+    <p class="lead">Flexpick clasează jucătorii profesioniști de League of Legends între ligi, ținând cont de forța fiecărei ligi, astfel încât o cifră bună într-o ligă slabă să nu fie niciodată confundată cu valoarea reală.</p>
+    <div class="cta"><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Cere acces</a><a class="btn" href="#method">Vezi metoda</a></div>
+  </section>
+
+  <section class="sample" aria-label="Exemplu de afișare a unui shortlist">
+    <div class="hd"><h3>Shortlist pentru top lane, ligi regionale</h3><span class="meta">minimum 15 meciuri per jucător · date până la 10 octombrie 2026 · patch-uri 15.13 până la 16.20</span></div>
+    <div class="srow"><span class="i">01</span><span class="nm">Jucător A<small>Liga 1 · 120 de meciuri</small></span><span class="tr"><i style="width:92%"></i></span><span class="val">tier 1<small>între 1 și 7</small></span></div>
+    <div class="srow"><span class="i">02</span><span class="nm">Jucător B<small>Liga 1 · 134 de meciuri</small></span><span class="tr"><i style="width:80%"></i></span><span class="val">tier 2<small>între 1 și 16</small></span></div>
+    <div class="srow"><span class="i">03</span><span class="nm">Jucător C<small>Liga 2 · 131 de meciuri</small></span><span class="tr"><i style="width:75%"></i></span><span class="val">tier 2<small>între 1 și 16</small></span></div>
+    <div class="srow"><span class="i">04</span><span class="nm">Jucător D<small>Liga 1 · 54 de meciuri</small></span><span class="tr"><i style="width:72%"></i></span><span class="val">tier 2<small>între 1 și 20</small></span></div>
+    <p class="note">Exemplu de afișare cu nume fictive. Shortlist-urile reale sunt partajate privat cu echipele.</p>
+  </section>
+
+  <section id="product">
+    <h2>Ce primesc echipele</h2>
+    <div class="grid">
+      <div><h3>Scouting</h3><p>Shortlist-uri pentru fiecare rol în LCK, LEC, LCS, LCK CL, NACL, CBLOL, LCP și ligile regionale EMEA. Filtre după ligă, naționalitate, vârstă și meciuri.</p></div>
+      <div><h3>Construirea rosterului</h3><p>Transferuri pentru a câștiga acum și talente de dezvoltat, unele lângă altele, cu un profil pentru fiecare jucător: forma split cu split, profilul statistic și stilul de joc.</p></div>
+      <div><h3>Draft <span>ÎN CURÂND</span></h3><p>Cifrele așteptate pe baza draftului, comparate cu ce au livrat jucătorii.</p></div>
+      <div><h3>Solo queue <span>ÎN CURÂND</span></h3><p>Champion pool, formă și tendințe, alături de prestațiile de pe scenă.</p></div>
+    </div>
+  </section>
+
+  <section id="fit">
+    <h2>Unde se potrivește</h2>
+    <p class="dim">Transferurile se decid la analiza video, la interviuri și la tryout-uri. Flexpick face pasul de dinainte: construiește lista largă într-o oră și îți dă cifrele cu care să o susții în interiorul organizației.</p>
+    <ol class="steps">
+      <li><b>Lista largă</b>Flexpick. Fiecare jucător de pe rol, din toate ligile, pe o singură scară, pe tier-uri.</li>
+      <li><b>Shortlist</b>Tu. Analiză video, referințe, interviuri.</li>
+      <li><b>Tryout-uri</b>Tu. Comunicare, potrivire și cum joacă cineva cu ceilalți patru ai tăi.</li>
+      <li><b>Argumentul</b>Din nou Flexpick. O fișă de o pagină per jucător pentru cei care aprobă semnătura.</li>
+    </ol>
+  </section>
+
+  <section id="tour">
+    <h2>În interiorul produsului</h2>
+    <p class="dim">Ecranele reale, cu nume fictive și toate cifrele acoperite. Echipele cu acces văd jucătorii și valorile.</p>
+    <div class="tour">
+      <div class="pn wide"><span class="kick">Shortlist-uri</span><h3>Fiecare rol, opt regiuni, o singură scară</h3>
+        <div class="fl"><span><b>Rol</b> Top · Jungle · Mid · ADC · Support</span><span><b>Listă</b> Câștigă acum · Dezvoltare</span><span><b>Regiune</b> LCK · LEC · LCS · LCK CL · NACL · CBLOL · LCP · ligi regionale</span><span><b>Ligă</b></span><span><b>Naționalitate</b></span><span><b>Vârsta max.</b></span><span><b>Meciuri min.</b></span><span><b>Jucător sau echipă</b></span></div>
+        <div class="tw"><table class="mt"><thead><tr><th>#</th><th>Jucător</th><th>Naț</th><th>Rez</th><th>Ligă</th><th>Echipă</th><th>Stil</th><th>Tag</th><th>Vârstă</th><th>Meciuri</th><th>Rating</th><th>Interval de loc</th></tr></thead><tbody><tr class="tier"><td colspan="12">Tier 1 · datele nu pot separa jucătorii din același tier</td></tr><tr><td>1</td><td><b>Jucător A</b></td><td>🇫🇷 FR</td><td>EMEA</td><td>Liga 1</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Carry / strongside</td><td>Split pusher</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:64px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr class="tier"><td colspan="12">Tier 2</td></tr><tr><td>2</td><td><b>Jucător B</b><span class="cp">consacrat: 3+ split-uri într-o ligă de top</span></td><td>🇩🇪 DE</td><td>EMEA</td><td>Liga 2</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Echilibrat</td><td>·</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:52px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr><td>3</td><td><b>Jucător C</b></td><td>🇰🇷 KR</td><td>KR</td><td>Liga 1</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Weakside / tank</td><td>Prima linie în teamfight-uri</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:49px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr><td>4</td><td><b>Jucător D</b><span class="cp">eșantion mic</span></td><td>🇵🇱 PL</td><td>EMEA</td><td>Liga 3</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Carry / strongside</td><td>·</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:46px"></i></td><td><i class="rd" style="width:44px"></i></td></tr></tbody></table></div>
+        <p>Naționalitatea și rezidența, echipa, stilul de joc și tag-ul stau lângă fiecare nume. Jucătorii sunt grupați în tier-uri și au un interval de loc în locul unui singur loc.</p></div>
+
+      <div class="pn"><span class="kick">Fișa jucătorului</span><h3>O pagină per jucător</h3>
+        <div class="chips"><span><b>Stil de joc</b> Dominant pe lane</span><span><b>Tag</b> Pick-uri de mage</span><span><b>Încredere</b> Ridicată</span><span><b>Tendință</b> În creștere</span></div>
+        <div class="duo">
+          <svg viewBox="0 0 300 150" role="img" aria-label="Grafic exemplu al unui rating split cu split"><g stroke="#2a2f3a"><line x1="20" x2="290" y1="30" y2="30"/><line x1="20" x2="290" y1="75" y2="75" stroke-dasharray="3 4"/><line x1="20" x2="290" y1="120" y2="120"/></g><polyline fill="none" stroke="#c6f034" stroke-width="2.5" points="30,104 82,92 134,97 186,70 238,56 280,40"/><g fill="#c6f034"><circle cx="30" cy="104" r="4"/><circle cx="82" cy="92" r="4"/><circle cx="134" cy="97" r="4"/><circle cx="186" cy="70" r="4"/><circle cx="238" cy="56" r="4"/><circle cx="280" cy="40" r="4"/></g></svg>
+          <svg viewBox="0 0 200 170" role="img" aria-label="Exemplu de profil statistic"><g fill="none" stroke="#2a2f3a"><polygon points="100,15 165,47 165,117 100,150 35,117 35,47"/><polygon points="100,49 133,65 133,100 100,116 67,100 67,65"/><g><line x1="100" y1="82" x2="100" y2="15"/><line x1="100" y1="82" x2="165" y2="47"/><line x1="100" y1="82" x2="165" y2="117"/><line x1="100" y1="82" x2="100" y2="150"/><line x1="100" y1="82" x2="35" y2="117"/><line x1="100" y1="82" x2="35" y2="47"/></g></g><polygon points="100,24 152,56 141,104 100,128 58,104 48,54" fill="#c6f034" fill-opacity=".22" stroke="#c6f034" stroke-width="2"/></svg>
+        </div>
+        <p>Forma split cu split, profilul statistic față de propria ligă, stilul de joc, încrederea în rating, ratingul așteptat sezonul viitor și jucătorii din ligile de top cu care seamănă profilul lui.</p></div>
+
+      <div class="pn"><span class="kick">Întreabă datele</span><h3>Întrebări în limbaj obișnuit</h3>
+        <div class="bub q">Cei mai buni ADC francezi de cel mult 22 de ani din ligile regionale?</div>
+        <div class="bub a"><i class="rd" style="width:70px"></i> · Liga 1 · tier 2 · <i class="rd" style="width:34px"></i> meciuri<br><i class="rd" style="width:54px"></i> · Liga 2 · tier 3 · <i class="rd" style="width:34px"></i> meciuri · eșantion mic<br><i class="rd" style="width:62px"></i> · Liga 1 · tier 3 · <i class="rd" style="width:34px"></i> meciuri</div>
+        <p>Răspunsurile vin din liste și din nimic altceva, mereu cu tier, interval și meciuri jucate.</p></div>
+
+      <div class="pn"><span class="kick">Forța ligilor</span><h3>Cât de puternică este fiecare ligă și cât de siguri suntem</h3>
+        <div class="lv"><span>Ligă de top (referință)</span><span class="ax"><u style="left:86%"></u></span><span>Divizia a doua A</span><span class="ax"><i style="left:52%;width:16%"></i><u style="left:60%"></u></span><span>Liga regională A</span><span class="ax"><i style="left:38%;width:20%"></i><u style="left:48%"></u></span><span>Liga regională B</span><span class="ax"><i style="left:24%;width:26%"></i><u style="left:37%"></u></span><span>Liga regională C</span><span class="ax"><i style="left:6%;width:34%"></i><u style="left:23%"></u></span></div>
+        <p>Fiecare ligă primește un nivel și o marjă de eroare, pe fiecare rol. Marja intră direct în intervalele de loc când sunt comparați jucători din două ligi.</p></div>
+
+      <div class="pn"><span class="kick">Lista de dezvoltare</span><h3>Talente, cu șanse oneste</h3>
+        <div class="bands"><div><b>Mare</b>bandă de șansă</div><div><b>Realistă</b>bandă de șansă</div><div><b>Posibilă</b>bandă de șansă</div><div><b>Mică</b>bandă de șansă</div></div>
+        <p>Doar talente: cel mult 25 de ani și încă neconsacrați într-o ligă de top. Ordonați după șansa de a ajunge într-o ligă de top în două sezoane și după valoarea așteptată acolo. Șansa este arătată ca bandă, nu ca procent de falsă precizie.</p></div>
+    </div>
+  </section>
+
+  <section class="statement">
+    <h2>Nicio cifră fără mărimea eșantionului.</h2>
+    <p>Fiecare listă arată meciurile pe care se bazează și intervalul de patch-uri. Locurile vin cu tier-uri și intervale, pentru că vecinii dintr-o listă rareori diferă cu adevărat. Când lipsesc date, o spunem.</p>
+  </section>
+
+  <section id="method">
+    <h2>Cum se construiește un rating</h2>
+    <ol class="steps">
+      <li><b>Champion și matchup</b>Fiecare statistică este comparată cu ce produce în mod normal același champion în acel sezon, iar avantajele de pe lane cu matchup-ul exact.</li>
+      <li><b>Ce ține de jucător</b>Statisticile sunt ponderate după cât îl urmează pe jucător la o echipă nouă și merg mână în mână cu rezultatele ulterioare, nu după cum arată pe tabela de scor.</li>
+      <li><b>Forța ligilor</b>Fiecare ligă primește un nivel din felul în care se schimbă cifrele jucătorilor când trec dintr-o ligă în alta și din rezultatele directe dintre ligi. Fiecare nivel are o marjă de eroare.</li>
+      <li><b>Tier-uri și intervale</b>Ratingul devine un tier și un interval de locuri, luate din cât de mult se mișcă în realitate ratingurile de la un sezon la altul.</li>
+    </ol>
+
+  </section>
+
+  <section class="two">
+    <div><h2>La ce folosește</h2><ul class="plain">
+      <li><b>Să decizi la cine te uiți.</b> Un shortlist de dus la analiza video, la interviuri și la tryout-uri.</li>
+      <li><b>Să compari între ligi.</b> Un jucător de ligă regională și unul de ligă de top pe aceeași scară.</li>
+      <li><b>Să pui întrebări mai bune.</b> Unde este un jucător puternic față de propria ligă și unde nu.</li>
+    </ul></div>
+    <div><h2>Ce nu face</h2><ul class="plain">
+      <li><b>Nicio utilizare pentru pariuri sau jocuri de noroc.</b></li>
+      <li><b>Fără date brute de meci.</b> Flexpick arată doar ratinguri derivate.</li>
+      <li><b>Niciun verdict despre o persoană.</b> Nu știe nimic despre comunicare, atitudine, contracte sau cum joacă cineva în scrim-uri.</li>
+      <li><b>Fără LPL și fără solo queue</b> deocamdată.</li>
+    </ul></div>
+  </section>
+
+  <section id="today">
+    <h2>Ce este disponibil azi</h2>
+    <div class="two">
+      <div><ul class="plain">
+        <li><b>Disponibil:</b> cinci roluri, opt regiuni, liste „câștigă acum” și de dezvoltare, o fișă per jucător, forța ligilor cu marje de eroare, întrebări în limbaj obișnuit.</li>
+        <li><b>Date:</b> meciuri profesioniste publice din 2018 până la 10 octombrie 2026.</li>
+        <li><b>Stadiu:</b> previzualizare privată, gratuită pentru echipe și agenții în offseason-ul 2027. Încă nu se vinde nimic.</li>
+      </ul></div>
+      <div><ul class="plain">
+        <li><b>Încă neconstruit:</b> solo queue, ratinguri LPL, un instrument de draft.</li>
+        <li><b>Neacoperit:</b> contracte, salarii, video.</li>
+        <li><b>Cine:</b> construit de Can Gormezano Kasuto în Amsterdam. O singură persoană, deci vorbești cu cel care l-a făcut.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <section id="players">
+    <h2>Pentru jucători</h2>
+    <p class="dim">Flexpick folosește statistici din meciuri profesioniste publice, împreună cu numele din joc, echipa, liga, rolul, naționalitatea și vârsta unui jucător, așa cum sunt publicate. Nu colectează date de contact, conturi private sau nimic din afara jocului profesionist. Ratingurile sunt produse de un model statistic și sunt un element printre multe altele pentru echipele care le citesc; Flexpick nu ia decizii despre nimeni.</p>
+    <p class="dim">Dacă ești jucător și vrei să îți vezi, să îți corectezi sau să îți ștergi datele, ori să te opui folosirii lor, scrie la <a href="mailto:can@flexpick.gg?subject=Player%20data%20request">can@flexpick.gg</a>. Cererile primesc răspuns în termen de o lună și sunt gratuite. Cererile privind jucători sub 18 ani sunt onorate fără a cere motive.</p>
+  </section>
+
+  <section class="contact" id="contact">
+    <h2>Cere acces</h2>
+    <p class="dim">Flexpick este în previzualizare privată pentru echipe profesioniste și agenții de jucători în offseason-ul 2027. Scrie pentru a cere o prezentare sau un shortlist pentru rosterul tău.</p>
+    <a class="mail" href="mailto:can@flexpick.gg?subject=Flexpick%20access">can@flexpick.gg</a>
+  </section>
+
+  <footer>
+    <span>Traducere a paginii în engleză. În caz de îndoială, prevalează versiunea în engleză.</span>
+    <span>© 2026 Flexpick · Amsterdam, Țările de Jos · flexpick.gg</span>
+    <span>Flexpick isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</span>
+  </footer>
+</div>
+</body>
+</html>

@@ -12,13 +12,23 @@
 <link rel="alternate" hreflang="en" href="https://flexpick.gg/">
 <link rel="alternate" hreflang="ko" href="https://flexpick.gg/ko/">
 <link rel="alternate" hreflang="de" href="https://flexpick.gg/de/">
+<link rel="alternate" hreflang="pl" href="https://flexpick.gg/pl/">
 <link rel="alternate" hreflang="tr" href="https://flexpick.gg/tr/">
 <link rel="alternate" hreflang="fr" href="https://flexpick.gg/fr/">
+<link rel="alternate" hreflang="cs" href="https://flexpick.gg/cs/">
 <link rel="alternate" hreflang="pt" href="https://flexpick.gg/pt/">
+<link rel="alternate" hreflang="es" href="https://flexpick.gg/es/">
+<link rel="alternate" hreflang="ar" href="https://flexpick.gg/ar/">
 <link rel="alternate" hreflang="el" href="https://flexpick.gg/el/">
 <link rel="alternate" hreflang="it" href="https://flexpick.gg/it/">
-<link rel="alternate" hreflang="es" href="https://flexpick.gg/es/">
+<link rel="alternate" hreflang="da" href="https://flexpick.gg/da/">
 <link rel="alternate" hreflang="nl" href="https://flexpick.gg/nl/">
+<link rel="alternate" hreflang="vi" href="https://flexpick.gg/vi/">
+<link rel="alternate" hreflang="sr-Latn" href="https://flexpick.gg/sr/">
+<link rel="alternate" hreflang="sv" href="https://flexpick.gg/sv/">
+<link rel="alternate" hreflang="zh-Hant" href="https://flexpick.gg/zh/">
+<link rel="alternate" hreflang="ro" href="https://flexpick.gg/ro/">
+<link rel="alternate" hreflang="sk" href="https://flexpick.gg/sk/">
 <link rel="alternate" hreflang="x-default" href="https://flexpick.gg/">
 <meta name="theme-color" content="#0d0e12">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c6f034'/%3E%3Cpath d='M9 8h14v4.4h-9.4v2.2H22l-1.7 4.3h-6.7V24H9z' fill='%230d0e12'/%3E%3C/svg%3E">
@@ -120,17 +130,18 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
 .langs summary{list-style:none;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:7px 10px;color:var(--ink);background:var(--panel);white-space:nowrap}
 .langs summary::-webkit-details-marker{display:none}
 .langs summary::after{content:" ▾";color:var(--dim)}
-.langs div{position:absolute;right:0;top:calc(100% + 6px);z-index:5;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;display:grid;gap:2px;min-width:150px;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+.langs div{position:absolute;right:0;top:calc(100% + 6px);z-index:5;max-height:70vh;overflow:auto;grid-template-columns:1fr 1fr;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;display:grid;gap:2px;min-width:260px;box-shadow:0 12px 30px rgba(0,0,0,.45)}
 .langs a{padding:7px 10px;border-radius:6px;color:var(--dim);text-decoration:none;white-space:nowrap}
 .langs a:hover{color:var(--ink);background:var(--raise)}
 .langs a[aria-current]{color:var(--lime)}
+@media (max-width:560px){header{position:relative}.langs{position:static}.langs div{left:0!important;right:0!important;top:100%;min-width:0}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <a class="brand" href="#top" id="top"><span class="mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 16 16"><path d="M3 2h10v3.2H6.4v1.7H12l-1.2 3.1H6.4V14H3z" fill="#0d0e12"/></svg></span>flexpick</a>
-    <nav aria-label="Bölümler"><a href="#product">Ürün</a><a href="#tour">Tur</a><a href="#method">Yöntem</a><a href="#players">Oyuncular için</a><a href="#contact">İletişim</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Erişim iste</a><details class="langs"><summary aria-label="Language">Türkçe</summary><div><a href="/" lang="en" hreflang="en">English</a><a href="/ko/" lang="ko" hreflang="ko">한국어</a><a href="/de/" lang="de" hreflang="de">Deutsch</a><a href="/tr/" lang="tr" hreflang="tr" aria-current="page">Türkçe</a><a href="/fr/" lang="fr" hreflang="fr">Français</a><a href="/pt/" lang="pt" hreflang="pt">Português</a><a href="/el/" lang="el" hreflang="el">Ελληνικά</a><a href="/it/" lang="it" hreflang="it">Italiano</a><a href="/es/" lang="es" hreflang="es">Español</a><a href="/nl/" lang="nl" hreflang="nl">Nederlands</a></div></details></nav>
+    <nav aria-label="Bölümler"><a href="#product">Ürün</a><a href="#tour">Tur</a><a href="#method">Yöntem</a><a href="#players">Oyuncular için</a><a href="#contact">İletişim</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Erişim iste</a><details class="langs"><summary aria-label="Language">Türkçe</summary><div><a href="/" lang="en" hreflang="en">English</a><a href="/ko/" lang="ko" hreflang="ko">한국어</a><a href="/de/" lang="de" hreflang="de">Deutsch</a><a href="/pl/" lang="pl" hreflang="pl">Polski</a><a href="/tr/" lang="tr" hreflang="tr" aria-current="page">Türkçe</a><a href="/fr/" lang="fr" hreflang="fr">Français</a><a href="/cs/" lang="cs" hreflang="cs">Čeština</a><a href="/pt/" lang="pt" hreflang="pt">Português</a><a href="/es/" lang="es" hreflang="es">Español</a><a href="/ar/" lang="ar" hreflang="ar">العربية</a><a href="/el/" lang="el" hreflang="el">Ελληνικά</a><a href="/it/" lang="it" hreflang="it">Italiano</a><a href="/da/" lang="da" hreflang="da">Dansk</a><a href="/nl/" lang="nl" hreflang="nl">Nederlands</a><a href="/vi/" lang="vi" hreflang="vi">Tiếng Việt</a><a href="/sr/" lang="sr-Latn" hreflang="sr-Latn">Srpski</a><a href="/sv/" lang="sv" hreflang="sv">Svenska</a><a href="/zh/" lang="zh-Hant" hreflang="zh-Hant">繁體中文</a><a href="/ro/" lang="ro" hreflang="ro">Română</a><a href="/sk/" lang="sk" hreflang="sk">Slovenčina</a></div></details></nav>
   </header>
 
   <section>
@@ -141,7 +152,7 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
   </section>
 
   <section class="sample" aria-label="Örnek kısa liste görünümü">
-    <div class="hd"><h3>Üst koridor kısa listesi, bölgesel ligler</h3><span class="meta">oyuncu başına en az 15 maç · veri tarihi 10 Ekim 2026 · yamalar 15.13 - 16.20</span></div>
+    <div class="hd"><h3>Top lane kısa listesi, bölgesel ligler</h3><span class="meta">oyuncu başına en az 15 maç · veri tarihi 10 Ekim 2026 · patch'ler 15.13 - 16.20</span></div>
     <div class="srow"><span class="i">01</span><span class="nm">Oyuncu A<small>Lig 1 · 120 maç</small></span><span class="tr"><i style="width:92%"></i></span><span class="val">tier 1<small>1 ile 7 arası</small></span></div>
     <div class="srow"><span class="i">02</span><span class="nm">Oyuncu B<small>Lig 1 · 134 maç</small></span><span class="tr"><i style="width:80%"></i></span><span class="val">tier 2<small>1 ile 16 arası</small></span></div>
     <div class="srow"><span class="i">03</span><span class="nm">Oyuncu C<small>Lig 2 · 131 maç</small></span><span class="tr"><i style="width:75%"></i></span><span class="val">tier 2<small>1 ile 16 arası</small></span></div>
@@ -155,17 +166,17 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
       <div><h3>Scouting</h3><p>LCK, LEC, LCS, LCK CL, NACL, CBLOL, LCP ve EMEA bölgesel liglerinde her rol için kısa listeler. Lig, uyruk, yaş ve maç sayısına göre filtreleme.</p></div>
       <div><h3>Kadro kurma</h3><p>Hemen katkı verecek transferler ve gelişim odaklı genç oyuncular yan yana; her oyuncu için bir profil: split split form, istatistik profili ve oyun tarzı.</p></div>
       <div><h3>Draft <span>YAKINDA</span></h3><p>Drafttan beklenen rakamlar, oyuncuların gerçekte ortaya koyduklarıyla karşılaştırılır.</p></div>
-      <div><h3>Solo queue <span>YAKINDA</span></h3><p>Şampiyon havuzu, form ve eğilimler, sahne performansıyla birlikte.</p></div>
+      <div><h3>Solo queue <span>YAKINDA</span></h3><p>Champion pool, form ve eğilimler, sahne performansıyla birlikte.</p></div>
     </div>
   </section>
 
   <section id="fit">
     <h2>Nerede işe yarar</h2>
-    <p class="dim">Transferler video analizinde, görüşmelerde ve denemelerde kararlaştırılır. Flexpick bir önceki adımı yapar: geniş listeyi bir saatte çıkarır ve onu kurum içinde savunmanız için gereken rakamları verir.</p>
+    <p class="dim">Transferler video analizinde, görüşmelerde ve tryout'larda kararlaştırılır. Flexpick bir önceki adımı yapar: geniş listeyi bir saatte çıkarır ve onu kurum içinde savunmanız için gereken rakamları verir.</p>
     <ol class="steps">
       <li><b>Geniş liste</b>Flexpick. Roldeki her oyuncu, tüm liglerden, tek ölçekte, tier tier.</li>
       <li><b>Kısa liste</b>Siz. Video analizi, referanslar, görüşmeler.</li>
-      <li><b>Denemeler</b>Siz. İletişim, uyum ve oyuncunun diğer dört oyuncunuzla nasıl oynadığı.</li>
+      <li><b>Tryouts</b>Siz. İletişim, uyum ve oyuncunun diğer dört oyuncunuzla nasıl oynadığı.</li>
       <li><b>Gerekçe</b>Yine Flexpick. İmzayı onaylayanlar için oyuncu başına tek sayfalık özet.</li>
     </ol>
   </section>
@@ -175,12 +186,12 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
     <p class="dim">Gerçek ekranlar; isimler temsili, tüm rakamlar kapalı. Erişimi olan takımlar oyuncuları ve rakamları görür.</p>
     <div class="tour">
       <div class="pn wide"><span class="kick">Kısa listeler</span><h3>Her rol, sekiz bölge, tek ölçek</h3>
-        <div class="fl"><span><b>Rol</b> Üst · Orman · Orta · ADC · Destek</span><span><b>Liste</b> Hemen kazan · Gelişim</span><span><b>Bölge</b> LCK · LEC · LCS · LCK CL · NACL · CBLOL · LCP · bölgesel ligler</span><span><b>Lig</b></span><span><b>Uyruk</b></span><span><b>En fazla yaş</b></span><span><b>En az maç</b></span><span><b>Oyuncu veya takım</b></span></div>
-        <div class="tw"><table class="mt"><thead><tr><th>#</th><th>Oyuncu</th><th>Uyr</th><th>İkm</th><th>Lig</th><th>Takım</th><th>Tarz</th><th>Etiket</th><th>Yaş</th><th>Maç</th><th>Puan</th><th>Sıra aralığı</th></tr></thead><tbody><tr class="tier"><td colspan="12">Tier 1 · veriler aynı tier içindeki oyuncuları birbirinden ayıramaz</td></tr><tr><td>1</td><td><b>Oyuncu A</b></td><td>🇫🇷 FR</td><td>EMEA</td><td>Lig 1</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Carry / strongside</td><td>Split pusher</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:64px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr class="tier"><td colspan="12">Tier 2</td></tr><tr><td>2</td><td><b>Oyuncu B</b><span class="cp">yerleşik: üst düzey bir ligde 3+ split</span></td><td>🇩🇪 DE</td><td>EMEA</td><td>Lig 2</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Dengeli</td><td>·</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:52px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr><td>3</td><td><b>Oyuncu C</b></td><td>🇰🇷 KR</td><td>KR</td><td>Lig 1</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Weakside / tank</td><td>Takım savaşında ön hat</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:49px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr><td>4</td><td><b>Oyuncu D</b><span class="cp">küçük örneklem</span></td><td>🇵🇱 PL</td><td>EMEA</td><td>Lig 3</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Carry / strongside</td><td>·</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:46px"></i></td><td><i class="rd" style="width:44px"></i></td></tr></tbody></table></div>
+        <div class="fl"><span><b>Rol</b> Top · Jungle · Mid · ADC · Support</span><span><b>Liste</b> Hemen kazan · Gelişim</span><span><b>Bölge</b> LCK · LEC · LCS · LCK CL · NACL · CBLOL · LCP · bölgesel ligler</span><span><b>Lig</b></span><span><b>Uyruk</b></span><span><b>En fazla yaş</b></span><span><b>En az maç</b></span><span><b>Oyuncu veya takım</b></span></div>
+        <div class="tw"><table class="mt"><thead><tr><th>#</th><th>Oyuncu</th><th>Uyr</th><th>İkm</th><th>Lig</th><th>Takım</th><th>Tarz</th><th>Etiket</th><th>Yaş</th><th>Maç</th><th>Puan</th><th>Sıra aralığı</th></tr></thead><tbody><tr class="tier"><td colspan="12">Tier 1 · veriler aynı tier içindeki oyuncuları birbirinden ayıramaz</td></tr><tr><td>1</td><td><b>Oyuncu A</b></td><td>🇫🇷 FR</td><td>EMEA</td><td>Lig 1</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Carry / strongside</td><td>Split pusher</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:64px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr class="tier"><td colspan="12">Tier 2</td></tr><tr><td>2</td><td><b>Oyuncu B</b><span class="cp">yerleşik: üst düzey bir ligde 3+ split</span></td><td>🇩🇪 DE</td><td>EMEA</td><td>Lig 2</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Dengeli</td><td>·</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:52px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr><td>3</td><td><b>Oyuncu C</b></td><td>🇰🇷 KR</td><td>KR</td><td>Lig 1</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Weakside / tank</td><td>Teamfight'ta ön hat</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:49px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr><td>4</td><td><b>Oyuncu D</b><span class="cp">küçük örneklem</span></td><td>🇵🇱 PL</td><td>EMEA</td><td>Lig 3</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Carry / strongside</td><td>·</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:46px"></i></td><td><i class="rd" style="width:44px"></i></td></tr></tbody></table></div>
         <p>Uyruk ve yerleşiklik, takım, oyun tarzı ve etiket her ismin yanında durur. Oyuncular tier olarak gruplanır ve tek bir sıra yerine bir sıra aralığı taşır.</p></div>
 
       <div class="pn"><span class="kick">Oyuncu sayfası</span><h3>Her oyuncuya bir sayfa</h3>
-        <div class="chips"><span><b>Oyun tarzı</b> Koridorda baskın</span><span><b>Etiket</b> Büyücü seçimleri</span><span><b>Güven</b> Yüksek</span><span><b>Eğilim</b> Yükselişte</span></div>
+        <div class="chips"><span><b>Oyun tarzı</b> Lane'de baskın</span><span><b>Etiket</b> Mage pickleri</span><span><b>Güven</b> Yüksek</span><span><b>Eğilim</b> Yükselişte</span></div>
         <div class="duo">
           <svg viewBox="0 0 300 150" role="img" aria-label="Split split puan için örnek grafik"><g stroke="#2a2f3a"><line x1="20" x2="290" y1="30" y2="30"/><line x1="20" x2="290" y1="75" y2="75" stroke-dasharray="3 4"/><line x1="20" x2="290" y1="120" y2="120"/></g><polyline fill="none" stroke="#c6f034" stroke-width="2.5" points="30,104 82,92 134,97 186,70 238,56 280,40"/><g fill="#c6f034"><circle cx="30" cy="104" r="4"/><circle cx="82" cy="92" r="4"/><circle cx="134" cy="97" r="4"/><circle cx="186" cy="70" r="4"/><circle cx="238" cy="56" r="4"/><circle cx="280" cy="40" r="4"/></g></svg>
           <svg viewBox="0 0 200 170" role="img" aria-label="Örnek istatistik profili"><g fill="none" stroke="#2a2f3a"><polygon points="100,15 165,47 165,117 100,150 35,117 35,47"/><polygon points="100,49 133,65 133,100 100,116 67,100 67,65"/><g><line x1="100" y1="82" x2="100" y2="15"/><line x1="100" y1="82" x2="165" y2="47"/><line x1="100" y1="82" x2="165" y2="117"/><line x1="100" y1="82" x2="100" y2="150"/><line x1="100" y1="82" x2="35" y2="117"/><line x1="100" y1="82" x2="35" y2="47"/></g></g><polygon points="100,24 152,56 141,104 100,128 58,104 48,54" fill="#c6f034" fill-opacity=".22" stroke="#c6f034" stroke-width="2"/></svg>
@@ -204,13 +215,13 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
 
   <section class="statement">
     <h2>Örneklem büyüklüğü olmadan rakam yok.</h2>
-    <p>Her liste, kapsadığı maçları ve yama aralığını gösterir. Sıralar tier ve aralıklarla gelir, çünkü listede komşu iki oyuncu arasındaki fark çoğu zaman gerçek değildir. Veri eksikse bunu söyleriz.</p>
+    <p>Her liste, kapsadığı maçları ve patch aralığını gösterir. Sıralar tier ve aralıklarla gelir, çünkü listede komşu iki oyuncu arasındaki fark çoğu zaman gerçek değildir. Veri eksikse bunu söyleriz.</p>
   </section>
 
   <section id="method">
     <h2>Bir puan nasıl oluşur</h2>
     <ol class="steps">
-      <li><b>Şampiyon ve eşleşme</b>Her istatistik, aynı şampiyonun o sezon normalde ürettiğiyle; koridor üstünlükleri ise tam eşleşmeyle karşılaştırılır.</li>
+      <li><b>Champion ve matchup</b>Her istatistik, aynı champion'ın o sezon normalde ürettiğiyle; lane üstünlükleri ise tam matchup'la karşılaştırılır.</li>
       <li><b>Oyuncuya ait olan</b>İstatistikler, skor tablosunda nasıl göründüklerine göre değil, oyuncuyu yeni takımına takip edip etmediklerine ve sonraki sonuçlarla birlikte gidip gitmediklerine göre ağırlıklandırılır.</li>
       <li><b>Lig gücü</b>Her lig, oyuncuların lig değiştirdiğinde rakamlarının nasıl değiştiğinden ve ligler arası karşılaşmaların sonuçlarından bir seviye alır. Her seviyenin bir hata payı vardır.</li>
       <li><b>Tier ve aralıklar</b>Puan bir tier ve bir sıra aralığına dönüşür; aralık, puanların bir sezondan diğerine gerçekte ne kadar oynadığından çıkarılır.</li>
@@ -220,7 +231,7 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
 
   <section class="two">
     <div><h2>Ne işe yarar</h2><ul class="plain">
-      <li><b>Kime bakılacağına karar vermek.</b> Video analizine, görüşmelere ve denemelere götürülecek bir kısa liste.</li>
+      <li><b>Kime bakılacağına karar vermek.</b> Video analizine, görüşmelere ve tryout'lara götürülecek bir kısa liste.</li>
       <li><b>Ligler arası karşılaştırma.</b> Bölgesel lig oyuncusu ile üst lig oyuncusu tek ölçekte.</li>
       <li><b>Daha iyi sorular sormak.</b> Bir oyuncunun kendi ligine göre nerede güçlü olduğu, nerede olmadığı.</li>
     </ul></div>
