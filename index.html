@@ -11,8 +11,14 @@
 <meta property="og:url" content="https://flexpick.gg/">
 <link rel="alternate" hreflang="en" href="https://flexpick.gg/">
 <link rel="alternate" hreflang="ko" href="https://flexpick.gg/ko/">
+<link rel="alternate" hreflang="de" href="https://flexpick.gg/de/">
+<link rel="alternate" hreflang="tr" href="https://flexpick.gg/tr/">
 <link rel="alternate" hreflang="fr" href="https://flexpick.gg/fr/">
+<link rel="alternate" hreflang="pt" href="https://flexpick.gg/pt/">
+<link rel="alternate" hreflang="el" href="https://flexpick.gg/el/">
+<link rel="alternate" hreflang="it" href="https://flexpick.gg/it/">
 <link rel="alternate" hreflang="es" href="https://flexpick.gg/es/">
+<link rel="alternate" hreflang="nl" href="https://flexpick.gg/nl/">
 <link rel="alternate" hreflang="x-default" href="https://flexpick.gg/">
 <meta name="theme-color" content="#0d0e12">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c6f034'/%3E%3Cpath d='M9 8h14v4.4h-9.4v2.2H22l-1.7 4.3h-6.7V24H9z' fill='%230d0e12'/%3E%3C/svg%3E">
@@ -110,17 +116,21 @@ ul.plain b{color:var(--ink);font-weight:600}
 footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:8px}
 @media (max-width:560px){.srow{grid-template-columns:22px minmax(0,1fr) 104px}.srow .tr{display:none}.brand{font-size:21px}.wrap{gap:44px}}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-.langs{display:flex;gap:2px;font:500 12px var(--mono)}
-.langs a{padding:4px 7px;border-radius:6px;color:var(--dim);text-decoration:none}
-.langs a:hover{color:var(--ink)}
-.langs a[aria-current]{color:var(--ink);background:var(--panel);border:1px solid var(--line)}
+.langs{position:relative;font:500 13px var(--body)}
+.langs summary{list-style:none;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:7px 10px;color:var(--ink);background:var(--panel);white-space:nowrap}
+.langs summary::-webkit-details-marker{display:none}
+.langs summary::after{content:" ▾";color:var(--dim)}
+.langs div{position:absolute;right:0;top:calc(100% + 6px);z-index:5;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;display:grid;gap:2px;min-width:150px;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+.langs a{padding:7px 10px;border-radius:6px;color:var(--dim);text-decoration:none;white-space:nowrap}
+.langs a:hover{color:var(--ink);background:var(--raise)}
+.langs a[aria-current]{color:var(--lime)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <a class="brand" href="#top" id="top"><span class="mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 16 16"><path d="M3 2h10v3.2H6.4v1.7H12l-1.2 3.1H6.4V14H3z" fill="#0d0e12"/></svg></span>flexpick</a>
-    <nav aria-label="Sections"><a href="#product">Product</a><a href="#tour">Tour</a><a href="#method">Method</a><a href="#players">For players</a><a href="#contact">Contact</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Request access</a><span class="langs" aria-label="Language"><a href="/" lang="en" aria-current="page">EN</a><a href="/ko/" lang="ko">한국어</a><a href="/fr/" lang="fr">FR</a><a href="/es/" lang="es">ES</a></span></nav>
+    <nav aria-label="Sections"><a href="#product">Product</a><a href="#tour">Tour</a><a href="#method">Method</a><a href="#players">For players</a><a href="#contact">Contact</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Request access</a><details class="langs"><summary aria-label="Language">English</summary><div><a href="/" lang="en" hreflang="en" aria-current="page">English</a><a href="/ko/" lang="ko" hreflang="ko">한국어</a><a href="/de/" lang="de" hreflang="de">Deutsch</a><a href="/tr/" lang="tr" hreflang="tr">Türkçe</a><a href="/fr/" lang="fr" hreflang="fr">Français</a><a href="/pt/" lang="pt" hreflang="pt">Português</a><a href="/el/" lang="el" hreflang="el">Ελληνικά</a><a href="/it/" lang="it" hreflang="it">Italiano</a><a href="/es/" lang="es" hreflang="es">Español</a><a href="/nl/" lang="nl" hreflang="nl">Nederlands</a></div></details></nav>
   </header>
 
   <section>
