@@ -14,6 +14,41 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
+/* Product tour: layouts only. Player names are placeholders and every number is covered. */
+.tour{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.pn{grid-column:span 6;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.pn.wide{grid-column:span 12}
+.pn h3{font:700 18px var(--display);font-stretch:112%;margin:0}
+.pn>p{margin:0;color:var(--dim);font-size:14.5px;max-width:70ch}
+.kick{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--lime)}
+.rd{display:inline-block;height:9px;border-radius:5px;background:var(--line);vertical-align:middle}
+.rd.l{background:var(--lime);opacity:.85}
+.fl{display:flex;flex-wrap:wrap;gap:6px}
+.fl span{font:500 11px var(--mono);border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--dim)} .fl span b{color:var(--ink);font-weight:500}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.mt{border-collapse:collapse;width:100%;font-size:13.5px;min-width:720px}
+.mt th{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.mt td{padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.mt tr:last-child td{border-bottom:0}
+.mt .tier td{font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);background:var(--raise);padding:5px 10px}
+.mt b{font-weight:700}
+.cp{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line);padding:1px 6px;margin-left:8px;border-radius:4px}
+.lg{display:inline-block;width:16px;height:16px;border-radius:4px;background:var(--raise);border:1px solid var(--line);vertical-align:-3px;margin-right:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{font:500 11px var(--mono);border:1px solid var(--line);border-radius:5px;padding:2px 8px} .chips span b{color:var(--dim);font-weight:500}
+.duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:center}
+.pn svg{width:100%;height:auto;display:block}
+.bub{border-radius:12px;padding:10px 14px;font-size:14.5px;max-width:62ch}
+.bub.q{background:var(--raise);align-self:flex-end}
+.bub.a{border:1px solid var(--line);line-height:1.9}
+.lv{display:grid;grid-template-columns:150px 1fr;gap:8px 12px;align-items:center;font:500 12px var(--mono);color:var(--dim)}
+.lv .ax{position:relative;height:14px}
+.lv .ax::before{content:"";position:absolute;left:0;right:0;top:6px;height:2px;background:var(--line)}
+.lv .ax i{position:absolute;top:4px;height:6px;border-radius:3px;background:var(--lime);opacity:.35}
+.lv .ax u{position:absolute;top:1px;width:12px;height:12px;border-radius:50%;background:var(--lime);margin-left:-6px}
+.bands{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.bands div{background:var(--panel);padding:12px;font-size:13px;color:var(--dim)} .bands b{display:block;color:var(--ink);font:700 15px var(--display);margin-bottom:4px}
+@media (max-width:820px){.pn{grid-column:span 12}.bands{grid-template-columns:repeat(2,1fr)}.lv{grid-template-columns:110px 1fr}}
 /* Public one-page site. Flexpick brand: near-black, lime, Archivo wide, JetBrains Mono. No player names, no ratings, no scripts. */
 :root{color-scheme:dark;--bg:#0d0e12;--panel:#161920;--raise:#1e222b;--line:#2a2f3a;--ink:#edf0e9;--dim:#9aa1ab;--lime:#c6f034;--lime-ink:#0d0e12;
   --display:"Archivo","Arial Black","Helvetica Neue",Arial,sans-serif;--body:"Archivo","Helvetica Neue",Arial,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
@@ -76,7 +111,7 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
 <div class="wrap">
   <header>
     <a class="brand" href="#top" id="top"><span class="mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 16 16"><path d="M3 2h10v3.2H6.4v1.7H12l-1.2 3.1H6.4V14H3z" fill="#0d0e12"/></svg></span>flexpick</a>
-    <nav aria-label="Sections"><a href="#product">Product</a><a href="#method">Method</a><a href="#players">For players</a><a href="#contact">Contact</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Request access</a></nav>
+    <nav aria-label="Sections"><a href="#product">Product</a><a href="#tour">Tour</a><a href="#method">Method</a><a href="#players">For players</a><a href="#contact">Contact</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Request access</a></nav>
   </header>
 
   <section>
@@ -87,7 +122,7 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
   </section>
 
   <section class="sample" aria-label="Sample layout of a shortlist">
-    <div class="hd"><h3>Top lane shortlist, regional leagues</h3><span class="meta">min 20 games per player · data to 10 October 2026 · patches 15.13 to 16.20</span></div>
+    <div class="hd"><h3>Top lane shortlist, regional leagues</h3><span class="meta">min 15 games per player · data to 10 October 2026 · patches 15.13 to 16.20</span></div>
     <div class="srow"><span class="i">01</span><span class="nm">Player A<small>League 1 · 120 games</small></span><span class="tr"><i style="width:92%"></i></span><span class="val">tier 1<small>could be 1 to 7</small></span></div>
     <div class="srow"><span class="i">02</span><span class="nm">Player B<small>League 1 · 134 games</small></span><span class="tr"><i style="width:80%"></i></span><span class="val">tier 2<small>could be 1 to 16</small></span></div>
     <div class="srow"><span class="i">03</span><span class="nm">Player C<small>League 2 · 131 games</small></span><span class="tr"><i style="width:75%"></i></span><span class="val">tier 2<small>could be 1 to 16</small></span></div>
@@ -102,6 +137,38 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
       <div><h3>Roster building</h3><p>Win now signings and developmental prospects side by side, with a profile per player: form split by split, stat profile and playstyle.</p></div>
       <div><h3>Draft <span>SOON</span></h3><p>Expected numbers from the draft, compared with what players delivered.</p></div>
       <div><h3>Solo queue <span>SOON</span></h3><p>Champion pool, form and trends alongside stage performance.</p></div>
+    </div>
+  </section>
+
+  <section id="tour">
+    <h2>Inside the product</h2>
+    <p class="dim">The real screens, with placeholder names and every number covered. Teams with access see the players and the figures.</p>
+    <div class="tour">
+      <div class="pn wide"><span class="kick">Shortlists</span><h3>Every role, eight regions, one scale</h3>
+        <div class="fl"><span><b>Role</b> Top · Jungle · Mid · ADC · Support</span><span><b>List</b> Win now · Developmental</span><span><b>Region</b> LCK · LEC · LCS · LCK CL · NACL · CBLOL · LCP · regional leagues</span><span><b>League</b></span><span><b>Nationality</b></span><span><b>Max age</b></span><span><b>Min games</b></span><span><b>Player or team</b></span></div>
+        <div class="tw"><table class="mt"><thead><tr><th>#</th><th>Player</th><th>Nat</th><th>Res</th><th>League</th><th>Team</th><th>Style</th><th>Tag</th><th>Age</th><th>Games</th><th>Rating</th><th>Rank range</th></tr></thead><tbody><tr class="tier"><td colspan="12">Tier 1 · the data cannot separate players inside a tier</td></tr><tr><td>1</td><td><b>Player A</b></td><td>🇫🇷 FR</td><td>EMEA</td><td>League 1</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Carry / strongside</td><td>Split pusher</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:64px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr class="tier"><td colspan="12">Tier 2</td></tr><tr><td>2</td><td><b>Player B</b><span class="cp">established: 3+ splits in a top league</span></td><td>🇩🇪 DE</td><td>EMEA</td><td>League 2</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Balanced</td><td>·</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:52px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr><td>3</td><td><b>Player C</b></td><td>🇰🇷 KR</td><td>KR</td><td>League 1</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Weakside / tank</td><td>Teamfight front line</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:49px"></i></td><td><i class="rd" style="width:44px"></i></td></tr><tr><td>4</td><td><b>Player D</b><span class="cp">small sample</span></td><td>🇵🇱 PL</td><td>EMEA</td><td>League 3</td><td><span class="lg"></span><i class="rd" style="width:26px"></i></td><td>Carry / strongside</td><td>·</td><td><i class="rd" style="width:16px"></i></td><td><i class="rd" style="width:22px"></i></td><td><i class="rd l" style="width:46px"></i></td><td><i class="rd" style="width:44px"></i></td></tr></tbody></table></div>
+        <p>Nationality and residency, team, playstyle and tag sit next to every name. Players are grouped in tiers and carry a rank range instead of a single rank.</p></div>
+
+      <div class="pn"><span class="kick">Player sheet</span><h3>One page per player</h3>
+        <div class="chips"><span><b>Playstyle</b> Lane dominant</span><span><b>Tag</b> Mage picks</span><span><b>Confidence</b> High</span><span><b>Trend</b> Rising</span></div>
+        <div class="duo">
+          <svg viewBox="0 0 300 150" role="img" aria-label="Sample chart of a rating split by split"><g stroke="#2a2f3a"><line x1="20" x2="290" y1="30" y2="30"/><line x1="20" x2="290" y1="75" y2="75" stroke-dasharray="3 4"/><line x1="20" x2="290" y1="120" y2="120"/></g><polyline fill="none" stroke="#c6f034" stroke-width="2.5" points="30,104 82,92 134,97 186,70 238,56 280,40"/><g fill="#c6f034"><circle cx="30" cy="104" r="4"/><circle cx="82" cy="92" r="4"/><circle cx="134" cy="97" r="4"/><circle cx="186" cy="70" r="4"/><circle cx="238" cy="56" r="4"/><circle cx="280" cy="40" r="4"/></g></svg>
+          <svg viewBox="0 0 200 170" role="img" aria-label="Sample stat profile"><g fill="none" stroke="#2a2f3a"><polygon points="100,15 165,47 165,117 100,150 35,117 35,47"/><polygon points="100,49 133,65 133,100 100,116 67,100 67,65"/><g><line x1="100" y1="82" x2="100" y2="15"/><line x1="100" y1="82" x2="165" y2="47"/><line x1="100" y1="82" x2="165" y2="117"/><line x1="100" y1="82" x2="100" y2="150"/><line x1="100" y1="82" x2="35" y2="117"/><line x1="100" y1="82" x2="35" y2="47"/></g></g><polygon points="100,24 152,56 141,104 100,128 58,104 48,54" fill="#c6f034" fill-opacity=".22" stroke="#c6f034" stroke-width="2"/></svg>
+        </div>
+        <p>Form split by split, a stat profile against his own league, playstyle, confidence in the rating, the expected rating next season and the top-league players his profile resembles.</p></div>
+
+      <div class="pn"><span class="kick">Ask the data</span><h3>Questions in plain language</h3>
+        <div class="bub q">Best French ADCs aged 22 or under in the regional leagues?</div>
+        <div class="bub a"><i class="rd" style="width:70px"></i> · League 1 · tier 2 · <i class="rd" style="width:34px"></i> games<br><i class="rd" style="width:54px"></i> · League 2 · tier 3 · <i class="rd" style="width:34px"></i> games · small sample<br><i class="rd" style="width:62px"></i> · League 1 · tier 3 · <i class="rd" style="width:34px"></i> games</div>
+        <p>Answers are read from the lists and nothing else, always with tier, range and games played.</p></div>
+
+      <div class="pn"><span class="kick">League strength</span><h3>How strong is each league, and how sure are we</h3>
+        <div class="lv"><span>Top league (reference)</span><span class="ax"><u style="left:86%"></u></span><span>Second division A</span><span class="ax"><i style="left:52%;width:16%"></i><u style="left:60%"></u></span><span>Regional league A</span><span class="ax"><i style="left:38%;width:20%"></i><u style="left:48%"></u></span><span>Regional league B</span><span class="ax"><i style="left:24%;width:26%"></i><u style="left:37%"></u></span><span>Regional league C</span><span class="ax"><i style="left:6%;width:34%"></i><u style="left:23%"></u></span></div>
+        <p>Every league gets a level and an error range, per role. The range feeds straight into the rank ranges when players from two leagues are compared.</p></div>
+
+      <div class="pn"><span class="kick">Developmental list</span><h3>Prospects, with honest odds</h3>
+        <div class="bands"><div><b>Strong</b>chance band</div><div><b>Realistic</b>chance band</div><div><b>Possible</b>chance band</div><div><b>Long shot</b>chance band</div></div>
+        <p>Prospects only: not over 25 and not yet established in a top league. Ranked on the chance of reaching a top league within two seasons and the expected value once there. The chance is shown as a band, not as a false-precision percentage.</p></div>
     </div>
   </section>
 
