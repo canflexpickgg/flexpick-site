@@ -135,8 +135,8 @@ dialog::backdrop{background:rgba(5,6,9,.66)}
 .sample .hd{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:baseline;margin-bottom:8px}
 .sample h3{font:700 19px var(--display);font-stretch:112%;margin:0}
 .sample .meta{font:12px var(--mono);color:var(--dim)}
-.srow{display:grid;grid-template-columns:28px minmax(0,150px) 1fr 108px;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);font-size:15px}
-.srow .i{font:12px var(--mono);color:var(--dim)} .srow .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .srow .nm small{display:block;font:12px var(--mono);color:var(--dim);font-weight:400}
+.srow{display:grid;grid-template-columns:28px minmax(0,230px) 1fr 108px;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);font-size:15px}
+.srow .i{font:12px var(--mono);color:var(--dim)} .srow .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .srow.go{cursor:pointer} .srow.go:hover .nm{color:var(--lime)} .srow.go:focus-visible{outline:2px solid var(--lime);outline-offset:2px} .srow .nm small{display:block;font:12px var(--mono);color:var(--dim);font-weight:400}
 .srow .tr{height:5px;border-radius:3px;background:var(--raise);position:relative} .srow .tr i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--lime)}
 .dots{display:flex;gap:6px;justify-content:center;padding-top:12px;border-top:1px solid var(--line)}
 .dots button{width:22px;height:6px;border-radius:3px;border:0;background:var(--raise);cursor:pointer;padding:0}
@@ -296,6 +296,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   $('heroLists').addEventListener('click', go('lists')); $('heroMethod').addEventListener('click', go('method'));
   const mail = 'mailto:' + (D.contact||'') + '?subject=' + encodeURIComponent('Flexpick access');
   ['navAccess','heroAccess','mailLink'].forEach(id => { $(id).href = mail; }); $('mailLink').textContent = D.contact || '';
+  if(!M){ $('navAccess').style.display = 'none'; $('heroAccess').style.display = 'none'; const c = document.querySelector('.contact'); if(c){ c.querySelector('h3').textContent = 'Questions and feedback'; c.querySelector('p').textContent = 'Write for a walkthrough, a shortlist built for your roster, or to flag a player whose place looks wrong.'; $('mailLink').href = 'mailto:' + (D.contact||'') + '?subject=' + encodeURIComponent('Flexpick feedback'); } }
 
   const reg = () => { const R = D.roles[S.role]; return R.regions.find(r=>r.name===S.region) || R.regions[0]; };
   function fill(keepRegion){
@@ -530,14 +531,16 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   }
   function homeDraw(){
     const SL = homeSlides(); if(!SL.length) return; homeI = ((homeI % SL.length) + SL.length) % SL.length; const {rk, R, g, kind} = SL[homeI], dev = kind==='dev';
-    const list = (M && g.home) ? g.home[kind].map((p,i)=>Object.assign({rk:i+1}, p)) : (dev ? g.dev : g.win).filter(p=>(p.a!=null || p.ab) && !(M && p.nm)).slice(0,5), val = p => M ? 100 - (p.rk-1)*9 : (dev ? p.ds : p.cb), mx = Math.max(...list.map(val), 0.01), mn = (dev || M) ? 0 : Math.min(0, ...g.win.slice(0,60).map(p=>p.cb));
+    const list = (M && g.home) ? g.home[kind].map((p,i)=>Object.assign({rk:i+1}, p)) : (dev ? g.dev : g.win).filter(p=>!(M && p.nm)).slice(0,5), val = p => M ? 100 - (p.rk-1)*9 : (dev ? p.ds : p.cb), mx = Math.max(...list.map(val), 0.01), mn = (dev || M) ? 0 : Math.min(0, ...g.win.slice(0,60).map(p=>p.cb));
     $('homeSample').innerHTML = `<div class="hd"><h3>${esc(R.label)} shortlist, ${esc(g.name)}, ${dev?'developmental':'win now'}</h3><span class="meta">${(dev?g.dev:g.win).length} players · min ${D.min_games} games · patches ${esc(D.patches)} · data to ${fmtDate(D.data_cutoff)}</span></div>`
-      + list.map(p=>`<div class="srow"><span class="i">${String(p.rk).padStart(2,'0')}</span><span class="nm">${esc(p.p||'Name hidden')}<small>${M ? (p.nm ? esc(p.l)+' · named sample' : esc(p.l || p.c || (p.ab ? 'age '+p.ab : '') || p.st || p.tg || '')) : esc(p.l)+' · '+p.g+' games'+(p.a!=null?' · age '+p.a:'')}</small></span><span class="tr"><i style="width:${Math.max(4,Math.round(100*(val(p)-mn)/(mx-mn)))}%"></i></span><span class="val">${(M&&p.nm)?'·<small>numbers hidden</small>':`${M?'tier '+p.ti:(dev?num(p.ds,0):num(p.cb))}<small>${dev?((M?'':'tier '+p.ti+' · ')+(p.bd?esc(p.bd).toLowerCase():'')):((M?'':'tier '+p.ti+' · ')+p.lo+' to '+p.hi)}</small>`}</span></div>`).join('')
+      + list.map(p=>`<div class="srow${M?'':' go'}"${M?'':` data-hi="${(dev?g.dev:g.win).indexOf(p)}" tabindex="0" role="button" aria-label="Open ${esc(p.p||'')}"`}><span class="i">${String(p.rk).padStart(2,'0')}</span><span class="nm">${esc(p.p||'Name hidden')}<small>${M ? (p.nm ? esc(p.l)+' · named sample' : esc(p.l || p.c || (p.ab ? 'age '+p.ab : '') || p.st || p.tg || '')) : esc(p.l)+' · '+p.g+' games'+(p.a!=null?' · age '+p.a:' · age unknown')}</small></span><span class="tr"><i style="width:${Math.max(4,Math.round(100*(val(p)-mn)/(mx-mn)))}%"></i></span><span class="val">${(M&&p.nm)?'·<small>numbers hidden</small>':`${M?'tier '+p.ti:(dev?num(p.ds,0):num(p.cb))}<small>${dev?((M?'':'tier '+p.ti+' · ')+(p.bd?esc(p.bd).toLowerCase():'')):((M?'':'tier '+p.ti+' · ')+p.lo+' to '+p.hi)}</small>`}</span></div>`).join('')
       + `<div class="dots" role="group" aria-label="Choose a sample list">${SL.map((x,i)=>`<button type="button" data-i="${i}" aria-pressed="${i===homeI}" title="${esc(x.R.label)} ${x.kind==='dev'?'developmental':'win now'}"></button>`).join('')}</div>`
       + `<p class="note">${M?'The real top five of this list. Names are hidden; where a name is shown, his numbers are hidden. ':'Live from the current build. '}${M?'':dev?'The right column is the Developmental score, the tier and the Chance band.':'The right column is the Combined rating, the tier, and where he could sit on this list next season.'} ${M?'Open the shortlists to filter every role and region.':'Open the shortlists for every role, region and player profile.'}</p>`;
   }
   function homeAuto(on){ clearInterval(homeT); homeT = null; if(on && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) homeT = setInterval(() => { if(S.page==='home' && !document.hidden){ homeI++; homeDraw(); } }, 6000); }
-  $('homeSample').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b){ homeI = +b.dataset.i; homeDraw(); homeAuto(false); } });
+  const homeOpen = el => { const x = homeSlides()[homeI]; if(!x || M) return; S.role = x.rk; S.view = x.kind; S.region = x.g.name; S.sort = null; fill(); render(); homeAuto(false); openCard(+el.dataset.hi); };
+  $('homeSample').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b){ homeI = +b.dataset.i; homeDraw(); homeAuto(false); return; } const r = e.target.closest('.srow[data-hi]'); if(r) homeOpen(r); });
+  $('homeSample').addEventListener('keydown', e => { const r = e.target.closest('.srow[data-hi]'); if(r && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); homeOpen(r); } });
   $('homeSample').addEventListener('mouseenter', () => homeAuto(false)); $('homeSample').addEventListener('mouseleave', () => homeAuto(true));
   function home(){
     homeDraw(); homeAuto(true);
