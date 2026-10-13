@@ -467,47 +467,50 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     return `In the retrospective check, ${esc(region)} prospects in this band reached a top league within two seasons ${num(r['share who reached %'],0)}% of the time (${r['player seasons']} player seasons, 2019 to 2024).`;
   }
   function openCard(i){
-    if(isPast()){ const R=D.roles[S.role], g=reg(), dev=S.view==='dev', p=(dev?g.dev:g.win)[i]; if(!p) return;
-      const live = D.roles[S.role].regions.flatMap(r=>r.win).find(x=>x.p===p.p);
-      const kv = [['League, '+(S.year-1),p.l],['Team, '+(S.year-1),p.t],['Age mid-'+S.year,p.a==null?'Unknown':p.a],['Games',p.g],['Combined then',num(p.cb)],...(p.ds!=null?[['Developmental score then',num(p.ds,0)],['Chance then',(p.bd||'')+(p.ch!=null?' · '+p.ch:'')]]:[]),['Next season',p.nl?p.nl+(p.nt?' · '+p.nt:''):'No league games next season'],['Top league (10+ games)',p.ys?'After '+p.ys+' season'+(p.ys>1?'s':''):p.in?'Already in one':'Not yet']];
-      $('card').innerHTML = `<div class="top"><div><h2 id="cardName">${esc(p.p)}</h2><p class="sub">${esc(R.label)} · roster year ${S.year} backtest · ${dev?'developmental':'win now'} list #${p.rk}, tier ${p.ti}</p></div><button type="button" class="x" id="closeCard">Close</button></div><dl class="kv">${kv.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v==null?'·':v)}</dd>`).join('')}</dl><p class="note">Built in 2026 with today's formulas and only the matches up to the end of ${S.year-1}. A simulation with hindsight, not a live track record.</p>${live?'<div><button type="button" class="btn go" id="toLive">Open his '+LIVE+' profile</button></div>':''}`;
-      $('closeCard').onclick = () => $('dlg').close();
-      if(live) $('toLive').onclick = () => { const r = D.roles[S.role].regions.find(r=>r.win.includes(live)); $('dlg').close(); S.region = r.name; S.view = 'win'; setYear(LIVE); openCard(r.win.indexOf(live)); };
-      $('dlg').showModal(); return; }
     if(M){ const R=D.roles[S.role], g=reg(), p=(S.view==='dev'?g.dev:g.win)[i]||{}; $('card').innerHTML = `<div class="top"><div><h2 id="cardName">${esc(p.p||'Name hidden')}</h2><p class="sub">${p.p ? esc(R.label+' · '+p.l+' · '+(p.t||''))+'. One of the named sample players. On this public page a name is never shown next to a number: his tier, rank range and full player sheet are in the private preview.' : 'Names, teams, ratings and the full player sheet are in the private preview.'}</p></div><button type="button" class="x" id="closeCard">Close</button></div><p style="margin:0">This public page shows the real lists. ${esc(D.sample_rule||'')} Teams and agencies can ask for access to every name and profile.</p><div><a class="btn go" href="${esc(mail)}">Request access</a></div><p class="note">${esc(D.contact||'')}</p>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); return; }
     const R=D.roles[S.role], g=reg(), dev=S.view==='dev', list = dev?g.dev:g.win, p=list[i]; if(!p) return;
+    const past = isPast(), Y = past ? S.year : D.roster_year, SY = Y - 1;
     const other = (dev?g.win:g.dev).find(x=>x.p===p.p && x.t===p.t && x.l===p.l);
     const win = dev?other:p, dv = dev?p:other;
-    const kv = [['Team, most games',p.t],['Latest team',p.lt],['Age mid-'+D.roster_year,p.a==null?'Unknown: the age rule could not be checked':p.a],['Residency',p.r||'Unknown'],['Country',p.c||'Unknown'],
+    const kv = past ? [['Team, most games '+SY,p.t],['Age mid-'+Y,p.a==null?'Unknown: the age rule could not be checked':p.a],['Residency (today)',p.r||'Unknown'],['Country',p.c||'Unknown'],['Win rate '+SY,p.w==null?'·':p.w+'%']] : [['Team, most games',p.t],['Latest team',p.lt],['Age mid-'+D.roster_year,p.a==null?'Unknown: the age rule could not be checked':p.a],['Residency',p.r||'Unknown'],['Country',p.c||'Unknown'],
       ['Win rate',p.w==null?'·':p.w+'%'],['Other leagues '+D.season,p.o||'None'],...(p.cls?[['Playstyle',p.cls]]:[]),...(p.n?[['Prospect status','Not listed as a developmental prospect ('+(NOTE[p.n]||p.n)+'). A split is one league split with 3 or more games played, not a year.']]:[])];
-    const pf = p.k ? P[S.role+'|'+p.k] : null, pc = (pf && pf.c) || {};
+    const pf = past ? pastProf(p, SY) : (p.k ? P[S.role+'|'+p.k] : null), pc = (pf && pf.c) || {};
     const chips = [['Playstyle',pc.style||p.cls],['Tag',pc.tag],['Confidence',pc.conf],['Trend',pc.trend]].filter(x=>x[1]).map(x=>`<span><b>${esc(x[0])}</b> ${esc(x[1])}</span>`).join('');
     if(pc.next!=null) kv.push(['Expected next season', `Combined ${num(pc.next)} plus or minus ${num(pc.pm)}` + (pc.why ? ` (${pc.why})` : '')]);
     const tiles = [
-      ['Win now', win ? `#${win.rk}<small>could be ${win.lo} to ${win.hi} · tier ${win.ti}</small>` : '·'],
+      ['Win now', win ? (past ? `#${win.rk}<small>tier ${win.ti}</small>` : `#${win.rk}<small>could be ${win.lo} to ${win.hi} · tier ${win.ti}</small>`) : '·'],
       ['Combined', num(p.cb)],
       [g.devKind==='war'?'Expected value':'Developmental', dv ? (g.devKind==='war' ? `${num(dv.xw,1)}<small>#${dv.rk} · tier ${dv.ti}</small>` : `#${dv.rk}<small>score ${num(dv.ds,0)} · tier ${dv.ti}</small>`) : '·<small>not on that list</small>'],
       ['Chance', p.ch==null ? '·<small>prospects only</small>' : `${esc(p.bd)}<small>band of ${num(p.ch,0)}</small>`],
     ];
     // rank among players of his role in his league, and among players of his nationality (all regions), by Combined
     const rankIn = arr => { const v = arr.filter(x => typeof x.cb==='number'); return {r:1+v.filter(x => x.cb>p.cb).length, n:v.length}; };
-    const lgR = rankIn(g.win.filter(x => x.l===p.l)), seenK = {}, allRole = []; R.regions.forEach(rg => rg.win.forEach(x => { const id = x.k||(x.p+'|'+x.t); if(!seenK[id]){ seenK[id]=1; allRole.push(x); } }));
+    const lgR = rankIn(g.win.filter(x => x.l===p.l)), seenK = {}, allRole = []; regs().forEach(rg => rg.win.forEach(x => { const id = x.k||(x.p+'|'+x.t); if(!seenK[id]){ seenK[id]=1; allRole.push(x); } }));
     tiles.push(['In '+p.l, `#${lgR.r} of ${lgR.n}<small>${esc(R.label.toLowerCase())} players in his league</small>`]);
     if(p.c){ const nR = rankIn(allRole.filter(x => x.c===p.c)); tiles.push([p.c, `#${nR.r} of ${nR.n}<small>${esc(R.label.toLowerCase())} players of his nationality, all regions</small>`]); } else tiles.push(['Nationality', '·<small>unknown, no nation rank</small>']);
     $('card').innerHTML = `
-      <div class="top"><div><h2 id="cardName">${esc(p.p)}</h2><p class="sub">${esc(R.label)} · ${esc(p.l)} · ${esc(p.t)}${R.beta?' · beta formula':''}</p>${chips?`<div class="chips">${chips}</div>`:''}</div><button type="button" class="x" id="closeCard">Close</button></div>
+      <div class="top"><div><h2 id="cardName">${esc(p.p)}</h2><p class="sub">${esc(R.label)} · ${esc(p.l)} · ${esc(p.t)}${past?` · <b>roster year ${Y} backtest</b>, as he looked after the ${SY} season`:''}${R.beta?' · beta formula':''}</p>${chips?`<div class="chips">${chips}</div>`:''}</div><button type="button" class="x" id="closeCard">Close</button></div>
       <dl class="big">${tiles.map(([a,b])=>`<div><dt>${esc(a)}</dt><dd>${b}</dd></div>`).join('')}</dl>
       <p class="note" style="margin-top:-8px">League and nation ranks use the Combined rating and count listed players only (${D.min_games}+ games, LPL not rated). Neighbours are rarely a real difference: read them with the tier.</p>
       <div><h3 class="sec">Rating build-up</h3>${bar('Elo, career head to head',p.e)}${bar('In-league rating',p.wi)}
-        <p class="note">Score ${num(p.s)} = in-league rating ${num(p.wi)} + league level ${num(p.lv)} (${esc(p.l)}${(R.levels&&R.levels[p.l]&&R.levels[p.l][1]!==R.levels[p.l][2])?`, could be ${num(R.levels[p.l][1],1)} to ${num(R.levels[p.l][2],1)}`:''}; the average LEC ${esc(R.label.toLowerCase())} is 0). The level moves every player of the league together. Combined puts Elo and Score on one scale first, so it is not their plain average.</p></div>
+        <p class="note">Score ${num(p.s)} = in-league rating ${num(p.wi)} + league level ${num(p.lv)} (${esc(p.l)}${(!past&&R.levels&&R.levels[p.l]&&R.levels[p.l][1]!==R.levels[p.l][2])?`, could be ${num(R.levels[p.l][1],1)} to ${num(R.levels[p.l][2],1)}`:''}; the average LEC ${esc(R.label.toLowerCase())} is 0). The level moves every player of the league together. Combined puts Elo and Score on one scale first, so it is not their plain average.</p></div>
       <div><h3 class="sec">${esc(R.label)} profile against his own league</h3>${R.blocks.map((b,j)=> b ? bar(b,p.b?p.b[j]:null) : '').join('')}
         <p class="note">Bars run from −3.5 to +3.5. Zero is the average ${esc(R.label.toLowerCase())} in ${esc(p.l)}. A profile inside one league depends partly on his team.</p></div>
       ${pf ? spark(pf.s) + radar(pf.rd, R.label) + similar(pf.sm) : ''}
       ${p.ch!=null ? `<p class="note"><b>Chance band: ${esc(p.bd).toLowerCase()}</b> (model value ${num(p.ch,0)}). ${calText(g.name, p.ch)} The share swings from year to year with the number of top league seats that open. It does not know his contract, buyout or residency.</p>` : ''}
       <dl class="kv">${kv.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>
-      <div class="foot">Sample ${p.g} games in ${esc(p.l)}, season ${D.season} · data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)}</div>`;
+      ${past ? `<div><h3 class="sec">What happened next</h3><dl class="kv"><dt>Next season (${Y})</dt><dd>${esc(p.nl ? p.nl+(p.nt?' · '+p.nt:'') : 'No league games')}</dd><dt>Top league (10+ games)</dt><dd>${p.ys ? 'After '+p.ys+' season'+(p.ys>1?'s':'') : p.in ? 'Already in one' : 'Not yet'}</dd></dl></div>` : ''}
+      <div class="foot">${past ? `Sample ${p.g} games in ${esc(p.l)}, season ${SY}. Backtest: built in 2026 with today's formulas and only the matches played up to the end of ${SY}; the split chart and stat profile stop there too. A simulation with hindsight, not a live track record.` : `Sample ${p.g} games in ${esc(p.l)}, season ${D.season} · data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)}`}</div>
+      ${past && liveOf(p) ? `<div><button type="button" class="btn go" id="toLive">Open his ${LIVE} profile</button></div>` : ''}`;
     $('closeCard').onclick = () => $('dlg').close();
+    if(past && $('toLive')) $('toLive').onclick = () => { const lv = liveOf(p), r = D.roles[S.role].regions.find(r=>r.win.includes(lv)); $('dlg').close(); S.region = r.name; S.view = 'win'; setYear(LIVE); openCard(r.win.indexOf(lv)); };
     $('dlg').showModal();
+  }
+  function liveOf(p){ return D.roles[S.role].regions.flatMap(r=>r.win).find(x => (p.k && x.k===p.k) || (!p.k && x.p===p.p)); }
+  function pastProf(p, SY){      // his history cut at the season shown: split chart, season list and stat profile only use what was known then
+    const v = p.k && window.FLEXPICK_HISTORY && window.FLEXPICK_HISTORY.prof[S.role+'|'+p.k]; if(!v) return null;
+    const rd = (v.rd||[]).filter(x => x[0] <= SY);
+    return {s: v.s.filter(x => x[0] <= SY).slice(-9), y: v.y.filter(x => x[0] <= SY), rd: rd.length ? rd[rd.length-1] : null};
   }
   $('dlg').addEventListener('click', e => { if(e.target===$('dlg')) $('dlg').close(); });
 
