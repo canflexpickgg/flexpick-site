@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flexpick · Live preview</title>
+<meta name="description" content="A live look at Flexpick shortlists: real lists, sample names only, every other name hidden.">
+<link rel="canonical" href="https://flexpick.gg/preview/">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: Flexpick brand (near-black, lime, Archivo wide, JetBrains Mono). One working surface: identity strip with the build stamp,
+   role tabs, one filter rail, a tiered table, a side sheet per player. A second view carries the method and the evidence. */
+:root{
+  color-scheme:dark;
+  --bg:#0d0e12; --panel:#161920; --raise:#1e222b; --line:#2a2f3a;
+  --ink:#edf0e9; --dim:#9aa1ab; --lime:#c6f034; --lime-ink:#0d0e12; --accent-text:#c6f034;
+  --up:#7fd6a0; --down:#ef8f7f;
+  --display:"Archivo","Arial Black","Helvetica Neue",Arial,sans-serif;
+  --body:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  color-scheme:light;
+  --bg:#f3f4ee; --panel:#ffffff; --raise:#e9ebe2; --line:#d5d8cc;
+  --ink:#0d0e12; --dim:#5a606b; --lime:#c6f034; --lime-ink:#0d0e12; --accent-text:#4a6100;
+  --up:#1c7a4a; --down:#b3402f;
+}}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f3f4ee; --panel:#ffffff; --raise:#e9ebe2; --line:#d5d8cc;
+  --ink:#0d0e12; --dim:#5a606b; --lime:#c6f034; --lime-ink:#0d0e12; --accent-text:#4a6100;
+  --up:#1c7a4a; --down:#b3402f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body)}
+.wrap{max-width:1320px;margin:0 auto;padding-inline:20px;padding-block:18px 56px;display:flex;flex-direction:column;gap:16px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+header{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;margin:0;font:800 24px/1 var(--display);font-stretch:118%;letter-spacing:-.01em}
+.mark{width:28px;height:28px;border-radius:7px;background:var(--lime);display:grid;place-items:center}
+.mark svg{display:block}
+nav{display:flex;gap:4px}
+nav button{background:transparent;border:1px solid transparent;border-radius:8px;padding:7px 12px;font-weight:600;font-size:14px;color:var(--dim);cursor:pointer}
+nav button[aria-current="page"]{color:var(--ink);border-color:var(--line);background:var(--panel)}
+.stamp{font:12px var(--mono);color:var(--dim);display:flex;flex-wrap:wrap;gap:4px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding-block:8px}
+.stamp b{color:var(--ink);font-weight:500}
+.preview{font:12px var(--mono);color:var(--lime-ink);background:var(--lime);padding:2px 8px;border-radius:4px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tabs button,.seg button{font:700 14px var(--display);font-stretch:112%;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 16px;cursor:pointer;color:var(--dim);display:flex;gap:8px;align-items:center}
+.tabs button[aria-selected="true"],.seg button[aria-pressed="true"]{background:var(--lime);border-color:var(--lime);color:var(--lime-ink)}
+.beta{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1px solid currentColor;border-radius:4px;padding:0 4px}
+.bar{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.seg{display:flex;gap:6px}
+.seg button{padding:7px 12px;font-size:13px}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f label,.f .lab{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.f select,.f input{font:14px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);padding:7px 9px;border-radius:8px;max-width:100%}
+.f input[type=number]{width:84px}.f input[type=search]{width:170px}
+.chk{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--dim);padding-bottom:7px}
+.lede{margin:0;max-width:78ch;color:var(--dim);font-size:14px}
+.lede b{color:var(--ink);font-weight:600}
+.warn{border:1px solid var(--line);border-left:3px solid var(--lime);background:var(--panel);padding:10px 14px;border-radius:8px;font-size:14px;max-width:90ch}
+.count{font:12px var(--mono);color:var(--dim)}
+.tablebox{overflow-x:auto;border:1px solid var(--line);background:var(--panel);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{background:var(--raise);padding:0}
+th button{all:unset;box-sizing:border-box;display:block;width:100%;padding:9px 10px;font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--dim);cursor:pointer}
+th.n button{text-align:right}
+th[aria-sort] button{color:var(--ink)}
+th[aria-sort="descending"] button::after{content:" ▾";color:var(--accent-text)}
+th[aria-sort="ascending"] button::after{content:" ▴";color:var(--accent-text)}
+th button:focus-visible{outline:2px solid var(--lime);outline-offset:-2px}
+td.n{text-align:right;font:13px var(--mono);font-variant-numeric:tabular-nums}
+td.key{font-weight:500;color:var(--accent-text)}
+td.pl{font-weight:700}
+tbody tr.row{cursor:pointer}
+tbody tr.row:hover{background:var(--raise)}
+tr.tier td{background:var(--bg);font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--dim);padding:6px 10px}
+tr.tier td b{color:var(--accent-text);font-weight:500}
+.neg{color:var(--down)} .pos{color:var(--up)}
+.chip{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line);padding:1px 6px;margin-left:8px;border-radius:4px}
+.band{font:500 11px var(--mono);letter-spacing:.04em;border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--ink)}
+.band.b3,.band.b2{border-color:var(--accent-text);color:var(--accent-text)}
+.rr{color:var(--dim)} .iso{font:11px var(--mono);color:var(--dim)}
+.empty{padding:28px;text-align:center;color:var(--dim)}
+dialog{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:0;width:min(680px,calc(100vw - 32px));max-height:calc(100vh - 48px);border-radius:14px}
+dialog::backdrop{background:rgba(5,6,9,.66)}
+.card{padding:22px;display:flex;flex-direction:column;gap:16px}
+.card h2{font:800 28px/1.05 var(--display);font-stretch:118%;margin:0;overflow-wrap:anywhere}
+.card .sub{color:var(--dim);font-size:14px;margin:6px 0 0}
+.card .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.x{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;background:transparent;color:var(--dim);border:1px solid var(--line);padding:6px 10px;cursor:pointer;border-radius:8px}
+.big{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:0}
+.big div{background:var(--panel);padding:10px 12px}
+.big dt{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.big dd{margin:3px 0 0;font:500 19px var(--mono);font-variant-numeric:tabular-nums}
+.big dd small{display:block;font-size:11px;color:var(--dim);margin-top:2px}
+.sec{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
+.rowbar{display:grid;grid-template-columns:minmax(0,170px) 1fr 52px;gap:10px;align-items:center;font-size:14px;margin-bottom:6px}
+.track{position:relative;height:10px;background:var(--raise);border-radius:2px}
+.track::before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--dim)}
+.track i{position:absolute;top:0;bottom:0;background:var(--lime)}
+.track i.neg-b{background:var(--down)}
+.rowbar .v{font:13px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.kv{display:grid;grid-template-columns:minmax(0,150px) 1fr;gap:5px 10px;font-size:14px;margin:0}
+.kv dt{color:var(--dim)} .kv dd{margin:0;overflow-wrap:anywhere}
+.foot{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);padding-top:10px}
+.note{font-size:12.5px;color:var(--dim);margin:6px 0 0}
+/* method view */
+.method{display:flex;flex-direction:column;gap:26px;max-width:920px}
+.method h2{font:800 30px/1.1 var(--display);font-stretch:118%;margin:0;text-wrap:balance}
+.method h3{font:700 18px/1.2 var(--display);font-stretch:110%;margin:0 0 8px}
+.method p,.method li{max-width:70ch}
+.method p{margin:0 0 10px}
+.method ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.statement{background:var(--lime);color:var(--lime-ink);border-radius:14px;padding:20px 22px}
+.statement h3{font-size:22px}
+.statement p{margin:0;max-width:75ch}
+.mbox{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.mbox table{font-size:13.5px}
+.mbox th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);padding:9px 10px;background:var(--raise)}
+.mbox td.you{font-weight:700}
+.hbar{display:inline-block;height:8px;background:var(--dim);border-radius:2px;vertical-align:middle;margin-right:8px}
+.hbar.me{background:var(--lime)}
+/* home view */
+.home{display:flex;flex-direction:column;gap:34px;padding-top:18px}
+.eyebrow{font:500 12px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--accent-text);margin:0 0 12px}
+.hero h2{font:800 clamp(34px,6.2vw,68px)/1.02 var(--display);font-stretch:122%;letter-spacing:-.015em;margin:0;max-width:16ch;text-wrap:balance}
+.hero p.lead{color:var(--dim);font-size:clamp(16px,1.6vw,19px);max-width:56ch;margin:18px 0 0}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.btn{font:700 15px var(--body);border-radius:10px;padding:12px 18px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;text-decoration:none;display:inline-block}
+.btn.go{background:var(--lime);border-color:var(--lime);color:var(--lime-ink)}
+.sample{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px}
+.sample .hd{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:baseline;margin-bottom:8px}
+.sample h3{font:700 19px var(--display);font-stretch:112%;margin:0}
+.sample .meta{font:12px var(--mono);color:var(--dim)}
+.srow{display:grid;grid-template-columns:28px minmax(0,150px) 1fr 108px;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);font-size:15px}
+.srow .i{font:12px var(--mono);color:var(--dim)} .srow .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .srow .nm small{display:block;font:12px var(--mono);color:var(--dim);font-weight:400}
+.srow .tr{height:5px;border-radius:3px;background:var(--raise);position:relative} .srow .tr i{position:absolute;inset:0 auto 0 0;border-radius:3px;background:var(--lime)}
+.dots{display:flex;gap:6px;justify-content:center;padding-top:12px;border-top:1px solid var(--line)}
+.dots button{width:22px;height:6px;border-radius:3px;border:0;background:var(--raise);cursor:pointer;padding:0}
+.dots button[aria-pressed="true"]{background:var(--lime)}
+.sample{min-height:440px}
+.srow .val{font:500 13px var(--mono);text-align:right} .srow .val small{display:block;color:var(--dim);font-size:11px}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.feat div{border:1px solid var(--line);border-radius:14px;padding:18px;background:var(--bg)}
+.feat h3{font:700 17px var(--display);font-stretch:110%;margin:0 0 6px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.feat h3 span{font:500 10px var(--mono);letter-spacing:.12em;color:var(--accent-text)}
+.feat p{margin:0;color:var(--dim);font-size:14px}
+.statement.big{padding:34px 30px} .statement.big h3{font:800 clamp(26px,3.6vw,38px)/1.05 var(--display);font-stretch:120%;margin:0 0 12px;max-width:18ch}
+.evi{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.evi div{background:var(--panel);padding:22px}
+.evi b{display:block;font:800 clamp(38px,5vw,56px)/1 var(--display);font-stretch:120%}
+.evi div.me{background:var(--lime);color:var(--lime-ink)} .evi span{display:block;margin-top:8px;font-size:14.5px} .evi small{display:block;margin-top:6px;font:12px var(--mono);opacity:.75}
+.home h3.h{font:800 26px/1.1 var(--display);font-stretch:118%;margin:0 0 10px}
+.home p.t{color:var(--dim);max-width:70ch;margin:0 0 12px}
+.contact{border:1px solid var(--line);border-radius:16px;padding:26px;background:var(--panel)}
+.contact a.mail{font:500 18px var(--mono);color:var(--accent-text)}
+/* six tiles on the player sheet: three across, two on a phone */
+.card .big{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:560px){.card .big{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* profile parts of the player sheet */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips span{font:500 11px var(--mono);letter-spacing:.04em;border:1px solid var(--line);border-radius:5px;padding:2px 8px;color:var(--ink)}
+.chips span b{color:var(--dim);font-weight:500}
+.viz{display:block;width:100%;height:auto}
+.viz text{font:10px var(--mono);fill:var(--dim)} .viz .v{fill:var(--ink)}
+.ask [hidden]{display:none!important}
+.tlogo{width:18px;height:18px;object-fit:contain;vertical-align:-4px;margin-right:6px}
+.ask{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.ask form{display:flex;gap:8px;flex-wrap:wrap}
+.ask input{flex:1 1 260px;min-width:0;font:14px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);padding:9px 11px;border-radius:8px}
+.ask .eg{display:flex;flex-wrap:wrap;gap:6px}
+.ask .eg button{font:12px var(--mono);color:var(--dim);background:transparent;border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer}
+.ask .eg button:hover{color:var(--ink)}
+.ask .ans{white-space:pre-wrap;font-size:14.5px;line-height:1.55;max-width:90ch}
+.ask .st{font:12px var(--mono);color:var(--dim)}
+.slist{list-style:none;margin:8px 0 0;padding:0;font:12.5px var(--mono);color:var(--dim);display:flex;flex-direction:column;gap:3px}
+.slist b{color:var(--ink);font-weight:500}
+footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px;max-width:100ch}
+@media (max-width:560px){.srow{grid-template-columns:22px minmax(0,1fr) 92px}.srow .tr{display:none}.brand{font-size:21px}.f input[type=search]{width:140px}.card h2{font-size:24px}}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1 class="brand"><span class="mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 2h10v3.2H6.4v2.2H12v3.1H6.4V14H3z" fill="#0d0e12"/></svg></span>flexpick</h1>
+    <nav aria-label="Views">
+      <button type="button" id="navHome" aria-current="page">Product</button>
+      <button type="button" id="navLists">Shortlists</button>
+      <button type="button" id="navMethod">Method and evidence</button>
+      <a class="btn go" id="navAccess" style="padding:7px 14px;font-size:14px;margin-left:6px" href="#">Request access</a>
+    </nav>
+  </header>
+  <div class="stamp" id="stamp"></div>
+
+  <section id="viewHome" class="home">
+    <div class="hero">
+      <p class="eyebrow">Pro esports analytics for teams</p>
+      <h2>Find the player before the market does.</h2>
+      <p class="lead">Flexpick ranks League of Legends players across leagues with league strength built in, so a strong number in a weak league is never mistaken for the real thing.</p>
+      <div class="cta"><a class="btn go" id="heroAccess" href="#">Request access</a><button type="button" class="btn" id="heroLists">Open the shortlists</button><button type="button" class="btn" id="heroMethod">See the method</button></div>
+    </div>
+    <div class="sample" id="homeSample"></div>
+    <div class="feat">
+      <div><h3>Scouting</h3><p>Every role, eight regions. Each stat is compared with the same champion and matchup, then placed on one scale across leagues.</p></div>
+      <div><h3>Roster building</h3><p>Win now signings and developmental prospects side by side, with a profile per player: split by split form, stat profile, playstyle.</p></div>
+      <div><h3>Draft <span>SOON</span></h3><p>Expected numbers from the draft, compared with what players delivered.</p></div>
+      <div><h3>Solo queue <span>SOON</span></h3><p>Champion pool, form and trends alongside stage performance.</p></div>
+    </div>
+    <div class="statement big"><h3>No number without its sample size.</h3><p>Every list shows the games it covers and the patch range. Ranks come with tiers and ranges, because neighbours on a list are rarely a real difference. When the data is missing, we say so.</p></div>
+    <div><h3 class="h">Checked against simple rules</h3><p class="t" id="eviLead"></p><div class="evi" id="homeEvi"></div><p class="note" id="eviNote"></p></div>
+    <div class="contact"><h3 class="h">Request access</h3><p class="t">Flexpick is in private preview for teams and agencies during the 2027 off-season. Write to ask for a walkthrough or a shortlist for your roster.</p><a class="mail" id="mailLink" href="#"></a></div>
+  </section>
+
+  <section id="viewLists" style="display:none" hidden>
+    <div class="tabs" role="tablist" aria-label="Role" id="tabs"></div>
+
+    <div class="bar">
+      <div class="f"><span class="lab" id="lblList">List</span>
+        <div class="seg" id="view" role="group" aria-labelledby="lblList">
+          <button type="button" data-v="win" aria-pressed="true">Win now</button>
+          <button type="button" data-v="dev" aria-pressed="false">Developmental</button>
+        </div>
+      </div>
+      <div class="f"><label for="fRegion">Region</label><select id="fRegion"></select></div>
+      <div class="f" id="fLeagueBox"><label for="fLeague">League</label><select id="fLeague"></select></div>
+      <div class="f"><label for="fCountry">Nationality</label><select id="fCountry"></select></div>
+      <div class="f"><label for="fAge">Max age</label><input id="fAge" type="number" min="16" max="40" placeholder="any"></div>
+      <div class="f"><label for="fGames">Min games</label><input id="fGames" type="number" min="20" step="5"></div>
+      <div class="f"><label for="fSearch">Player or team</label><input id="fSearch" type="search" placeholder="Search"></div>
+      <label class="chk"><input id="fUnknown" type="checkbox"> Show players of unknown age</label>
+    </div>
+
+    <div class="ask" id="ask">
+      <span class="lab">Ask the data</span>
+      <form id="askForm"><input id="askQ" type="text" maxlength="300" autocomplete="off" placeholder="For example: French ADCs under 22 in the regional leagues" aria-label="Question about the lists"><button type="submit" class="btn go" id="askGo" style="padding:8px 16px;font-size:14px">Ask</button><button type="button" class="btn" id="askStop" style="padding:8px 14px;font-size:14px" hidden>Stop</button></form>
+      <div class="eg" id="askEg"></div>
+      <div class="st" id="askSt" aria-live="polite" hidden></div>
+      <div class="ans" id="askA" hidden></div>
+      <div class="st">No AI is involved. The box reads your question as filters on the lists of this page, so it cannot invent a player or a number. The table below is filtered the same way.</div>
+    </div>
+
+    <p class="lede" id="question"></p>
+    <div class="warn" id="betaNote" hidden></div>
+    <div class="count" id="count" aria-live="polite"></div>
+    <div class="warn" id="smallNote" hidden></div>
+    <div class="tablebox"><table id="tbl"><thead></thead><tbody></tbody></table><div class="empty" id="empty" hidden>No players match these filters. Lower the minimum games, clear the league or nationality, or show players of unknown age.</div></div>
+  </section>
+
+  <section id="viewMethod" class="method" hidden></section>
+
+  <footer>
+    <span id="footStamp"></span>
+    <span>Private preview. Do not forward or republish. Ratings are opinions derived from public match statistics; they are a shortlist aid, not a recommendation to sign anyone.</span>
+    <span>Flexpick isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</span>
+  </footer>
+</div>
+
+<dialog id="dlg" aria-labelledby="cardName"><div class="card" id="card"></div></dialog>
+
+<script src="data.js"></script>
+<script src="profiles.js"></script>
+<script src="logos.js"></script>
+<script>
+(function(){
+  const D = window.FLEXPICK_DATA;
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  if(!D || !D.roles || !Object.keys(D.roles).length){ $('count').textContent = 'The data file did not load. Check that data.js sits next to this page.'; return; }
+  const has = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
+  const fmtDate = s => { const d = new Date(s+'T12:00:00'); return isNaN(d) ? esc(s) : d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); };
+  const num = (v,d=2) => (typeof v==='number' && isFinite(v)) ? v.toFixed(d) : '·';
+  const P = window.FLEXPICK_PROFILES || {};
+  const LOGO = window.FLEXPICK_LOGOS || {};
+  const M = !!D.masked;      // public build: names, teams and exact ratings are not in the data file at all
+  const S = {role:Object.keys(D.roles)[0], view:'win', region:'ERL', sort:null, dir:1, page:'home'};
+  try{ const h = location.hash.slice(1); if(h==='method') S.page='method'; else if(has(D.roles,h)){ S.role = h; S.page='lists'; } }catch(e){}
+  try{ if(localStorage.getItem('fp_unknown')==='1') $('fUnknown').checked = true; }catch(e){}
+
+  const stamp = `<span class="preview">${M?'Public preview · sample names only':'Private preview'}</span><span>Data to <b>${fmtDate(D.data_cutoff)}</b></span><span>Patches <b>${esc(D.patches)}</b></span><span>Build <b>${fmtDate(D.build_date)}</b></span><span>Min <b>${D.min_games}</b> games per player</span><span>Roster year <b>${D.roster_year}</b></span>`;
+  $('stamp').innerHTML = stamp;
+  $('footStamp').textContent = `Flexpick build ${D.build_date} · games up to ${D.data_cutoff} · season ${D.season} patches ${D.patches} · ${D.games_in_data.toLocaleString('en-GB')} games in the data, ${D.season_games.toLocaleString('en-GB')} this season`;
+  $('fGames').value = D.min_games; $('fGames').min = D.min_games;
+
+  $('tabs').innerHTML = Object.keys(D.roles).map(k => `<button type="button" role="tab" data-r="${esc(k)}">${esc(D.roles[k].label)}${D.roles[k].beta?'<span class="beta">beta</span>':''}</button>`).join('');
+  $('tabs').addEventListener('click', e => { const b = e.target.closest('button[data-r]'); if(b){ S.role=b.dataset.r; S.sort=null; fill(); render(); }});
+  $('view').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(b){ S.view=b.dataset.v; S.sort=null; render(); }});
+  $('fRegion').addEventListener('change', () => { S.region=$('fRegion').value; S.sort=null; fill(true); render(); });
+  ['fLeague','fCountry','fAge','fGames','fSearch'].forEach(id => $(id).addEventListener('input', render));
+  $('fUnknown').addEventListener('change', () => { try{ localStorage.setItem('fp_unknown', $('fUnknown').checked?'1':'0'); }catch(e){} render(); });
+  const go = pg => () => { S.page=pg; show(); window.scrollTo(0,0); };
+  $('navHome').addEventListener('click', go('home')); $('navLists').addEventListener('click', go('lists')); $('navMethod').addEventListener('click', go('method'));
+  $('heroLists').addEventListener('click', go('lists')); $('heroMethod').addEventListener('click', go('method'));
+  const mail = 'mailto:' + (D.contact||'') + '?subject=' + encodeURIComponent('Flexpick access');
+  ['navAccess','heroAccess','mailLink'].forEach(id => { $(id).href = mail; }); $('mailLink').textContent = D.contact || '';
+
+  const reg = () => { const R = D.roles[S.role]; return R.regions.find(r=>r.name===S.region) || R.regions[0]; };
+  function fill(keepRegion){
+    const R = D.roles[S.role];
+    if(!keepRegion){ $('fRegion').innerHTML = R.regions.map(r=>`<option value="${esc(r.name)}">${esc(r.name)}</option>`).join(''); if(!R.regions.some(r=>r.name===S.region)) S.region = R.regions[0].name; $('fRegion').value = S.region; }
+    const g = reg(), c = {}; g.win.forEach(p => c[p.l]=(c[p.l]||0)+1); const ks = Object.keys(c).sort();
+    $('fLeagueBox').hidden = ks.length < 2;
+    $('fLeague').innerHTML = '<option value="">All leagues</option>' + ks.map(l=>`<option value="${esc(l)}">${esc(l)} (${c[l]})</option>`).join('');
+    const n = {}; let unk = 0; g.win.forEach(p => { if(p.c) n[p.c]=(n[p.c]||0)+1; else unk++; }); const cs = Object.keys(n).sort((a,b)=>n[b]-n[a]||a.localeCompare(b)), was = $('fCountry').value;
+    $('fCountry').innerHTML = '<option value="">All nationalities</option>' + cs.map(x=>`<option value="${esc(x)}">${esc(x)} (${n[x]})</option>`).join('') + (unk ? `<option value="__unknown">Unknown (${unk})</option>` : '');
+    if(was && [...$('fCountry').options].some(o=>o.value===was)) $('fCountry').value = was;
+  }
+
+  function cols(){
+    const R = D.roles[S.role], g = reg(), dev = S.view==='dev', war = dev && g.devKind==='war';
+    const base = [
+      {k:'rk',l:'#',n:1,get:p=>p.rk,d:0,asc:1},
+      {k:'p',l:'Player',get:p=>p.p||'Name hidden',cls:'pl'},
+      {k:'c',l:'Nat',get:p=>p.c,flag:1},
+      {k:'r',l:'Res',get:p=>p.r,res:1},
+      ...(g.name==='ERL' ? [{k:'l',l:'League',get:p=>p.l}] : []),
+      {k:'t',l:'Team',get:p=>p.tc||p.t,team:1},
+      {k:'st',l:'Style',get:p=>style(p)},
+      {k:'tg',l:'Tag',get:p=>tagOf(p)},
+      {k:'a',l:'Age',n:1,get:p=>p.a!=null?p.a:(p.amax||null),d:0,asc:1,age:1},
+      {k:'g',l:'Games',n:1,get:p=>p.g,d:0,games:1},
+    ];
+    const key = !dev ? [{k:'cb',l:'Combined',n:1,get:p=>p.cb,key:1},{k:'rr',l:'Rank range',n:1,get:p=>p.lo,range:1,asc:1}]
+      : war ? [{k:'xw',l:'Expected value',n:1,get:p=>p.xw,d:1,key:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}]
+      : [{k:'ds',l:'Dev score',n:1,get:p=>p.ds,d:0,key:1},{k:'ch',l:'Chance',n:1,get:p=>p.ch,band:1},{k:'xw',l:'Expected value',n:1,get:p=>p.xw,d:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}];
+    const rest = [
+      {k:'e',l:'Elo',n:1,get:p=>p.e,sign:1},
+      {k:'s',l:'Score',n:1,get:p=>p.s,sign:1},
+      {k:'wi',l:'In league',n:1,get:p=>p.wi,sign:1},
+      {k:'lv',l:'Lg level',n:1,get:p=>p.lv},
+      ...R.blocks.map((b,i)=> b ? {k:'b'+i,l:b,n:1,get:p=>p.b?p.b[i]:null,sign:1} : null).filter(Boolean),
+    ];
+    if(M) return [...base.filter(c=>c.k!=='r'), ...(!dev ? [{k:'rr',l:'Rank range',n:1,get:p=>p.lo,range:1,asc:1,key:1}] : war ? [] : [{k:'ch',l:'Chance',n:1,get:p=>p.ch,band:1,key:1}])];
+    return [...base,...key,...rest];
+  }
+
+  const prof = p => (p.k && P[S.role+'|'+p.k]) || null;
+  const style = p => { const f = prof(p); return (f && f.c && f.c.style) || p.cls || p.st || null; };
+  const tagOf = p => { const f = prof(p); return (f && f.c && f.c.tag) || p.tg || null; };
+  const ISO = {'Andorra':'AD','Argentina':'AR','Armenia':'AM','Australia':'AU','Austria':'AT','Azerbaijan':'AZ','Belarus':'BY','Belgium':'BE','Bolivia':'BO','Bosnia and Herzegovina':'BA','Brazil':'BR','Bulgaria':'BG','Canada':'CA','Chile':'CL','China':'CN','Colombia':'CO','Costa Rica':'CR','Croatia':'HR','Cyprus':'CY','Czech Republic':'CZ','Czechia':'CZ','Denmark':'DK','Dominican Republic':'DO','Ecuador':'EC','Egypt':'EG','Estonia':'EE','Faroe Islands':'FO','Finland':'FI','France':'FR','Georgia':'GE','Germany':'DE','Greece':'GR','Hong Kong':'HK','Hungary':'HU','Iceland':'IS','India':'IN','Indonesia':'ID','Iran':'IR','Iraq':'IQ','Ireland':'IE','Israel':'IL','Italy':'IT','Japan':'JP','Jordan':'JO','Kazakhstan':'KZ','Kosovo':'XK','Kuwait':'KW','Latvia':'LV','Lebanon':'LB','Lithuania':'LT','Luxembourg':'LU','Macau':'MO','Malaysia':'MY','Malta':'MT','Mexico':'MX','Moldova':'MD','Mongolia':'MN','Montenegro':'ME','Morocco':'MA','Netherlands':'NL','New Zealand':'NZ','North Macedonia':'MK','Norway':'NO','Panama':'PA','Paraguay':'PY','Peru':'PE','Philippines':'PH','Poland':'PL','Portugal':'PT','Puerto Rico':'PR','Romania':'RO','Russia':'RU','Saudi Arabia':'SA','Serbia':'RS','Singapore':'SG','Slovakia':'SK','Slovenia':'SI','South Africa':'ZA','South Korea':'KR','Spain':'ES','Sweden':'SE','Switzerland':'CH','Syria':'SY','Taiwan':'TW','Thailand':'TH','Tunisia':'TN','Turkey':'TR','Ukraine':'UA','United Arab Emirates':'AE','United Kingdom':'GB','United States':'US','Uruguay':'UY','Venezuela':'VE','Vietnam':'VN','Algeria':'DZ','Albania':'AL'};
+  const flag = c => { const i = ISO[c]; if(!i) return esc(c||'·'); return `<span title="${esc(c)}">${String.fromCodePoint(...[...i].map(ch=>127397+ch.charCodeAt(0)))} <span class="iso">${i}</span></span>`; };
+  const RES = {'EMEA':'EMEA','Korea':'KR','North America':'NA','Brazil':'BR','Asia Pacific':'APAC','China':'CN','Latin America':'LATAM','Vietnam':'VN','Japan':'JP'};
+  const NOTE = {'2+ major league splits':'established: 2+ splits in a top league','3+ major league splits':'established: 3+ splits in a top league','older than 25':'over 25','4+ international years':'established: 4+ international years'};
+  function rows(){
+    const g = reg(), list = S.view==='dev' ? g.dev : g.win;
+    const lg=$('fLeague').value, maxAge=parseFloat($('fAge').value), minG=Math.max(D.min_games, parseFloat($('fGames').value)||D.min_games);
+    const q=$('fSearch').value.trim().toLowerCase(), unk=$('fUnknown').checked, nat=$('fCountry').value;
+    let hiddenUnknown = 0;
+    const out = list.filter(p => {
+      if(lg && p.l!==lg) return false; if(p.g<minG) return false;
+      if(nat && (nat==='__unknown' ? !!p.c : p.c!==nat)) return false;
+      if(q && !(((p.p||'')+' '+(p.t||'')+' '+(p.lt||'')).toLowerCase().includes(q))) return false;
+      if(p.a==null && p.amax!=null) return isNaN(maxAge) || p.amax<=maxAge;      // public file: hidden players carry an age band
+      if(p.a==null){ if(!unk && !q && nat!=='__unknown'){ hiddenUnknown++; return false; } return true; }      // asking for unknown nationality shows those players even though their age is unknown too
+      return isNaN(maxAge) || p.a<=maxAge;
+    });
+    return {list, out, hiddenUnknown};
+  }
+
+  function render(){
+    const R = D.roles[S.role], g = reg(), C = cols(), dev = S.view==='dev', war = dev && g.devKind==='war';
+    document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected', b.dataset.r===S.role));
+    document.querySelectorAll('#view button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.v===S.view));
+    if(S.page==='lists'){ try{ history.replaceState(null,'','#'+S.role); }catch(e){} }
+    $('question').innerHTML = !dev
+      ? '<b>Win now</b> asks who is the best player today. Ranked by Combined: half career head-to-head Elo, half stat Score with league strength built in. <b>Rank range</b> shows where he could sit on this list given how far ratings usually move in a season. Players in the same tier cannot be separated by the data.'
+      : war ? '<b>Developmental</b>, for players already in a top league: ranked by expected value next season, a forecast of the rating expressed in win-equivalents per 100 games. A scale for comparing players, not a measured contribution to wins.'
+      : '<b>Developmental</b> asks who has the profile of a player that reaches a top league within two seasons. Ranked by the Developmental score: half Chance, half expected value. <b>Chance</b> is a band, not a personal probability, and it does not know contracts, buyouts or residency. Players over 25 or already established in a top league are not listed.';
+    $('betaNote').hidden = !R.beta;
+    if(R.beta) $('betaNote').innerHTML = `<b>${esc(R.label)} is a beta list.</b> This role's formula is a first version and has not yet beaten simple baselines in the retrospective check. Use it to build a long list, not to rank finalists.`;
+    const {list, out, hiddenUnknown} = rows();
+    const sc = C.find(c=>c.k===S.sort) || C[0]; const dir = S.sort ? S.dir : 1; const natural = sc.k==='rk' && dir===1;
+    out.sort((a,b)=>{ const x=sc.get(a), y=sc.get(b); if(x==null && y==null) return a.rk-b.rk; if(x==null) return 1; if(y==null) return -1; const c = (typeof x==='string'||typeof y==='string') ? String(x).localeCompare(String(y)) : x-y; return c*dir || a.rk-b.rk; });
+    $('tbl').querySelector('thead').innerHTML = '<tr>'+C.map(c=>`<th scope="col" class="${c.n?'n':''}" ${c.k===sc.k?`aria-sort="${dir>0?'ascending':'descending'}"`:''}><button type="button" data-k="${esc(c.k)}">${esc(c.l)}</button></th>`).join('')+'</tr>';
+    let html = '', lastTier = null;
+    out.forEach(p => {
+      if(natural && M && p.nm){ if(lastTier!=='nm'){ lastTier = 'nm'; html += `<tr class="tier"><td colspan="${C.length}"><b>Named sample players</b> · by league and name, their numbers are hidden</td></tr>`; } }
+      else if(natural && p.ti!==lastTier){ lastTier = p.ti; html += `<tr class="tier"><td colspan="${C.length}"><b>Tier ${p.ti}</b> · the data cannot separate players inside a tier</td></tr>`; }
+      html += `<tr class="row" tabindex="0" data-id="${list.indexOf(p)}">` + C.map(c => {
+        const v = c.get(p); let cls=(c.n?'n ':'')+(c.cls||'')+(c.key?' key':''); let t;
+        if(M && p.nm && (c.k==='rk' || c.range || c.band)) t = '·';
+        else if(c.range) t = (p.lo!=null) ? `<span class="rr">${p.lo} to ${p.hi}</span>` : '·';
+        else if(c.band) t = v==null ? '·' : `<span class="band b${v>=50?3:v>=20?2:v>=5?1:0}">${esc(p.bd)}${M?'':' · '+num(v,0)}</span>`;
+        else if(c.age && p.a==null && p.ab) t = esc(p.ab);
+        else if(c.games && p.gr) t = 'about ' + p.g;
+        else if(c.n){ if(c.sign && typeof v==='number') cls += v<0?' neg':' pos'; t = (c.sign && typeof v==='number' && v>0 ? '+' : '') + num(v, c.d==null?2:c.d); }
+        else if(c.flag) t = v ? flag(v) : '·';
+        else if(c.res) t = v ? `<span title="Residency on Leaguepedia: ${esc(v)}">${esc(RES[v]||v)}</span>` : '·';
+        else if(c.team){ const lg = LOGO[p.t]; t = (lg ? `<img class="tlogo" src="${lg}" alt="" width="18" height="18" loading="lazy">` : '') + (p.tc ? `<span title="${esc(p.t||'')}">${esc(p.tc)}</span>` : esc(p.t==null?'·':p.t)); }
+        else t = esc(v==null?'·':v);
+        if(c.k==='p'){ if(p.ss) t += '<span class="chip" title="Under 20 games this season: treat the rating as a first look">small sample</span>'; if(p.a==null && !p.ab) t += '<span class="chip">age unknown</span>'; if(M && p.nm) t += '<span class="chip" title="One named sample player per role in each league">sample</span>'; if(p.n && !dev) t += `<span class="chip" title="Not listed as a developmental prospect">${esc(NOTE[p.n]||p.n)}</span>`; }
+        return `<td class="${cls}">${t}</td>`; }).join('') + '</tr>';
+    });
+    $('tbl').querySelector('tbody').innerHTML = html;
+    $('empty').hidden = out.length>0;
+    const qq = $('fSearch').value.trim().toLowerCase(), sm = qq.length>=2 ? (R.small||[]).filter(x => (x[0]+' '+(x[2]||'')).toLowerCase().includes(qq)).slice(0,6) : [];
+    $('smallNote').hidden = !sm.length;
+    if(sm.length) $('smallNote').innerHTML = '<b>Not listed, under the '+D.min_games+'-game minimum:</b> ' + sm.map(x=>`${esc(x[0])} (${esc(x[1])}, ${esc(x[2]||'team unknown')}, ${x[3]} games)`).join('; ') + '. Players need '+D.min_games+' games in one league this season before they get a rating that can be listed.';
+    $('count').textContent = `${out.length} of ${list.length} ${R.label.toLowerCase()} players · ${g.name}` + (hiddenUnknown ? ` · ${hiddenUnknown} of unknown age hidden` + (dev ? ' (the age rule could not be checked for them)' : '') : '') + ` · players under ${D.min_games} games are never listed`;
+  }
+
+  $('tbl').addEventListener('click', e => {
+    const b = e.target.closest('th button'); if(b){ const k=b.dataset.k, c=cols().find(c=>c.k===k); if(S.sort===k) S.dir=-S.dir; else { S.sort=k; S.dir = (c.asc||!c.n)?1:-1; } render(); const nb=$('tbl').querySelector(`th button[data-k="${CSS.escape(k)}"]`); if(nb) nb.focus(); return; }
+    const tr = e.target.closest('tr[data-id]'); if(tr) openCard(+tr.dataset.id);
+  });
+  $('tbl').addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' '){ const tr=e.target.closest('tr[data-id]'); if(tr){ e.preventDefault(); openCard(+tr.dataset.id); } }});
+
+  function bar(label,v){
+    if(typeof v!=='number') return '';
+    const w = Math.min(Math.abs(v),3.5)/3.5*50;
+    return `<div class="rowbar"><span>${esc(label)}</span><div class="track"><i class="${v<0?'neg-b':''}" style="${v<0?`right:50%;width:${w}%`:`left:50%;width:${w}%`}"></i></div><span class="v">${v>0?'+':''}${v.toFixed(2)}</span></div>`;
+  }
+  function spark(s){
+    if(!s || s.length<2) return '';
+    const W=620,H=170,L=34,Rt=14,T=14,B=38, vs=s.map(x=>x[4]), lo=Math.min(-0.5,...vs)-0.2, hi=Math.max(1.5,...vs)+0.2;
+    const X=i=>L+(W-L-Rt)*(s.length===1?0.5:i/(s.length-1)), Y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+    const pts=s.map((x,i)=>`${X(i).toFixed(1)},${Y(x[4]).toFixed(1)}`).join(' ');
+    const ticks=[Math.ceil(lo),0,Math.floor(hi)].filter((v,i,a)=>a.indexOf(v)===i).map(v=>`<line x1="${L}" x2="${W-Rt}" y1="${Y(v)}" y2="${Y(v)}" ${v===0?'stroke-dasharray="4 4" stroke="var(--dim)"':'stroke="var(--line)"'}/><text x="${L-6}" y="${Y(v)+3}" text-anchor="end">${v>0?'+':''}${v}</text>`).join('');
+    const dots=s.map((x,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(x[4]).toFixed(1)}" r="4" fill="var(--accent-text)"><title>${esc(x[0]+' '+x[1]+' · '+x[2]+' · '+x[3]+' games · rating '+x[4].toFixed(2))}</title></circle><text x="${X(i).toFixed(1)}" y="${H-22}" text-anchor="middle">${esc("'"+String(x[0]).slice(2))}</text><text x="${X(i).toFixed(1)}" y="${H-9}" text-anchor="middle">${esc(String(x[1]).replace(/Split /,'S').slice(0,7))}</text>`).join('');
+    const last=s.slice(-3).reverse().map(x=>`<li><b>${x[0]} ${esc(x[1])}</b> · ${esc(x[2])} · ${x[3]} games · split rating <b>${x[4]>0?'+':''}${x[4].toFixed(2)}</b>${x[5]?` · ${x[5]} of ${x[6]} in his league`:''}</li>`).join('');
+    return `<div><h3 class="sec">Split by split</h3><svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Split rating over his last ${s.length} splits">${ticks}<polyline points="${pts}" fill="none" stroke="var(--accent-text)" stroke-width="2"/>${dots}</svg><ul class="slist">${last}</ul>
+      <p class="note">Split rating = half Elo at the end of the split, half that split's stat score, on one scale across leagues. Zero is the average rated player of the role in that split. A split is often under 25 games, so single steps are noisy: direction over three splits says something about the next split, and nothing about next season beyond the rating itself.</p></div>`;
+  }
+  function radar(rd, label){
+    if(!rd || !rd[3] || rd[3].length<3) return '';
+    const ax=rd[3], n=ax.length, W=620, H=300, cx=W/2, cy=150, Rr=104;
+    const pt=(i,f)=>{ const a=-Math.PI/2+i*2*Math.PI/n; return [cx+Math.cos(a)*Rr*f, cy+Math.sin(a)*Rr*f]; };
+    const ring=f=>ax.map((_,i)=>pt(i,f).map(v=>v.toFixed(1)).join(',')).join(' ');
+    const poly=ax.map((a,i)=>pt(i,(a[1]==null?50:a[1])/100).map(v=>v.toFixed(1)).join(',')).join(' ');
+    const spokes=ax.map((a,i)=>{ const [x,y]=pt(i,1), [lx,ly]=pt(i,1.16); const anc=Math.abs(lx-cx)<12?'middle':lx>cx?'start':'end'; return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"/><text x="${lx.toFixed(1)}" y="${(ly+3).toFixed(1)}" text-anchor="${anc}">${esc(a[0])} <tspan class="v">${a[1]==null?'·':a[1]}</tspan></text>`; }).join('');
+    return `<div><h3 class="sec">Stat profile in ${esc(rd[1])}, season ${rd[0]} (${rd[2]} games)</h3><svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Percentile of ${n} stats against ${esc(label.toLowerCase())} players of his league">
+      <polygon points="${ring(1)}" fill="none" stroke="var(--line)"/><polygon points="${ring(.5)}" fill="none" stroke="var(--dim)" stroke-dasharray="3 4"/>${spokes}
+      <polygon points="${poly}" fill="var(--lime)" fill-opacity=".28" stroke="var(--accent-text)" stroke-width="2"/></svg>
+      <p class="note">Each number is his percentile among ${esc(label.toLowerCase())} players of his own league with 20+ games (100 = best, dashed ring = league median). Stats are champion adjusted. Only stats that repeat between two halves of a season and follow a player to a new team are shown.</p></div>`;
+  }
+  function similar(sm){
+    if(!sm || !sm[1] || !sm[1].length) return '';
+    return `<p class="note"><b>Closest stat profiles in ${esc(sm[0])}:</b> ${sm[1].slice(0,3).map(x=>`${esc(x[0])} ${x[1]} (${num(x[2])})`).join(', ')}. A loose guide to how he plays, not how good he is: in a repeat test these matches beat chance, but only weakly. The number is a correlation, 1 = same shape.</p>`;
+  }
+  function calText(region, ch){
+    const lab = ch>=50 ? '50% and over' : ch>=20 ? '20 to 50%' : ch>=5 ? '5 to 20%' : 'under 5%';
+    const r = ((D.benchmark||{}).calibration||[]).find(x => x.region===region && x['chance band']===lab);
+    if(!r) return 'There is no retrospective check for this region, so read the band as a rough guide only.';
+    return `In the retrospective check, ${esc(region)} prospects in this band reached a top league within two seasons ${num(r['share who reached %'],0)}% of the time (${r['player seasons']} player seasons, 2019 to 2024).`;
+  }
+  function openCard(i){
+    if(M){ const R=D.roles[S.role], g=reg(), p=(S.view==='dev'?g.dev:g.win)[i]||{}; $('card').innerHTML = `<div class="top"><div><h2 id="cardName">${esc(p.p||'Name hidden')}</h2><p class="sub">${p.p ? esc(R.label+' · '+p.l+' · '+(p.t||''))+'. One of the named sample players. On this public page a name is never shown next to a number: his tier, rank range and full player sheet are in the private preview.' : 'Names, teams, ratings and the full player sheet are in the private preview.'}</p></div><button type="button" class="x" id="closeCard">Close</button></div><p style="margin:0">This public page shows the real lists. ${esc(D.sample_rule||'')} Teams and agencies can ask for access to every name and profile.</p><div><a class="btn go" href="${esc(mail)}">Request access</a></div><p class="note">${esc(D.contact||'')}</p>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); return; }
+    const R=D.roles[S.role], g=reg(), dev=S.view==='dev', list = dev?g.dev:g.win, p=list[i]; if(!p) return;
+    const other = (dev?g.win:g.dev).find(x=>x.p===p.p && x.t===p.t && x.l===p.l);
+    const win = dev?other:p, dv = dev?p:other;
+    const kv = [['Team, most games',p.t],['Latest team',p.lt],['Age mid-'+D.roster_year,p.a==null?'Unknown: the age rule could not be checked':p.a],['Residency',p.r||'Unknown'],['Country',p.c||'Unknown'],
+      ['Win rate',p.w==null?'·':p.w+'%'],['Other leagues '+D.season,p.o||'None'],...(p.cls?[['Playstyle',p.cls]]:[]),...(p.n?[['Prospect status','Not listed as a developmental prospect ('+(NOTE[p.n]||p.n)+'). A split is one league split with 3 or more games played, not a year.']]:[])];
+    const pf = p.k ? P[S.role+'|'+p.k] : null, pc = (pf && pf.c) || {};
+    const chips = [['Playstyle',pc.style||p.cls],['Tag',pc.tag],['Confidence',pc.conf],['Trend',pc.trend]].filter(x=>x[1]).map(x=>`<span><b>${esc(x[0])}</b> ${esc(x[1])}</span>`).join('');
+    if(pc.next!=null) kv.push(['Expected next season', `Combined ${num(pc.next)} plus or minus ${num(pc.pm)}` + (pc.why ? ` (${pc.why})` : '')]);
+    const tiles = [
+      ['Win now', win ? `#${win.rk}<small>could be ${win.lo} to ${win.hi} · tier ${win.ti}</small>` : '·'],
+      ['Combined', num(p.cb)],
+      [g.devKind==='war'?'Expected value':'Developmental', dv ? (g.devKind==='war' ? `${num(dv.xw,1)}<small>#${dv.rk} · tier ${dv.ti}</small>` : `#${dv.rk}<small>score ${num(dv.ds,0)} · tier ${dv.ti}</small>`) : '·<small>not on that list</small>'],
+      ['Chance', p.ch==null ? '·<small>prospects only</small>' : `${esc(p.bd)}<small>band of ${num(p.ch,0)}</small>`],
+    ];
+    // rank among players of his role in his league, and among players of his nationality (all regions), by Combined
+    const rankIn = arr => { const v = arr.filter(x => typeof x.cb==='number'); return {r:1+v.filter(x => x.cb>p.cb).length, n:v.length}; };
+    const lgR = rankIn(g.win.filter(x => x.l===p.l)), seenK = {}, allRole = []; R.regions.forEach(rg => rg.win.forEach(x => { const id = x.k||(x.p+'|'+x.t); if(!seenK[id]){ seenK[id]=1; allRole.push(x); } }));
+    tiles.push(['In '+p.l, `#${lgR.r} of ${lgR.n}<small>${esc(R.label.toLowerCase())} players in his league</small>`]);
+    if(p.c){ const nR = rankIn(allRole.filter(x => x.c===p.c)); tiles.push([p.c, `#${nR.r} of ${nR.n}<small>${esc(R.label.toLowerCase())} players of his nationality, all regions</small>`]); } else tiles.push(['Nationality', '·<small>unknown, no nation rank</small>']);
+    $('card').innerHTML = `
+      <div class="top"><div><h2 id="cardName">${esc(p.p)}</h2><p class="sub">${esc(R.label)} · ${esc(p.l)} · ${esc(p.t)}${R.beta?' · beta formula':''}</p>${chips?`<div class="chips">${chips}</div>`:''}</div><button type="button" class="x" id="closeCard">Close</button></div>
+      <dl class="big">${tiles.map(([a,b])=>`<div><dt>${esc(a)}</dt><dd>${b}</dd></div>`).join('')}</dl>
+      <p class="note" style="margin-top:-8px">League and nation ranks use the Combined rating and count listed players only (${D.min_games}+ games, LPL not rated). Neighbours are rarely a real difference: read them with the tier.</p>
+      <div><h3 class="sec">Rating build-up</h3>${bar('Elo, career head to head',p.e)}${bar('In-league rating',p.wi)}
+        <p class="note">Score ${num(p.s)} = in-league rating ${num(p.wi)} + league level ${num(p.lv)} (${esc(p.l)}${(R.levels&&R.levels[p.l]&&R.levels[p.l][1]!==R.levels[p.l][2])?`, could be ${num(R.levels[p.l][1],1)} to ${num(R.levels[p.l][2],1)}`:''}; the average LEC ${esc(R.label.toLowerCase())} is 0). The level moves every player of the league together. Combined puts Elo and Score on one scale first, so it is not their plain average.</p></div>
+      <div><h3 class="sec">${esc(R.label)} profile against his own league</h3>${R.blocks.map((b,j)=> b ? bar(b,p.b?p.b[j]:null) : '').join('')}
+        <p class="note">Bars run from −3.5 to +3.5. Zero is the average ${esc(R.label.toLowerCase())} in ${esc(p.l)}. A profile inside one league depends partly on his team.</p></div>
+      ${pf ? spark(pf.s) + radar(pf.rd, R.label) + similar(pf.sm) : ''}
+      ${p.ch!=null ? `<p class="note"><b>Chance band: ${esc(p.bd).toLowerCase()}</b> (model value ${num(p.ch,0)}). ${calText(g.name, p.ch)} The share swings from year to year with the number of top league seats that open. It does not know his contract, buyout or residency.</p>` : ''}
+      <dl class="kv">${kv.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>
+      <div class="foot">Sample ${p.g} games in ${esc(p.l)}, season ${D.season} · data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)} · build ${fmtDate(D.build_date)}</div>`;
+    $('closeCard').onclick = () => $('dlg').close();
+    $('dlg').showModal();
+  }
+  $('dlg').addEventListener('click', e => { if(e.target===$('dlg')) $('dlg').close(); });
+
+  function method(){
+    const B = D.benchmark || {}, T = (B.erl_top5_A||[]), get = n => T.find(r=>r.ranking.indexOf(n)===0) || {};
+    const me = get('Developmental score'), wn = get('Win now rating'), base = get('BASELINE league + age'), all = get('All eligible');
+    const max = Math.max(...T.map(r=>r['hit %']||0), 1);
+    const rowsT = T.map(r => `<tr><td class="${/product|Win now/.test(r.ranking)?'you':''}">${esc(r.ranking.replace('BASELINE ','Simple rule: '))}</td><td class="n">${r.picks}</td><td><span class="hbar ${/product|Win now/.test(r.ranking)?'me':''}" style="width:${Math.round(120*(r['hit %']||0)/max)}px"></span><span style="font-family:var(--mono)">${num(r['hit %'],0)}%</span></td><td class="n">${esc(r['range 90%']||'')}</td><td class="n">${r['unique players']}</td></tr>`).join('');
+    const am = (B.after_move||[]).map(r=>`<tr><td>${esc(r.predictor)}</td><td class="n">${r.players}</td><td class="n">${num(r['correlation with first top-league season rating'])}</td><td class="n">${esc(r['range 90%'])}</td></tr>`).join('');
+    const br = (B.by_role||[]).map(r=>`<tr><td>${esc(({top:'Top',jng:'Jungle',mid:'Mid',bot:'ADC',sup:'Support'})[r.role]||r.role)}</td><td class="n">${num(r['Developmental score hit %'],0)}% <span class="rr">(${esc(r['range 90%'])})</span></td><td class="n">${num(r['win now rating'],0)}%</td><td class="n">${num(r['league + age + games'],0)}%</td><td class="n">${num(r['base rate'],0)}%</td></tr>`).join('');
+    const RL = {all:'All roles',top:'Top',jng:'Jungle',mid:'Mid',bot:'ADC',sup:'Support'};
+    const fr = (B.found_rate||[]).filter(r=>r['top N per year']===10).map(r=>`<tr><td class="${r.role==='all'?'you':''}">${esc(RL[r.role]||r.role)}</td><td class="n">${r['promoted prospect seasons']}</td><td class="n">${num(r['win now rating found %'],0)}% <span class="rr">(${esc(r['win now rating range 90%'])})</span></td><td class="n">${num(r['Developmental score found %'],0)}% <span class="rr">(${esc(r['Developmental score range 90%'])})</span></td><td class="n">${num(r['league + age + games found %'],0)}%</td><td class="n">${num(r['by luck %'],0)}%</td></tr>`).join('');
+    $('viewMethod').innerHTML = `
+      <div><h2>What the numbers are, and how far to trust them</h2></div>
+      <div class="statement"><h3>The one-paragraph version</h3><p>Flexpick compares players across leagues by building league strength into every rating. That works: it finds future top league players far better than league and age alone. Inside a single league the order of neighbouring players is mostly noise, which is why every list shows tiers and rank ranges. Use it to decide who to invite to tryouts, not who to sign.</p></div>
+      <div><h3>How a rating is built</h3><ul>
+        <li><b>In-league rating.</b> Per role, a weighted mix of stats that were kept because they follow a player to a new team. Every stat is compared with the same champion that season, lane leads with the exact matchup.</li>
+        <li><b>League level.</b> How strong each league is against the LEC, from how players' ratings change when they move leagues and from head-to-head Elo between leagues. It is the largest single source of error. Each level now carries a range (shown on the player card), taken from how far the two measurements disagree and from how few players moved: about a third of a point either way for LCK, LCS and the LFL, half a point to a full point for most other regional leagues. The range is a minimum: it does not cover errors both measurements share.</li>
+        <li><b>Score</b> = in-league rating + league level. <b>Elo</b> = a career rating from every duel against the player across the map. <b>Combined</b> = half Elo, half Score, each on one scale.</li>
+        <li><b>Chance</b> = share of past prospects with a similar profile who played 10+ games in LCK, LPL, LEC or LCS within two seasons. <b>Expected value</b> = forecast rating next season in win-equivalents.</li>
+        <li><b>Split rating, stat profile, playstyle and tags</b> on the player sheet describe form and style. They are not inputs to the lists. The stat profile keeps only stats that repeat inside a season and follow a player to a new team.</li>
+        <li><b>Tiers and rank ranges</b> come from how far ratings really moved from one season to the next (about 0.45 on the Combined scale). Two players are only treated as different when the gap is larger than both players' usual movement combined. When two players are in different leagues, the uncertainty of the gap between their leagues is added, so ranges on the ERL list are wider than inside one league.</li>
+      </ul></div>
+      <div><h3>The retrospective check</h3>
+        <p>For every data year 2018 to 2024 the model picked its top 5 ERL prospects per role using only seasons before the outcome. The question: did the pick play 10+ games in a top league within two seasons? The formulas and settings were designed in 2026 with those years in view, so this is a simulation with hindsight, <b>not a live track record</b>. The first live lists were frozen on ${fmtDate(D.build_date)} and will be scored in October 2028.</p>
+        <div class="mbox"><table><thead><tr><th>How the 5 were picked</th><th class="n">Picks</th><th>Reached a top league</th><th class="n">Range (9 in 10)</th><th class="n">Different players</th></tr></thead><tbody>${rowsT}</tbody></table></div>
+        <p class="note">Ranges come from resampling players, because the same player is often picked in several years. ${me['hit %']!=null?`Read it as: the Developmental score (${num(me['hit %'],0)}%) and the plain win now rating (${num(wn['hit %'],0)}%) cannot be told apart; both are clearly ahead of league, age and games alone (${num(base['hit %'],0)}%), and ${num(all['hit %'],0)}% of all eligible prospects made it.`:''}</p></div>
+      ${br?`<div><h3>By role</h3><div class="mbox"><table><thead><tr><th>Role</th><th class="n">Developmental score</th><th class="n">Win now rating</th><th class="n">League, age, games</th><th class="n">All prospects</th></tr></thead><tbody>${br}</tbody></table></div><p class="note">35 picks per role, so the ranges are wide, and a role that promotes few players (ADC, support) cannot score high whatever the ranking does. The found rate below is the fairer comparison between roles.</p></div>`:''}
+      ${fr?`<div><h3>Found rate</h3><p>The other way round: of the regional-league prospects who did reach a top league within two seasons, how many did the ranking have in its top 10 of the role the year before? This number does not depend on how many players a role promotes, so roles can be compared.</p><div class="mbox"><table><thead><tr><th>Role</th><th class="n">Promoted prospect seasons</th><th class="n">Win now rating</th><th class="n">Developmental score</th><th class="n">League, age, games</th><th class="n">By luck</th></tr></thead><tbody>${fr}</tbody></table></div><p class="note">Top 10 per role per year, data years 2018 to 2024. Ranges in brackets (9 in 10). Per role the samples are small (18 to 28 different players), so read the roles as roughly equal rather than ranked.</p></div>`:''}
+      ${am?`<div><h3>After the move</h3><p>For prospects who were promoted: how well does the number before the move predict the rating inside the top league in the first season? 0 means no information, 1 means perfect.</p><div class="mbox"><table><thead><tr><th>Number before the move</th><th class="n">Players</th><th class="n">Link</th><th class="n">Range</th></tr></thead><tbody>${am}</tbody></table></div><p class="note">A link near 0.3 is real but weak. The model is better at saying who gets promoted than at saying how good he will be once there.</p></div>`:''}
+      <div><h3>What it cannot tell you</h3><ul>
+        <li>Communication, attitude, champion pool depth under draft pressure, and how he plays in scrims.</li>
+        <li>Contract length, buyout and visa status. Nationality and residency are shown as published on Leaguepedia; a league's own residency or locally trained status must be checked with the league.</li>
+        <li>Anything about LPL players: the public data has no usable lane statistics for LPL games, so they are not rated.</li>
+        <li>Solo queue form. It is not in the model.</li>
+        <li>Players with fewer than ${D.min_games} games in a league this season are never listed. A third of regional players have no known birth date; they are marked and hidden by default.</li>
+      </ul></div>
+      <div><h3>Tested and left out</h3><p>Skillshot accuracy, win shares, clutch play, duo chemistry and "lifts his team mates" were all tested and did not behave like stable player traits, so they are not in any rating and no player is labelled with them.</p></div>`;
+  }
+
+  let homeI = 0, homeT = null;
+  function homeSlides(){
+    const out = [];
+    ['top','jng','mid','bot','sup'].forEach(rk => { const R = D.roles[rk]; if(!R) return; const g = R.regions.find(r=>r.name==='ERL') || R.regions[0]; if(g.win.length) out.push({rk, R, g, kind:'win'}); if(g.dev.length && g.devKind!=='war') out.push({rk, R, g, kind:'dev'}); });
+    return out;
+  }
+  function homeDraw(){
+    const SL = homeSlides(); if(!SL.length) return; homeI = ((homeI % SL.length) + SL.length) % SL.length; const {rk, R, g, kind} = SL[homeI], dev = kind==='dev';
+    const list = (M && g.home) ? g.home[kind].map((p,i)=>Object.assign({rk:i+1}, p)) : (dev ? g.dev : g.win).filter(p=>(p.a!=null || p.ab) && !(M && p.nm)).slice(0,5), val = p => M ? 100 - (p.rk-1)*9 : (dev ? p.ds : p.cb), mx = Math.max(...list.map(val), 0.01), mn = (dev || M) ? 0 : Math.min(0, ...g.win.slice(0,60).map(p=>p.cb));
+    $('homeSample').innerHTML = `<div class="hd"><h3>${esc(R.label)} shortlist, ${esc(g.name)}, ${dev?'developmental':'win now'}</h3><span class="meta">${(dev?g.dev:g.win).length} players · min ${D.min_games} games · patches ${esc(D.patches)} · data to ${fmtDate(D.data_cutoff)}</span></div>`
+      + list.map(p=>`<div class="srow"><span class="i">${String(p.rk).padStart(2,'0')}</span><span class="nm">${esc(p.p||'Name hidden')}<small>${M ? esc(p.l)+(p.nm?' · named sample':' · about '+p.g+' games') : esc(p.l)+' · '+p.g+' games'+(p.a!=null?' · age '+p.a:'')}</small></span><span class="tr"><i style="width:${Math.max(4,Math.round(100*(val(p)-mn)/(mx-mn)))}%"></i></span><span class="val">${(M&&p.nm)?'·<small>numbers hidden</small>':`${M?'tier '+p.ti:(dev?num(p.ds,0):num(p.cb))}<small>${dev?((M?'':'tier '+p.ti+' · ')+(p.bd?esc(p.bd).toLowerCase():'')):((M?'':'tier '+p.ti+' · ')+p.lo+' to '+p.hi)}</small>`}</span></div>`).join('')
+      + `<div class="dots" role="group" aria-label="Choose a sample list">${SL.map((x,i)=>`<button type="button" data-i="${i}" aria-pressed="${i===homeI}" title="${esc(x.R.label)} ${x.kind==='dev'?'developmental':'win now'}"></button>`).join('')}</div>`
+      + `<p class="note">${M?'The real top five of this list. Names are hidden; where a name is shown, his numbers are hidden. ':'Live from the current build. '}${M?'':dev?'The right column is the Developmental score, the tier and the Chance band.':'The right column is the Combined rating, the tier, and where he could sit on this list next season.'} ${M?'Open the shortlists to filter every role and region.':'Open the shortlists for every role, region and player profile.'}</p>`;
+  }
+  function homeAuto(on){ clearInterval(homeT); homeT = null; if(on && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) homeT = setInterval(() => { if(S.page==='home' && !document.hidden){ homeI++; homeDraw(); } }, 6000); }
+  $('homeSample').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b){ homeI = +b.dataset.i; homeDraw(); homeAuto(false); } });
+  $('homeSample').addEventListener('mouseenter', () => homeAuto(false)); $('homeSample').addEventListener('mouseleave', () => homeAuto(true));
+  function home(){
+    homeDraw(); homeAuto(true);
+    const T = ((D.benchmark||{}).erl_top5_A)||[], get = n => T.find(r=>r.ranking.indexOf(n)===0) || {}, me = get('Developmental score'), wn = get('Win now rating'), base = get('BASELINE league + age'), all = get('All eligible');
+    if(me['hit %']==null){ $('homeEvi').parentNode.hidden = true; return; }
+    const f10 = ((D.benchmark||{}).found_rate||[]).find(r=>r.role==='all' && r['top N per year']===10);
+    $('eviLead').textContent = 'Each year from 2018 to 2024 the model picked its five best prospects per role in the European regional leagues, using only what was known then. How many played 10 or more games in a top league within two seasons?';
+    $('homeEvi').innerHTML = `<div class="me"><b>${num(me['hit %'],0)}%</b><span>of Flexpick's top 5 picks</span><small>range ${esc(me['range 90%'])} · ${me.picks} picks · ${me['unique players']} players</small></div><div><b>${num(base['hit %'],0)}%</b><span>when picking by league, age and games alone</span><small>range ${esc(base['range 90%'])}</small></div><div><b>${num(all['hit %'],0)}%</b><span>of all eligible prospects</span><small>${all.picks.toLocaleString('en-GB')} prospect seasons</small></div>`;
+    $('eviNote').innerHTML = `A simulation with hindsight, built in ${D.season}, <b>not a live track record</b>. The plain win now rating scores ${num(wn['hit %'],0)}% on the same test, so the two Flexpick rankings cannot be told apart; both are clearly ahead of the simple rule. The first live lists are frozen and will be scored in October 2028. Details under Method and evidence.` + (f10 ? ` Seen the other way: of the prospects who did reach a top league, ${num(f10['win now rating found %'],0)}% were in Flexpick's top 10 of their role the year before (${num(f10['by luck %'],0)}% by luck).` : '');
+  }
+  // ---------- Ask the data: three lookup functions over the lists (used by the no-AI question reader below) ----------
+  const ROLEKEY = {top:'top', jungle:'jng', jng:'jng', mid:'mid', adc:'bot', bot:'bot', support:'sup', sup:'sup'};
+  const qRow = (role, g, p, dev) => { const f = (p.k && P[role+'|'+p.k]) || {}, c = f.c || {}; const o = {player:p.p, role:D.roles[role].label, league:p.l, team:p.t, age_in_roster_year:p.a==null?(p.ab||'unknown'):p.a, nationality:p.c||'unknown', residency:p.r||'unknown', games:p.g, tier:p.ti}; if(p.gr) o.games_rounded = true; if(p.nm) o.sample = true;
+    if(dev){ o.list = 'developmental'; if(p.bd) o.chance_band = p.bd; if(p.ds!=null) o.developmental_score = p.ds; } else { o.list = 'win now'; o.rank_range = p.lo+' to '+p.hi; o.combined = p.cb; if(p.n) o.not_a_prospect_because = NOTE[p.n]||p.n; }
+    o.in_league_rating = p.wi; o.league_level_vs_LEC = p.lv; if(c.style||p.cls||p.st) o.playstyle = c.style||p.cls||p.st; if(c.tag||p.tg) o.tag = c.tag||p.tg; if(p.ss) o.small_sample = true; return o; };
+  const qTools = [
+    {name:'list_players', description:'Players on one Flexpick list, best first. role: top, jungle, mid, adc or support. region: ERL (all European regional leagues), LEC, LCK, LCS, LCK CL, NACL, CBLOL or LCP. kind: "win" (best player today) or "dev" (prospects only). Optional filters: league (code inside the region, for example LFL, PRM, LES, TCL), nationality (country name in English), residency (EMEA, Korea, North America and so on), max_age, min_games, playstyle_or_tag (text contained in the playstyle or tag), limit (default 12, max 30).',
+     inputSchema:{type:'object', properties:{role:{type:'string'}, region:{type:'string'}, kind:{type:'string', enum:['win','dev']}, league:{type:'string'}, nationality:{type:'string'}, residency:{type:'string'}, max_age:{type:'number'}, min_games:{type:'number'}, playstyle_or_tag:{type:'string'}, limit:{type:'number'}}, required:['role','region','kind']},
+     execute: a => { const role = ROLEKEY[String(a.role||'').toLowerCase()]; if(!role) throw new Error('unknown role'); const R = D.roles[role], g = R.regions.find(r => r.name.toLowerCase()===String(a.region||'').toLowerCase()); if(!g) throw new Error('unknown region; use one of '+R.regions.map(r=>r.name).join(', '));
+       const dev = a.kind==='dev', lim = Math.min(30, Math.max(1, a.limit||12)), lc = v => String(v||'').toLowerCase(); $('askSt').textContent = 'Reading the '+R.label.toLowerCase()+' '+g.name+' list…';
+       let l = (dev ? g.dev : g.win).filter(p => (!a.league || lc(p.l)===lc(a.league)) && (!a.nationality || lc(p.c)===lc(a.nationality)) && (!a.residency || lc(p.r)===lc(a.residency) || lc(RES[p.r])===lc(a.residency)) && (a.max_age==null || (p.a!=null ? p.a<=a.max_age : (p.amax!=null && p.amax<=a.max_age))) && (a.min_games==null || p.g>=a.min_games));
+       if(a.playstyle_or_tag){ const t = lc(a.playstyle_or_tag); l = l.filter(p => { const f = (p.k && P[role+'|'+p.k]) || {}, c = f.c||{}; return lc((c.style||p.cls||p.st||'')+' '+(c.tag||p.tg||'')).includes(t); }); }
+       return {list:R.label+', '+g.name+', '+(dev?'developmental':'win now'), matching:l.length, shown:Math.min(lim,l.length), minimum_games:D.min_games, players:l.slice(0,lim).map(p => qRow(role,g,p,dev))}; }},
+    {name:'find_player', description:'Look up a player by name (or part of it) in every role and region. Returns his list rows plus his profile when there is one: rating split by split, playstyle, tag, confidence, expected rating next season, and the most similar top-league profiles.',
+     inputSchema:{type:'object', properties:{name:{type:'string'}}, required:['name']},
+     execute: a => { const q = String(a.name||'').toLowerCase().trim(); if(q.length<2) throw new Error('name too short'); $('askSt').textContent = 'Looking up '+a.name+'…'; const out = [], seen = {}, under = [];
+       Object.keys(D.roles).forEach(role => { const R = D.roles[role]; R.regions.forEach(g => [['win',g.win],['dev',g.dev]].forEach(([k,l]) => l.forEach(p => { if(!(p.p||'').toLowerCase().includes(q)) return; const id = role+'|'+(p.k||p.p)+'|'+g.name+'|'+k; if(seen[id] || out.length>=12) return; seen[id]=1; const o = qRow(role,g,p,k==='dev'); o.region_list = g.name;
+           const f = (p.k && P[role+'|'+p.k]); if(f && !seen['prof'+role+p.k]){ seen['prof'+role+p.k]=1; const c = f.c||{}; o.profile = {splits:(f.s||[]).slice(-6).map(x => ({season:x[0], split:x[1], league:x[2], games:x[3], split_rating:x[4]})), confidence:c.conf, expected_rating_next_season:c.next, plus_minus:c.pm, trend:c.trend, similar_top_league_profiles:f.sm ? f.sm[1].map(x => x[0]+' '+x[1]) : undefined}; }
+           out.push(o); })));
+         (R.small||[]).forEach(x => { if(x[0].toLowerCase().includes(q)) under.push({player:x[0], role:R.label, league:x[1], team:x[2], games:x[3], note:'under the '+D.min_games+'-game minimum, not rated on the lists'}); }); });
+       return {matches:out, under_minimum:under.slice(0,6)}; }},
+    {name:'about_the_data', description:'What the numbers mean, what the data covers and the evidence table. Call this for questions about the method, accuracy or coverage.',
+     execute: () => ({data_to:D.data_cutoff, patches:D.patches, roster_year:D.roster_year, minimum_games:D.min_games, roles:Object.keys(D.roles).map(k=>D.roles[k].label), regions:D.roles[Object.keys(D.roles)[0]].regions.map(r=>r.name),
+       meaning:{win_now:'Combined = half career head-to-head Elo, half stat score with league strength built in. Shown as a tier and a rank range; players in one tier cannot be separated by the data.', developmental:'Prospects only (not over 25, not established in a top league). Ranked by the Developmental score: half chance of reaching a top league within two seasons, half expected value there. Chance is shown as a band.', in_league_rating:'How far above the average player of his own league, in standard deviations.', league_level_vs_LEC:'Strength of his league against LEC = 0, in the same units.', not_covered:'LPL is not rated. No salary, contract or buyout data. No solo queue.'},
+       evidence_note:'Retrospective simulation on past seasons, not a live track record.', found_rate:(D.benchmark && D.benchmark.found_rate || []).filter(r => r.role==='all')}) }
+  ];
+  const QRULES_UNUSED = `You answer questions for a League of Legends scout inside Flexpick, a private player-rating page. Rules:
+- Use only what the functions return. Never add stats, ranks, salaries, contracts or opinions from your own knowledge. If the functions do not hold the answer, say so in one sentence.
+- Never state an exact rank. Give the tier and the rank range (win now) or the tier and chance band (developmental). Always give games played. Mention "small sample" when it is flagged and "age unknown" when it is.
+- Players in the same tier cannot be separated by the data; say so when comparing two of them.
+- Roster year is ${D.roster_year}; ages are the age in that year. Data to ${D.data_cutoff}, patches ${D.patches}.
+- The evidence is a retrospective simulation, not a live track record. There is no salary or budget data.
+- Answer in plain text, short: at most 8 lines or 8 players, one line per player. No markdown symbols, no long dashes.`;
+  // ---------- Ask the data, no AI: the question is read as filters and answered from the three page functions above ----------
+  const DEMONYM = {french:'France',german:'Germany',spanish:'Spain',korean:'South Korea',polish:'Poland',danish:'Denmark',swedish:'Sweden',turkish:'Turkey',italian:'Italy',portuguese:'Portugal',dutch:'Netherlands',belgian:'Belgium',greek:'Greece',czech:'Czech Republic',british:'United Kingdom',english:'United Kingdom',american:'United States',canadian:'Canada',brazilian:'Brazil',chinese:'China',japanese:'Japan',vietnamese:'Vietnam',taiwanese:'Taiwan',norwegian:'Norway',finnish:'Finland',romanian:'Romania',bulgarian:'Bulgaria',serbian:'Serbia',croatian:'Croatia',slovenian:'Slovenia',slovak:'Slovakia',hungarian:'Hungary',ukrainian:'Ukraine',lithuanian:'Lithuania',latvian:'Latvia',estonian:'Estonia',austrian:'Austria',swiss:'Switzerland',irish:'Ireland',australian:'Australia',argentinian:'Argentina',mexican:'Mexico',chilean:'Chile',peruvian:'Peru',russian:'Russia',israeli:'Israel',moroccan:'Morocco',egyptian:'Egypt',icelandic:'Iceland'};
+  const LGNAME = [['lfl division 2','LFL2'],['prime league 2','PRM2'],['french league','LFL'],['prime league','PRM'],['german league','PRM'],['superliga','LES'],['spanish league','LES'],['turkish league','TCL'],['arabian league','AL'],['northern league','NLC'],['greek league','HLL'],['balkan league','EBL'],['polish league','RL'],['rift legends','RL'],['hitpoint','HM'],['italian league','LIT'],['portuguese league','LPLOL']];
+  const REGNAME = [['lck challengers','LCK CL'],['lck cl','LCK CL'],['lckc','LCK CL'],['na challengers','NACL'],['nacl','NACL'],['cblol','CBLOL'],['lcp','LCP'],['lec','LEC'],['lck','LCK'],['lcs','LCS'],['european regional','ERL'],['regional league','ERL'],['regional','ERL'],['erls','ERL'],['erl','ERL']];
+  const ROLEWORD = [[/\b(ad ?carr(y|ies)|adcs?|marksm[ae]n|bot ?laners?|bot)\b/,'bot'],[/\b(supports?|sups?)\b/,'sup'],[/\b(junglers?|jungle|jng)\b/,'jng'],[/\b(mid ?laners?|mids?)\b/,'mid'],[/\b(top ?laners?|tops?)\b/,'top']];
+  const STYLEWORD = ['split pusher','group heavy','farm first','gank heavy','vision control','control mage','mage picks','marksman pool','assassin','enchanter','engage','mixed pool','weakside','tank','strongside','tempo','utility','roam','skirmish','scaling','lane dominant','lane focused','late game','balanced'];
+  const NUMWORD = {two:2,three:3,four:4,five:5,six:6,eight:8,ten:10};
+  const COUNTRIES = {}; const NAMES = {};
+  Object.keys(D.roles).forEach(r => D.roles[r].regions.forEach(g => g.win.forEach(p => { if(p.c) COUNTRIES[p.c.toLowerCase()] = p.c; if(p.p && p.p.length>=3) NAMES[p.p.toLowerCase()] = p.p; })));
+  const wordIn = (t, w) => new RegExp('(^|[^a-z0-9])' + w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '([^a-z0-9]|$)').test(t);
+  function readQuestion(q){
+    let t = ' ' + q.toLowerCase().replace(/[?!.,;:"]/g,' ').replace(/\s+/g,' ') + ' ';
+    const out = {role:null, region:null, league:null, kind:null, nationality:null, max_age:null, min_games:null, style:null, limit:null, names:[], about:false, said:[]};
+    if(/how (was|is|were) (this|it|that|they) (checked|tested|built|made)|\bmethod\b|accura|evidence|track record|what does .* mean|what is (combined|chance|a tier|the tier|elo|score)|coverage|which (leagues|regions)/.test(t)) out.about = true;
+    Object.keys(NAMES).forEach(n => { if(n.length>=3 && wordIn(t, n) && !STYLEWORD.includes(n) && !COUNTRIES[n]) out.names.push(NAMES[n]); });
+    for(const [w, code] of LGNAME) if(t.includes(' '+w+' ')){ out.league = code; out.region = 'ERL'; t = t.replace(w,' '); break; }
+    if(!out.league){ const erl = {}; Object.keys(D.roles).forEach(r => { const g = D.roles[r].regions.find(x=>x.name==='ERL'); if(g) g.win.forEach(p => erl[p.l]=1); }); const hit = Object.keys(erl).sort((a,b)=>b.length-a.length).find(c => wordIn(t, c.toLowerCase())); if(hit){ out.league = hit; out.region = 'ERL'; t = t.replace(hit.toLowerCase(),' '); } }
+    if(!out.region) for(const [w, name] of REGNAME) if(wordIn(t, w)){ out.region = name; t = t.replace(w,' '); break; }
+    for(const [re, r] of ROLEWORD) if(re.test(t)){ out.role = r; t = t.replace(re,' '); break; }
+    if(/prospects?|develop|\bdev\b|chance|potential|upside|talents?|rookies?|future/.test(t)) out.kind = 'dev'; else if(/win now|best|strongest|today|right now/.test(t)) out.kind = 'win';
+    for(const d in DEMONYM) if(wordIn(t, d) || wordIn(t, d+'s')){ out.nationality = DEMONYM[d]; break; }
+    if(!out.nationality){ const c = Object.keys(COUNTRIES).sort((a,b)=>b.length-a.length).find(c => wordIn(t, c)); if(c) out.nationality = COUNTRIES[c]; }
+    let m;
+    if((m = t.match(/(under|younger than|below|less than) (\d\d)\b/))) out.max_age = +m[2]-1; else if((m = t.match(/\bu(\d\d)\b/))) out.max_age = +m[1]-1;
+    else if((m = t.match(/(\d\d) (or|and) (under|younger|less|below)/)) || (m = t.match(/(?:aged?|max(?:imum)? age|up to) (\d\d)\b/))) out.max_age = +m[1];
+    if((m = t.match(/(\d{2,3})\s?\+? ?(games|maps)/)) || (m = t.match(/at least (\d{2,3})/))) out.min_games = +m[1];
+    if((m = t.match(/(top|best|first|show) (\d{1,2})\b/))) out.limit = Math.min(30, +m[2]); else for(const w in NUMWORD) if(wordIn(t, w)){ out.limit = NUMWORD[w]; break; }
+    out.style = STYLEWORD.find(w => t.includes(w)) || null;
+    return out;
+  }
+  const hid = p => p.player || 'Name hidden';
+  const line = o => `${hid(o)} (${[o.league, o.team||null, o.age_in_roster_year==='unknown'?'age unknown':'age '+o.age_in_roster_year, o.nationality==='unknown'?null:o.nationality].filter(Boolean).join(', ')}) · ${o.sample ? 'named sample, numbers hidden' : 'tier '+o.tier+(o.list==='win now' ? ' · rank range '+o.rank_range : (o.chance_band ? ' · chance band '+String(o.chance_band).toLowerCase() : ''))} · ${o.games_rounded?'about ':''}${o.games} games${o.playstyle?' · style '+o.playstyle:''}${o.tag?' · tag '+o.tag:''}${o.small_sample?' · small sample':''}`;
+  function answer(q){
+    const f = readQuestion(q), lp = qTools[0].execute, fp = qTools[1].execute, ab = qTools[2].execute;
+    const filtered = f.role || f.region || f.nationality || f.max_age!=null || f.min_games!=null || f.style || f.kind;
+    if(f.about && !filtered && !f.names.length){ const a = ab(), fr = (a.found_rate||[]).find(r => r['top N per year']===10);
+      return {text:[`Data to ${a.data_to}, patches ${a.patches}, roster year ${a.roster_year}. Players need ${a.minimum_games} games to be listed.`, `Roles: ${a.roles.join(', ')}. Regions: ${a.regions.join(', ')}.`, 'Win now: '+a.meaning.win_now, 'Developmental: '+a.meaning.developmental, 'Not covered: '+a.meaning.not_covered, a.evidence_note + (fr ? ` Of the regional prospects who did reach a top league, ${Math.round(fr['win now rating found %'])}% were in the top 10 of their role the year before (${Math.round(fr['by luck %'])}% by luck).` : ''), 'The full tables are under Method and evidence.'].join('\n')}; }
+    if(f.names.length && !filtered){ const outL = []; f.names.slice(0,3).forEach(n => { const r = fp({name:n}); const ex = r.matches.filter(o => o.player.toLowerCase()===n.toLowerCase()), devOf = o => ex.find(x => x.list==='developmental' && x.role===o.role && x.team===o.team); ex.filter(o => o.list==='win now' || !ex.some(x => x.list==='win now' && x.role===o.role && x.team===o.team)).slice(0,2).forEach(o => { let s = `${o.role} · ${o.region_list} · ` + line(o); const dv = !o.sample && o.list==='win now' && devOf(o); if(dv) s += ` · developmental list: tier ${dv.tier}` + (dv.chance_band ? ', chance band '+String(dv.chance_band).toLowerCase() : ''); if(o.profile){ const pr = o.profile; const bits = [pr.confidence?'confidence '+String(pr.confidence).toLowerCase():null, pr.expected_rating_next_season!=null?'expected rating next season '+pr.expected_rating_next_season+' plus or minus '+pr.plus_minus:null, pr.trend?'trend '+String(pr.trend).toLowerCase():null].filter(Boolean).join(' · '); if(bits) s += '\n   ' + bits; const sp = (pr.splits||[]).slice(-3).map(x => `${x.season} ${x.split} ${x.league} ${x.split_rating>0?'+':''}${x.split_rating} (${x.games} games)`).join('; '); if(sp) s += '\n   last splits: ' + sp; } outL.push(s); }); r.under_minimum.forEach(u => outL.push(`${u.player} · ${u.role} · ${u.league} · ${u.games} games · ${u.note}`)); });
+      if(outL.length) return {text:outL.join('\n') + (f.names.length>1 ? '\nPlayers in the same tier cannot be separated by the data.' : '')}; }
+    const role = f.role || S.role, R = D.roles[role], region = f.region || (R.regions.some(r=>r.name===S.region) ? S.region : R.regions[0].name), g = R.regions.find(r=>r.name===region) || R.regions[0];
+    let kind = f.kind || 'win'; if(kind==='dev' && !g.dev.length) kind = 'win';
+    const args = {role, region:g.name, kind, limit:f.limit || 8}; if(f.league) args.league = f.league; if(f.nationality) args.nationality = f.nationality; if(f.max_age!=null) args.max_age = f.max_age; if(f.min_games!=null) args.min_games = f.min_games; if(f.style) args.playstyle_or_tag = f.style;
+    const r = lp(args), said = [R.label, g.name, kind==='dev'?'developmental':'win now', f.league, f.nationality, f.max_age!=null?'age '+f.max_age+' or under':null, f.min_games!=null?f.min_games+'+ games':null, f.style].filter(Boolean);
+    // put the same filters on the table below
+    S.role = role; S.view = kind; S.region = g.name; S.sort = null; fill(); $('fLeague').value = f.league && [...$('fLeague').options].some(o=>o.value===f.league) ? f.league : ''; $('fCountry').value = f.nationality && [...$('fCountry').options].some(o=>o.value===f.nationality) ? f.nationality : ''; $('fAge').value = f.max_age!=null ? f.max_age : ''; $('fGames').value = Math.max(D.min_games, f.min_games||D.min_games); $('fSearch').value = ''; render();
+    const head = `Read as: ${said.join(' · ')}. ${r.matching} player${r.matching===1?'':'s'} match${r.matching===1?'es':''}` + (r.matching>r.shown ? `, ${M?'first':'best'} ${r.shown} shown` : '') + '.';
+    const natNote = (M && f.nationality) ? '\nOn this public page nationality is only known for the named sample players, so a nationality filter shows only them.' : '';
+    if(!r.matching) return {text: head + natNote + '\nNothing matches. Try a wider region, a higher age or fewer filters.' + (f.nationality ? ' Players of unknown age are left out when an age is asked for.' : '')};
+    return {text: head + '\n' + r.players.map(line).join('\n') + natNote + (f.style ? '\nThe table cannot filter on playstyle or tag, so it shows the same list without that filter.' : '') + (!filtered && !f.names.length ? '\nI could not read a filter in that question, so this is the current list. Try a role, a region or league, a nationality, an age or a playstyle.' : '')};
+  }
+  (function(){
+    const A = $('askA'), St = $('askSt');
+    const EG = M ? ['ADCs aged 22 or under in the regional leagues', 'Mid prospects in LCK CL', 'Enchanter supports in the LFL', 'How was this checked?'] : ['French ADCs aged 22 or under in the regional leagues', 'Korean mid prospects in LCK CL', 'Vision control junglers in the LFL', 'How was this checked?'];
+    $('askEg').innerHTML = EG.map(x => `<button type="button">${esc(x)}</button>`).join('');
+    $('askEg').addEventListener('click', e => { const b = e.target.closest('button'); if(b){ $('askQ').value = b.textContent; $('askForm').requestSubmit(); } });
+    $('askForm').addEventListener('submit', e => { e.preventDefault(); const q = $('askQ').value.trim(); if(!q) return; St.hidden = true;
+      try{ const r = answer(q); A.hidden = false; A.textContent = r.text; }catch(err){ A.hidden = false; A.textContent = 'That question could not be read. Try a role, a region or league, a nationality, an age or a playstyle.'; } });
+  })();
+
+  function show(){
+    const pg = S.page, m = pg==='method', h = pg==='home', l = pg==='lists';
+    $('viewHome').hidden = !h; $('viewHome').style.display = h ? '' : 'none';
+    $('viewLists').hidden = !l; $('viewLists').style.display = l ? 'contents' : 'none'; $('viewMethod').hidden = !m; $('viewMethod').style.display = m ? '' : 'none'; $('stamp').style.display = h ? 'none' : '';
+    [['navHome',h],['navLists',l],['navMethod',m]].forEach(([id,on]) => { if(on) $(id).setAttribute('aria-current','page'); else $(id).removeAttribute('aria-current'); });
+    try{ history.replaceState(null,'', m ? '#method' : l ? '#'+S.role : location.pathname+location.search); }catch(e){}
+  }
+  if(M){ const sb = $('fSearch').closest('.f'); if(sb) sb.querySelector('label').textContent = 'Sample player or team'; const nb = $('fCountry').closest('.f'); if(nb) nb.style.display = 'none'; document.querySelectorAll('footer span')[1].textContent = 'Public preview. A few sample players are named without numbers; every number belongs to a hidden player. Ratings are opinions derived from public match statistics; they are a shortlist aid, not a recommendation to sign anyone.'; }
+  home(); method(); fill(); render(); show();
+})();
+</script>
