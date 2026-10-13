@@ -43,7 +43,8 @@ nav{display:flex;gap:4px}
 nav button{background:transparent;border:1px solid transparent;border-radius:8px;padding:7px 12px;font-weight:600;font-size:14px;color:var(--dim);cursor:pointer}
 nav button[aria-current="page"]{color:var(--ink);border-color:var(--line);background:var(--panel)}
 .stamp{font:12px var(--mono);color:var(--dim);display:flex;flex-wrap:wrap;gap:4px 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding-block:8px}
-.stamp b{color:var(--ink);font-weight:500}
+.stamp b{color:var(--ink);font-weight:500} .stamp select{font:500 12px var(--mono);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:2px 6px} .stamp .bt{color:var(--lime-ink);background:var(--lime);border-radius:4px;padding:0 6px}
+.pastnote{border:1px solid var(--lime);border-radius:10px;padding:10px 14px;margin:0 0 12px;font-size:14px} .yes{background:var(--lime);color:var(--lime-ink);font-weight:700;border-radius:4px;padding:0 6px} .no{color:var(--dim)}
 .preview{font:12px var(--mono);color:var(--lime-ink);background:var(--lime);padding:2px 8px;border-radius:4px}
 .tabs{display:flex;flex-wrap:wrap;gap:6px}
 .tabs button,.seg button{font:700 14px var(--display);font-stretch:112%;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 16px;cursor:pointer;color:var(--dim);display:flex;gap:8px;align-items:center}
@@ -275,13 +276,22 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   const P = window.FLEXPICK_PROFILES || {};
   const LOGO = window.FLEXPICK_LOGOS || {};
   const M = !!D.masked;      // public build: names, teams and exact ratings are not in the data file at all
-  const S = {role:Object.keys(D.roles)[0], view:'win', region:'ERL', sort:null, dir:1, page:'home'};
+  const S = {role:Object.keys(D.roles)[0], view:'win', region:'ERL', sort:null, dir:1, page:'home', year:D.roster_year};
+  const LIVE = D.roster_year, PAST = M ? [] : Array.from({length: LIVE - 2019}, (_, i) => LIVE - 1 - i);      // past roster years 2019 to LIVE-1: lists as they would have looked then (tools/export_history.py)
+  const isPast = () => S.year !== LIVE && !!window.FLEXPICK_HISTORY;
   try{ const h = location.hash.slice(1); if(h==='method') S.page='method'; else if(has(D.roles,h)){ S.role = h; S.page='lists'; } }catch(e){}
   try{ const v=localStorage.getItem('fp_age_known'); if(v==='hide'||v==='only') $('fAgeKnown').value = v; }catch(e){}
 
-  const stamp = `<span class="preview">${M?'Public preview · sample names only':'Private preview'}</span><span>Data to <b>${fmtDate(D.data_cutoff)}</b></span><span>Patches <b>${esc(D.patches)}</b></span><span>Build <b>${fmtDate(D.build_date)}</b></span><span>Min <b>${D.min_games}</b> games per player</span><span>Roster year <b>${D.roster_year}</b></span>`;
+  const stamp = `<span class="preview">${M?'Public preview · sample names only':'Private preview'}</span><span>Data to <b>${fmtDate(D.data_cutoff)}</b></span><span>Patches <b>${esc(D.patches)}</b></span><span>Min <b>${D.min_games}</b> games per player</span>${PAST.length ? `<span>Roster year <select id="fYear" aria-label="Roster year"><option value="${LIVE}">${LIVE} (live)</option>${PAST.map(y=>`<option value="${y}">${y} (backtest)</option>`).join('')}</select></span>` : `<span>Roster year <b>${D.roster_year}</b></span>`}`;
   $('stamp').innerHTML = stamp;
-  $('footStamp').textContent = `Flexpick build ${D.build_date} · games up to ${D.data_cutoff} · season ${D.season} patches ${D.patches} · ${D.games_in_data.toLocaleString('en-GB')} games in the data, ${D.season_games.toLocaleString('en-GB')} this season`;
+  function setYear(y){
+    y = +y; const apply = () => { S.year = y; S.sort = null; if($('fYear')) $('fYear').value = y; fill(); render(); };
+    if(y === LIVE || window.FLEXPICK_HISTORY) return apply();
+    $('count').textContent = 'Loading the ' + y + ' lists...'; const sc = document.createElement('script'); sc.src = 'history.js'; sc.onload = () => { HB(); apply(); }; sc.onerror = () => { $('count').textContent = 'Could not load the past lists. Reload the page and try again.'; if($('fYear')) $('fYear').value = S.year; }; document.head.appendChild(sc);
+  }
+  function HB(){ const H = window.FLEXPICK_HISTORY; if(!H || H._b) return; H._b = 1; Object.values(H.roles).forEach(R => Object.values(R.years).forEach(rs => rs.forEach(g => { g.devKind = 'dev'; g.dev.forEach(p => { p.bd = p.ch==null ? null : p.ch>=50?'Strong':p.ch>=20?'Realistic':p.ch>=5?'Possible':'Long shot'; }); }))); }
+  if($('fYear')) $('fYear').addEventListener('change', e => { setYear(e.target.value); if(S.page !== 'lists'){ S.page = 'lists'; show(); } });
+  $('footStamp').textContent = `Games up to ${D.data_cutoff} · season ${D.season} patches ${D.patches} · ${D.games_in_data.toLocaleString('en-GB')} games in the data, ${D.season_games.toLocaleString('en-GB')} this season`;
   $('fGames').value = D.min_games; $('fGames').min = D.min_games;
   if(M) $('fAgeKnown').closest('.f').hidden = true;      // public file: ages of hidden players are not published
 
@@ -298,10 +308,11 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   ['navAccess','heroAccess','mailLink'].forEach(id => { $(id).href = mail; }); $('mailLink').textContent = D.contact || '';
   if(!M){ $('navAccess').style.display = 'none'; $('heroAccess').style.display = 'none'; const c = document.querySelector('.contact'); if(c){ c.querySelector('h3').textContent = 'Questions and feedback'; c.querySelector('p').textContent = 'Write for a walkthrough, a shortlist built for your roster, or to flag a player whose place looks wrong.'; $('mailLink').href = 'mailto:' + (D.contact||'') + '?subject=' + encodeURIComponent('Flexpick feedback'); } }
 
-  const reg = () => { const R = D.roles[S.role]; return R.regions.find(r=>r.name===S.region) || R.regions[0]; };
+  const regs = () => isPast() ? ((window.FLEXPICK_HISTORY.roles[S.role]||{}).years||{})[S.year] || [] : D.roles[S.role].regions;
+  const reg = () => { const rs = regs(); return rs.find(r=>r.name===S.region) || rs[0] || {name:S.region, win:[], dev:[]}; };
   function fill(keepRegion){
     const R = D.roles[S.role];
-    if(!keepRegion){ $('fRegion').innerHTML = R.regions.map(r=>`<option value="${esc(r.name)}">${esc(r.name)}</option>`).join(''); if(!R.regions.some(r=>r.name===S.region)) S.region = R.regions[0].name; $('fRegion').value = S.region; }
+    if(!keepRegion){ const rs = regs(); $('fRegion').innerHTML = rs.map(r=>`<option value="${esc(r.name)}">${esc(r.name)}</option>`).join(''); if(rs.length && !rs.some(r=>r.name===S.region)) S.region = rs[0].name; $('fRegion').value = S.region; }
     const g = reg(), c = {}; g.win.forEach(p => { if(p.l) c[p.l]=(c[p.l]||0)+1; }); const ks = Object.keys(c).sort();
     $('fLeagueBox').hidden = ks.length < 2;
     $('fLeague').innerHTML = '<option value="">All leagues</option>' + ks.map(l=>`<option value="${esc(l)}">${esc(l)} (${c[l]})</option>`).join('');
@@ -334,6 +345,11 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       {k:'lv',l:'Lg level',n:1,get:p=>p.lv},
       ...R.blocks.map((b,i)=> b ? {k:'b'+i,l:b,n:1,get:p=>p.b?p.b[i]:null,sign:1} : null).filter(Boolean),
     ];
+    if(isPast()){
+      const out2 = {k:'nx',l:'Next season',get:p=>p.nl ? p.nl+(p.nt?' · '+p.nt:'') : null}, r2 = {k:'r2',l:'Top league in 2 seasons',get:p=>p.r2,yn:1};
+      return [base[0], base[1], base[2], ...(g.name==='ERL' ? [base[4]] : []), {k:'t',l:'Team',get:p=>p.t}, base[8], base[9],
+        ...(dev ? [{k:'ds',l:'Dev score',n:1,get:p=>p.ds,d:0,key:1},{k:'ch',l:'Chance',n:1,get:p=>p.ch,band:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}] : [{k:'cb',l:'Combined',n:1,get:p=>p.cb,key:1}]), out2, r2];
+    }
     if(M) return [...base.filter(c=>c.k!=='r'), ...(!dev ? [{k:'rr',l:'Rank range',n:1,get:p=>p.lo,range:1,asc:1,key:1}] : war ? [] : [{k:'ch',l:'Chance',n:1,get:p=>p.ch,band:1,key:1}])];
     return [...base,...key,...rest];
   }
@@ -371,6 +387,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       ? '<b>Win now</b> asks who is the best player today. Ranked by Combined: half career head-to-head Elo, half stat Score with league strength built in. <b>Rank range</b> shows where he could sit on this list given how far ratings usually move in a season. Players in the same tier cannot be separated by the data.'
       : war ? '<b>Developmental</b>, for players already in a top league: ranked by expected value next season, a forecast of the rating expressed in win-equivalents per 100 games. A scale for comparing players, not a measured contribution to wins.'
       : '<b>Developmental</b> asks who has the profile of a player that reaches a top league within two seasons. Ranked by the Developmental score: half Chance, half expected value. <b>Chance</b> is a band, not a personal probability, and it does not know contracts, buyouts or residency. Players over 25 or already established in a top league are not listed.';
+    if(isPast()) $('question').innerHTML = `<div class="pastnote"><b>Roster year ${S.year}, backtest.</b> The ${dev?'developmental':'win now'} list as it would have looked going into ${S.year}, built in 2026 with today's formulas and only the matches played up to the end of ${S.year-1}. Next season and Top league in 2 seasons show what happened afterwards (top league = 10+ games in LCK, LPL, LEC or LCS). A simulation with hindsight, not a live track record. No rank ranges for past years.${dev && !g.dev.length ? ' Past developmental lists exist for ERL, LCK CL and NACL.' : ''}</div>` + $('question').innerHTML;
     $('betaNote').hidden = !R.beta;
     if(R.beta) $('betaNote').innerHTML = `<b>${esc(R.label)} is a beta list.</b> This role's formula is a first version and has not yet beaten simple baselines in the retrospective check. Use it to build a long list, not to rank finalists.`;
     const {list, out, hiddenUnknown, shownUnknown} = rows();
@@ -384,6 +401,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       html += `<tr class="row" tabindex="0" data-id="${list.indexOf(p)}">` + C.map(c => {
         const v = c.get(p); let cls=(c.n?'n ':'')+(c.cls||'')+(c.key?' key':''); let t;
         if(M && p.nm && (c.k==='rk' || c.range || c.band)) t = '·';
+        else if(c.yn) t = v===1 ? '<span class="yes">Yes</span>' : v===0 ? '<span class="no">No</span>' : '<span class="no" title="Fewer than two seasons have passed">too early</span>';
         else if(c.range) t = (p.lo!=null) ? `<span class="rr">${p.lo} to ${p.hi}</span>` : '·';
         else if(c.band) t = v==null ? '·' : `<span class="band b${v>=50?3:v>=20?2:v>=5?1:0}">${esc(p.bd)}${M?'':' · '+num(v,0)}</span>`;
         else if(c.age && p.a==null && p.ab) t = esc(p.ab);
@@ -398,10 +416,10 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     });
     $('tbl').querySelector('tbody').innerHTML = html;
     $('empty').hidden = out.length>0;
-    const qq = $('fSearch').value.trim().toLowerCase(), sm = qq.length>=2 ? (R.small||[]).filter(x => (x[0]+' '+(x[2]||'')).toLowerCase().includes(qq)).slice(0,6) : [];
+    const qq = $('fSearch').value.trim().toLowerCase(), sm = qq.length>=2 && !isPast() ? (R.small||[]).filter(x => (x[0]+' '+(x[2]||'')).toLowerCase().includes(qq)).slice(0,6) : [];
     $('smallNote').hidden = !sm.length;
     if(sm.length) $('smallNote').innerHTML = '<b>Not listed, under the '+D.min_games+'-game minimum:</b> ' + sm.map(x=>`${esc(x[0])} (${esc(x[1])}, ${esc(x[2]||'team unknown')}, ${x[3]} games)`).join('; ') + '. Players need '+D.min_games+' games in one league this season before they get a rating that can be listed.';
-    $('count').textContent = `${out.length} of ${list.length} ${R.label.toLowerCase()} players · ${g.name}` + (shownUnknown ? ` · includes ${shownUnknown} of unknown age, who may be over the age limit` : '') + (hiddenUnknown ? ` · ${hiddenUnknown} of unknown age hidden` + (dev ? ' (the age rule could not be checked for them)' : '') : '') + ` · players under ${D.min_games} games are never listed`;
+    $('count').textContent = `${out.length} of ${list.length} ${R.label.toLowerCase()} players · ${g.name}` + (isPast() ? ` · roster year ${S.year} (backtest)` : '') + (shownUnknown ? ` · includes ${shownUnknown} of unknown age, who may be over the age limit` : '') + (hiddenUnknown ? ` · ${hiddenUnknown} of unknown age hidden` + (dev ? ' (the age rule could not be checked for them)' : '') : '') + ` · players under ${D.min_games} games are never listed`;
   }
 
   $('tbl').addEventListener('click', e => {
@@ -449,6 +467,13 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     return `In the retrospective check, ${esc(region)} prospects in this band reached a top league within two seasons ${num(r['share who reached %'],0)}% of the time (${r['player seasons']} player seasons, 2019 to 2024).`;
   }
   function openCard(i){
+    if(isPast()){ const R=D.roles[S.role], g=reg(), dev=S.view==='dev', p=(dev?g.dev:g.win)[i]; if(!p) return;
+      const live = D.roles[S.role].regions.flatMap(r=>r.win).find(x=>x.p===p.p);
+      const kv = [['League, '+(S.year-1),p.l],['Team, '+(S.year-1),p.t],['Age mid-'+S.year,p.a==null?'Unknown':p.a],['Games',p.g],['Combined then',num(p.cb)],...(p.ds!=null?[['Developmental score then',num(p.ds,0)],['Chance then',(p.bd||'')+(p.ch!=null?' · '+p.ch:'')]]:[]),['Next season',p.nl?p.nl+(p.nt?' · '+p.nt:''):'Not rated (LPL, a lower league or out)'],['Top league within 2 seasons',p.r2===1?'Yes':p.r2===0?'No':'Too early to say']];
+      $('card').innerHTML = `<div class="top"><div><h2 id="cardName">${esc(p.p)}</h2><p class="sub">${esc(R.label)} · roster year ${S.year} backtest · ${dev?'developmental':'win now'} list #${p.rk}, tier ${p.ti}</p></div><button type="button" class="x" id="closeCard">Close</button></div><dl class="kv">${kv.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v==null?'·':v)}</dd>`).join('')}</dl><p class="note">Built in 2026 with today's formulas and only the matches up to the end of ${S.year-1}. A simulation with hindsight, not a live track record.</p>${live?'<div><button type="button" class="btn go" id="toLive">Open his '+LIVE+' profile</button></div>':''}`;
+      $('closeCard').onclick = () => $('dlg').close();
+      if(live) $('toLive').onclick = () => { const r = D.roles[S.role].regions.find(r=>r.win.includes(live)); $('dlg').close(); S.region = r.name; S.view = 'win'; setYear(LIVE); openCard(r.win.indexOf(live)); };
+      $('dlg').showModal(); return; }
     if(M){ const R=D.roles[S.role], g=reg(), p=(S.view==='dev'?g.dev:g.win)[i]||{}; $('card').innerHTML = `<div class="top"><div><h2 id="cardName">${esc(p.p||'Name hidden')}</h2><p class="sub">${p.p ? esc(R.label+' · '+p.l+' · '+(p.t||''))+'. One of the named sample players. On this public page a name is never shown next to a number: his tier, rank range and full player sheet are in the private preview.' : 'Names, teams, ratings and the full player sheet are in the private preview.'}</p></div><button type="button" class="x" id="closeCard">Close</button></div><p style="margin:0">This public page shows the real lists. ${esc(D.sample_rule||'')} Teams and agencies can ask for access to every name and profile.</p><div><a class="btn go" href="${esc(mail)}">Request access</a></div><p class="note">${esc(D.contact||'')}</p>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); return; }
     const R=D.roles[S.role], g=reg(), dev=S.view==='dev', list = dev?g.dev:g.win, p=list[i]; if(!p) return;
     const other = (dev?g.win:g.dev).find(x=>x.p===p.p && x.t===p.t && x.l===p.l);
@@ -480,7 +505,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       ${pf ? spark(pf.s) + radar(pf.rd, R.label) + similar(pf.sm) : ''}
       ${p.ch!=null ? `<p class="note"><b>Chance band: ${esc(p.bd).toLowerCase()}</b> (model value ${num(p.ch,0)}). ${calText(g.name, p.ch)} The share swings from year to year with the number of top league seats that open. It does not know his contract, buyout or residency.</p>` : ''}
       <dl class="kv">${kv.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>
-      <div class="foot">Sample ${p.g} games in ${esc(p.l)}, season ${D.season} · data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)} · build ${fmtDate(D.build_date)}</div>`;
+      <div class="foot">Sample ${p.g} games in ${esc(p.l)}, season ${D.season} · data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)}</div>`;
     $('closeCard').onclick = () => $('dlg').close();
     $('dlg').showModal();
   }
@@ -538,7 +563,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       + `<p class="note">${M?'The real top five of this list. Names are hidden; where a name is shown, his numbers are hidden. ':'Live from the current build. '}${M?'':dev?'The right column is the Developmental score, the tier and the Chance band.':'The right column is the Combined rating, the tier, and where he could sit on this list next season.'} ${M?'Open the shortlists to filter every role and region.':'Open the shortlists for every role, region and player profile.'}</p>`;
   }
   function homeAuto(on){ clearInterval(homeT); homeT = null; if(on && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) homeT = setInterval(() => { if(S.page==='home' && !document.hidden){ homeI++; homeDraw(); } }, 6000); }
-  const homeOpen = el => { const x = homeSlides()[homeI]; if(!x || M) return; S.role = x.rk; S.view = x.kind; S.region = x.g.name; S.sort = null; fill(); render(); homeAuto(false); openCard(+el.dataset.hi); };
+  const homeOpen = el => { const x = homeSlides()[homeI]; if(!x || M) return; S.year = LIVE; if($('fYear')) $('fYear').value = LIVE; S.role = x.rk; S.view = x.kind; S.region = x.g.name; S.sort = null; fill(); render(); homeAuto(false); openCard(+el.dataset.hi); };
   $('homeSample').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b){ homeI = +b.dataset.i; homeDraw(); homeAuto(false); return; } const r = e.target.closest('.srow[data-hi]'); if(r) homeOpen(r); });
   $('homeSample').addEventListener('keydown', e => { const r = e.target.closest('.srow[data-hi]'); if(r && (e.key==='Enter' || e.key===' ')){ e.preventDefault(); homeOpen(r); } });
   $('homeSample').addEventListener('mouseenter', () => homeAuto(false)); $('homeSample').addEventListener('mouseleave', () => homeAuto(true));
@@ -628,7 +653,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     const args = {role, region:g.name, kind, limit:f.limit || 8}; if(f.league) args.league = f.league; if(f.nationality) args.nationality = f.nationality; if(f.max_age!=null) args.max_age = f.max_age; if(f.min_games!=null) args.min_games = f.min_games; if(f.style) args.playstyle_or_tag = f.style;
     const r = lp(args), said = [R.label, g.name, kind==='dev'?'developmental':'win now', f.league, f.nationality, f.max_age!=null?'age '+f.max_age+' or under':null, f.min_games!=null?f.min_games+'+ games':null, f.style].filter(Boolean);
     // put the same filters on the table below
-    S.role = role; S.view = kind; S.region = g.name; S.sort = null; fill(); $('fLeague').value = f.league && [...$('fLeague').options].some(o=>o.value===f.league) ? f.league : ''; $('fCountry').value = f.nationality && [...$('fCountry').options].some(o=>o.value===f.nationality) ? f.nationality : ''; $('fAge').value = f.max_age!=null ? f.max_age : ''; $('fGames').value = Math.max(D.min_games, f.min_games||D.min_games); $('fSearch').value = ''; render();
+    S.year = LIVE; if($('fYear')) $('fYear').value = LIVE; S.role = role; S.view = kind; S.region = g.name; S.sort = null; fill(); $('fLeague').value = f.league && [...$('fLeague').options].some(o=>o.value===f.league) ? f.league : ''; $('fCountry').value = f.nationality && [...$('fCountry').options].some(o=>o.value===f.nationality) ? f.nationality : ''; $('fAge').value = f.max_age!=null ? f.max_age : ''; $('fGames').value = Math.max(D.min_games, f.min_games||D.min_games); $('fSearch').value = ''; render();
     const head = `Read as: ${said.join(' · ')}. ${r.matching} player${r.matching===1?'':'s'} match${r.matching===1?'es':''}` + (r.matching>r.shown ? `, ${M?'first':'best'} ${r.shown} shown` : '') + '.';
     const natNote = (M && f.nationality) ? '\nOn this public page nationality is only known for the named sample players, so a nationality filter shows only them.' : '';
     if(!r.matching) return {text: head + natNote + '\nNothing matches. Try a wider region, a higher age or fewer filters.' + (f.nationality ? ' Players of unknown age are left out when an age is asked for.' : '')};
