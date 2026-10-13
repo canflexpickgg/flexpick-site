@@ -230,7 +230,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       <div class="f"><label for="fAge">Max age</label><input id="fAge" type="number" min="16" max="40" placeholder="any"></div>
       <div class="f"><label for="fGames">Min games</label><input id="fGames" type="number" min="20" step="5"></div>
       <div class="f"><label for="fSearch">Player or team</label><input id="fSearch" type="search" placeholder="Search"></div>
-      <label class="chk"><input id="fUnknown" type="checkbox"> Show players of unknown age</label>
+      <div class="f"><label for="fAgeKnown">Unknown age</label><select id="fAgeKnown"><option value="all">Show them</option><option value="hide">Hide them</option><option value="only">Only them</option></select></div>
     </div>
 
     <div class="ask" id="ask">
@@ -246,7 +246,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     <div class="warn" id="betaNote" hidden></div>
     <div class="count" id="count" aria-live="polite"></div>
     <div class="warn" id="smallNote" hidden></div>
-    <div class="tablebox"><table id="tbl"><thead></thead><tbody></tbody></table><div class="empty" id="empty" hidden>No players match these filters. Lower the minimum games, clear the league or nationality, or show players of unknown age.</div></div>
+    <div class="tablebox"><table id="tbl"><thead></thead><tbody></tbody></table><div class="empty" id="empty" hidden>No players match these filters. Lower the minimum games, clear the league or nationality, or set Unknown age to Show them.</div></div>
   </section>
 
   <section id="viewMethod" class="method" hidden></section>
@@ -277,19 +277,20 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   const M = !!D.masked;      // public build: names, teams and exact ratings are not in the data file at all
   const S = {role:Object.keys(D.roles)[0], view:'win', region:'ERL', sort:null, dir:1, page:'home'};
   try{ const h = location.hash.slice(1); if(h==='method') S.page='method'; else if(has(D.roles,h)){ S.role = h; S.page='lists'; } }catch(e){}
-  try{ if(localStorage.getItem('fp_unknown')==='1') $('fUnknown').checked = true; }catch(e){}
+  try{ const v=localStorage.getItem('fp_age_known'); if(v==='hide'||v==='only') $('fAgeKnown').value = v; }catch(e){}
 
   const stamp = `<span class="preview">${M?'Public preview · sample names only':'Private preview'}</span><span>Data to <b>${fmtDate(D.data_cutoff)}</b></span><span>Patches <b>${esc(D.patches)}</b></span><span>Build <b>${fmtDate(D.build_date)}</b></span><span>Min <b>${D.min_games}</b> games per player</span><span>Roster year <b>${D.roster_year}</b></span>`;
   $('stamp').innerHTML = stamp;
   $('footStamp').textContent = `Flexpick build ${D.build_date} · games up to ${D.data_cutoff} · season ${D.season} patches ${D.patches} · ${D.games_in_data.toLocaleString('en-GB')} games in the data, ${D.season_games.toLocaleString('en-GB')} this season`;
   $('fGames').value = D.min_games; $('fGames').min = D.min_games;
+  if(M) $('fAgeKnown').closest('.f').hidden = true;      // public file: ages of hidden players are not published
 
   $('tabs').innerHTML = Object.keys(D.roles).map(k => `<button type="button" role="tab" data-r="${esc(k)}">${esc(D.roles[k].label)}${D.roles[k].beta?'<span class="beta">beta</span>':''}</button>`).join('');
   $('tabs').addEventListener('click', e => { const b = e.target.closest('button[data-r]'); if(b){ S.role=b.dataset.r; S.sort=null; fill(); render(); }});
   $('view').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(b){ S.view=b.dataset.v; S.sort=null; render(); }});
   $('fRegion').addEventListener('change', () => { S.region=$('fRegion').value; S.sort=null; fill(true); render(); });
   ['fLeague','fCountry','fAge','fGames','fSearch'].forEach(id => $(id).addEventListener('input', render));
-  $('fUnknown').addEventListener('change', () => { try{ localStorage.setItem('fp_unknown', $('fUnknown').checked?'1':'0'); }catch(e){} render(); });
+  $('fAgeKnown').addEventListener('change', () => { try{ localStorage.setItem('fp_age_known', $('fAgeKnown').value); }catch(e){} render(); });
   const go = pg => () => { S.page=pg; show(); window.scrollTo(0,0); };
   $('navHome').addEventListener('click', go('home')); $('navLists').addEventListener('click', go('lists')); $('navMethod').addEventListener('click', go('method'));
   $('heroLists').addEventListener('click', go('lists')); $('heroMethod').addEventListener('click', go('method'));
@@ -346,17 +347,18 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   function rows(){
     const g = reg(), list = S.view==='dev' ? g.dev : g.win;
     const lg=$('fLeague').value, maxAge=parseFloat($('fAge').value), minG=Math.max(D.min_games, parseFloat($('fGames').value)||D.min_games);
-    const q=$('fSearch').value.trim().toLowerCase(), unk=$('fUnknown').checked, nat=$('fCountry').value;
-    let hiddenUnknown = 0;
+    const q=$('fSearch').value.trim().toLowerCase(), ak=$('fAgeKnown').value, unk=ak!=='hide', nat=$('fCountry').value;
+    let hiddenUnknown = 0, shownUnknown = 0;
     const out = list.filter(p => {
       if(lg && p.l!==lg) return false; if(p.g<minG) return false;
       if(nat && (nat==='__unknown' ? !!p.c : p.c!==nat)) return false;
       if(q && !(((p.p||'')+' '+(p.t||'')+' '+(p.lt||'')).toLowerCase().includes(q))) return false;
-      if(M && !p.nm) return isNaN(maxAge) || (p.amax!=null && p.amax<=maxAge);      // public file: a hidden player shows one detail only, so most have no age band
-      if(p.a==null){ if(!unk && !q && nat!=='__unknown'){ hiddenUnknown++; return false; } return true; }      // asking for unknown nationality shows those players even though their age is unknown too
+      if(ak==='only' && p.a!=null) return false;
+      if(M && !p.nm) return ak!=='only' && (isNaN(maxAge) || (p.amax!=null && p.amax<=maxAge));      // public file: a hidden player shows one detail only, so most have no age band
+      if(p.a==null){ if(!unk && !q && nat!=='__unknown'){ hiddenUnknown++; return false; } shownUnknown++; return true; }      // asking for unknown nationality shows those players even though their age is unknown too
       return isNaN(maxAge) || p.a<=maxAge;
     });
-    return {list, out, hiddenUnknown};
+    return {list, out, hiddenUnknown, shownUnknown: (isNaN(maxAge) || ak==='only') ? 0 : shownUnknown};
   }
 
   function render(){
@@ -370,7 +372,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       : '<b>Developmental</b> asks who has the profile of a player that reaches a top league within two seasons. Ranked by the Developmental score: half Chance, half expected value. <b>Chance</b> is a band, not a personal probability, and it does not know contracts, buyouts or residency. Players over 25 or already established in a top league are not listed.';
     $('betaNote').hidden = !R.beta;
     if(R.beta) $('betaNote').innerHTML = `<b>${esc(R.label)} is a beta list.</b> This role's formula is a first version and has not yet beaten simple baselines in the retrospective check. Use it to build a long list, not to rank finalists.`;
-    const {list, out, hiddenUnknown} = rows();
+    const {list, out, hiddenUnknown, shownUnknown} = rows();
     const sc = C.find(c=>c.k===S.sort) || C[0]; const dir = S.sort ? S.dir : 1; const natural = sc.k==='rk' && dir===1;
     out.sort((a,b)=>{ const x=sc.get(a), y=sc.get(b); if(x==null && y==null) return a.rk-b.rk; if(x==null) return 1; if(y==null) return -1; const c = (typeof x==='string'||typeof y==='string') ? String(x).localeCompare(String(y)) : x-y; return c*dir || a.rk-b.rk; });
     $('tbl').querySelector('thead').innerHTML = '<tr>'+C.map(c=>`<th scope="col" class="${c.n?'n':''}" ${c.k===sc.k?`aria-sort="${dir>0?'ascending':'descending'}"`:''}><button type="button" data-k="${esc(c.k)}">${esc(c.l)}</button></th>`).join('')+'</tr>';
@@ -398,7 +400,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     const qq = $('fSearch').value.trim().toLowerCase(), sm = qq.length>=2 ? (R.small||[]).filter(x => (x[0]+' '+(x[2]||'')).toLowerCase().includes(qq)).slice(0,6) : [];
     $('smallNote').hidden = !sm.length;
     if(sm.length) $('smallNote').innerHTML = '<b>Not listed, under the '+D.min_games+'-game minimum:</b> ' + sm.map(x=>`${esc(x[0])} (${esc(x[1])}, ${esc(x[2]||'team unknown')}, ${x[3]} games)`).join('; ') + '. Players need '+D.min_games+' games in one league this season before they get a rating that can be listed.';
-    $('count').textContent = `${out.length} of ${list.length} ${R.label.toLowerCase()} players · ${g.name}` + (hiddenUnknown ? ` · ${hiddenUnknown} of unknown age hidden` + (dev ? ' (the age rule could not be checked for them)' : '') : '') + ` · players under ${D.min_games} games are never listed`;
+    $('count').textContent = `${out.length} of ${list.length} ${R.label.toLowerCase()} players · ${g.name}` + (shownUnknown ? ` · includes ${shownUnknown} of unknown age, who may be over the age limit` : '') + (hiddenUnknown ? ` · ${hiddenUnknown} of unknown age hidden` + (dev ? ' (the age rule could not be checked for them)' : '') : '') + ` · players under ${D.min_games} games are never listed`;
   }
 
   $('tbl').addEventListener('click', e => {
