@@ -57,6 +57,8 @@ nav button[aria-current="page"]{color:var(--ink);border-color:var(--line);backgr
 .f label,.f .lab{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
 .f select,.f input{font:14px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);padding:7px 9px;border-radius:8px;max-width:100%}
 .f input[type=number]{width:84px}.f input[type=search]{width:170px}
+.finder{position:relative;margin:10px 0 0} .finder input{width:min(100%,420px)} .fres{position:absolute;z-index:5;left:0;top:100%;margin-top:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:min(100%,520px);max-height:360px;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.35)} .fres button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 12px;color:var(--ink);font:14px var(--body);cursor:pointer} .fres button:hover,.fres button:focus-visible{background:var(--raise);outline:none} .fres button small{display:block;font:12px var(--mono);color:var(--dim)} .fres .none{padding:10px 12px;color:var(--dim);font-size:13px}
+.errbar{background:var(--neg);color:#fff;border-radius:8px;padding:8px 12px;font-size:14px;margin:8px 0}
 .chk{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--dim);padding-bottom:7px}
 .lede{margin:0;max-width:78ch;color:var(--dim);font-size:14px}
 .lede b{color:var(--ink);font-weight:600}
@@ -232,7 +234,9 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       <div class="f"><label for="fGames">Min games</label><input id="fGames" type="number" min="20" step="5"></div>
       <div class="f"><label for="fSearch">Player or team</label><input id="fSearch" type="search" placeholder="Search"></div>
       <div class="f"><label for="fAgeKnown">Unknown age</label><select id="fAgeKnown"><option value="all">Show them</option><option value="hide">Hide them</option><option value="only">Only them</option></select></div>
+      <div class="f"><span class="lab">&nbsp;</span><button type="button" class="btn" id="resetF" style="padding:7px 12px;font-size:13px">Reset filters</button></div>
     </div>
+    <div class="finder" id="finder"><label for="findQ" class="lab">Find a player, any role, any season</label><input id="findQ" type="search" autocomplete="off" placeholder="Type a name, for example Xay"><div class="fres" id="findR" hidden></div></div>
 
     <div class="ask" id="ask">
       <span class="lab">Ask the data</span>
@@ -276,10 +280,12 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   const P = window.FLEXPICK_PROFILES || {};
   const LOGO = window.FLEXPICK_LOGOS || {};
   const M = !!D.masked;      // public build: names, teams and exact ratings are not in the data file at all
-  const S = {role:Object.keys(D.roles)[0], view:'win', region:'ERL', sort:null, dir:1, page:'home', year:D.roster_year};
+  const S = {role:'all', view:'win', region:'ERL', sort:null, dir:1, page:'home', year:D.roster_year};
+  const ROLES = Object.keys(D.roles), ALLR = {label:'All roles', beta:false, blocks:[], levels:{}, small:[].concat(...ROLES.map(k=>D.roles[k].small||[]))};
+  const RL = r => (r||S.role)==='all' ? ALLR : D.roles[r||S.role];
   const LIVE = D.roster_year, PAST = M ? [] : Array.from({length: LIVE - 2019}, (_, i) => LIVE - 1 - i);      // past roster years 2019 to LIVE-1: lists as they would have looked then (tools/export_history.py)
   const isPast = () => S.year !== LIVE && !!window.FLEXPICK_HISTORY;
-  try{ const h = location.hash.slice(1); if(h==='method') S.page='method'; else if(has(D.roles,h)){ S.role = h; S.page='lists'; } }catch(e){}
+  try{ const h = location.hash.slice(1); if(h==='method') S.page='method'; else if(has(D.roles,h) || h==='all'){ S.role = h; S.page='lists'; } }catch(e){}
   try{ const v=localStorage.getItem('fp_age_known'); if(v==='hide'||v==='only') $('fAgeKnown').value = v; }catch(e){}
 
   const stamp = `<span class="preview">${M?'Public preview · sample names only':'Private preview'}</span><span>Data to <b>${fmtDate(D.data_cutoff)}</b></span><span>Patches <b>${esc(D.patches)}</b></span><span>Min <b>${D.min_games}</b> games per player</span>${PAST.length ? `<span>Roster year <select id="fYear" aria-label="Roster year"><option value="${LIVE}">${LIVE} (live)</option>${PAST.map(y=>`<option value="${y}">${y} (backtest)</option>`).join('')}</select></span>` : `<span>Roster year <b>${D.roster_year}</b></span>`}`;
@@ -295,12 +301,43 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   $('fGames').value = D.min_games; $('fGames').min = D.min_games;
   if(M) $('fAgeKnown').closest('.f').hidden = true;      // public file: ages of hidden players are not published
 
-  $('tabs').innerHTML = Object.keys(D.roles).map(k => `<button type="button" role="tab" data-r="${esc(k)}">${esc(D.roles[k].label)}${D.roles[k].beta?'<span class="beta">beta</span>':''}</button>`).join('');
+  $('tabs').innerHTML = '<button type="button" role="tab" data-r="all">All roles</button>' + Object.keys(D.roles).map(k => `<button type="button" role="tab" data-r="${esc(k)}">${esc(D.roles[k].label)}${D.roles[k].beta?'<span class="beta">beta</span>':''}</button>`).join('');
   $('tabs').addEventListener('click', e => { const b = e.target.closest('button[data-r]'); if(b){ S.role=b.dataset.r; S.sort=null; fill(); render(); }});
   $('view').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(b){ S.view=b.dataset.v; S.sort=null; render(); }});
   $('fRegion').addEventListener('change', () => { S.region=$('fRegion').value; S.sort=null; fill(true); render(); });
   ['fLeague','fCountry','fAge','fGames','fSearch'].forEach(id => $(id).addEventListener('input', render));
   $('fAgeKnown').addEventListener('change', () => { try{ localStorage.setItem('fp_age_known', $('fAgeKnown').value); }catch(e){} render(); });
+  function resetFilters(){ $('fLeague').value=''; $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
+  $('resetF').addEventListener('click', resetFilters);
+  // if anything throws while drawing, say so and offer a reset instead of leaving the page stuck
+  window.addEventListener('error', e => { const c = $('count'); if(c && S.page==='lists'){ c.innerHTML = `<span class="errbar">Something went wrong while drawing this list. <button type="button" class="btn" id="errReset" style="padding:4px 10px;font-size:13px;margin-left:8px">Reset filters</button></span>`; const b = $('errReset'); if(b) b.onclick = () => { S.role='all'; S.sort=null; fill(); render(); }; } });
+  // finder: every listed player of every role and season, by name
+  let FINDEX = null;
+  function findIndex(){
+    if(FINDEX) return FINDEX; const ix = {};
+    const add = (role, year, g, kind, p) => { if(!p.p) return; const id = role+'|'+(p.k||p.p); const o = ix[id] || (ix[id] = {id, k:p.k, p:p.p, role, years:{}}); const y = o.years[year] || (o.years[year] = {}); if(!y[kind]) y[kind] = {region:g.name, l:p.l, t:p.t}; };
+    ROLES.forEach(r => D.roles[r].regions.forEach(g => { g.win.forEach(p => add(r, LIVE, g, 'win', p)); g.dev.forEach(p => add(r, LIVE, g, 'dev', p)); }));
+    const H = window.FLEXPICK_HISTORY; if(H) ROLES.forEach(r => Object.entries((H.roles[r]||{}).years||{}).forEach(([y, rs]) => rs.forEach(g => { g.win.forEach(p => add(r, +y, g, 'win', p)); g.dev.forEach(p => add(r, +y, g, 'dev', p)); })));
+    FINDEX = Object.values(ix); if(H) FINDEX._full = true; return FINDEX;
+  }
+  function findDraw(){
+    const q = $('findQ').value.trim().toLowerCase(), box = $('findR'); if(q.length < 2){ box.hidden = true; return; }
+    if(!window.FLEXPICK_HISTORY && PAST.length){ box.hidden = false; box.innerHTML = '<div class="none">Loading past seasons...</div>'; const sc = document.createElement('script'); sc.src = 'history.js'; sc.onload = () => { HB(); FINDEX = null; findDraw(); }; sc.onerror = () => { box.innerHTML = '<div class="none">Past seasons could not be loaded; showing the live lists only.</div>'; FINDEX = null; window.FLEXPICK_HISTORY = {roles:{}, prof:{}, _b:1}; setTimeout(findDraw, 1200); }; document.head.appendChild(sc); return; }
+    const hits = findIndex().filter(o => o.p.toLowerCase().includes(q)).sort((a,b) => (a.p.toLowerCase().startsWith(q)?0:1) - (b.p.toLowerCase().startsWith(q)?0:1) || Math.max(...Object.keys(b.years)) - Math.max(...Object.keys(a.years)) || a.p.localeCompare(b.p)).slice(0, 25);
+    box.hidden = false;
+    box.innerHTML = hits.length ? hits.map((o, i) => { const ys = Object.keys(o.years).map(Number).sort((a,b)=>b-a); const last = o.years[ys[0]], lk = last.win || last.dev; return `<button type="button" data-i="${i}">${esc(o.p)} <span style="color:var(--dim)">· ${esc(D.roles[o.role].label)}</span><small>${ys.map(y => `${y===LIVE?LIVE+' live':y}: ${esc((o.years[y].win||o.years[y].dev).l||'')}`).join(' · ')}${lk.t ? ' · last team '+esc(lk.t) : ''}</small></button>`; }).join('') : '<div class="none">No listed player with that name. Players under 15 games in a season are never listed.</div>';
+    box.querySelectorAll('button[data-i]').forEach(b => b.onclick = () => findOpen(hits[+b.dataset.i]));
+  }
+  function findOpen(o){
+    const ys = Object.keys(o.years).map(Number).sort((a,b)=>b-a), y = ys[0], e = o.years[y], kind = e.win ? 'win' : 'dev', where = e[kind];
+    $('findR').hidden = true; $('findQ').value = o.p;
+    S.role = o.role; S.view = kind; S.region = where.region; S.sort = null;
+    const open = () => { fill(); resetFilters(); const g = reg(), list = kind==='dev' ? g.dev : g.win, i = list.findIndex(p => (o.k && p.k===o.k) || (!o.k && p.p===o.p)); if(i >= 0) openCard(i); };
+    if(y === LIVE){ S.year = LIVE; if($('fYear')) $('fYear').value = LIVE; open(); } else { S.year = y; if($('fYear')) $('fYear').value = y; open(); }
+  }
+  $('findQ').addEventListener('input', findDraw); $('findQ').addEventListener('focus', findDraw);
+  document.addEventListener('click', e => { if(!e.target.closest('#finder')) $('findR').hidden = true; });
+  $('findQ').addEventListener('keydown', e => { if(e.key==='Escape') $('findR').hidden = true; if(e.key==='Enter'){ const b = $('findR').querySelector('button[data-i]'); if(b) b.click(); } });
   const go = pg => () => { S.page=pg; show(); window.scrollTo(0,0); };
   $('navHome').addEventListener('click', go('home')); $('navLists').addEventListener('click', go('lists')); $('navMethod').addEventListener('click', go('method'));
   $('heroLists').addEventListener('click', go('lists')); $('heroMethod').addEventListener('click', go('method'));
@@ -308,10 +345,20 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   ['navAccess','heroAccess','mailLink'].forEach(id => { $(id).href = mail; }); $('mailLink').textContent = D.contact || '';
   if(!M){ $('navAccess').style.display = 'none'; $('heroAccess').style.display = 'none'; const c = document.querySelector('.contact'); if(c){ c.querySelector('h3').textContent = 'Questions and feedback'; c.querySelector('p').textContent = 'Write for a walkthrough, a shortlist built for your roster, or to flag a player whose place looks wrong.'; $('mailLink').href = 'mailto:' + (D.contact||'') + '?subject=' + encodeURIComponent('Flexpick feedback'); } }
 
-  const regs = () => isPast() ? ((window.FLEXPICK_HISTORY.roles[S.role]||{}).years||{})[S.year] || [] : D.roles[S.role].regions;
+  const roleRegs = r => isPast() ? ((window.FLEXPICK_HISTORY.roles[r]||{}).years||{})[S.year] || [] : D.roles[r].regions;
+  const ALLCACHE = {};
+  function allRegs(){
+    const key = S.year + '|' + (isPast() ? 'p' : 'l'); if(ALLCACHE[key]) return ALLCACHE[key];
+    const names = []; ROLES.forEach(r => roleRegs(r).forEach(g => { if(!names.includes(g.name)) names.push(g.name); }));
+    const out = names.map(n => { const parts = ROLES.map(r => [r, roleRegs(r).find(g=>g.name===n)]).filter(x=>x[1]); const tag = (r,l) => l.map(p => { if(!p._r) p._r = r; return p; });
+      return {name:n, win:[].concat(...parts.map(([r,g])=>tag(r,g.win))), dev:[].concat(...parts.map(([r,g])=>tag(r,g.dev))), devKind:(parts[0][1].devKind||'dev'), home:parts[0][1].home}; });
+    ALLCACHE[key] = out; return out;
+  }
+  const regs = () => S.role==='all' ? allRegs() : roleRegs(S.role);
+  const roleOf = p => p._r || S.role;
   const reg = () => { const rs = regs(); return rs.find(r=>r.name===S.region) || rs[0] || {name:S.region, win:[], dev:[]}; };
   function fill(keepRegion){
-    const R = D.roles[S.role];
+    const R = RL();
     if(!keepRegion){ const rs = regs(); $('fRegion').innerHTML = rs.map(r=>`<option value="${esc(r.name)}">${esc(r.name)}</option>`).join(''); if(rs.length && !rs.some(r=>r.name===S.region)) S.region = rs[0].name; $('fRegion').value = S.region; }
     const g = reg(), c = {}; g.win.forEach(p => { if(p.l) c[p.l]=(c[p.l]||0)+1; }); const ks = Object.keys(c).sort();
     $('fLeagueBox').hidden = ks.length < 2;
@@ -322,10 +369,11 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   }
 
   function cols(){
-    const R = D.roles[S.role], g = reg(), dev = S.view==='dev', war = dev && g.devKind==='war';
+    const R = RL(), g = reg(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all';
     const base = [
-      {k:'rk',l:'#',n:1,get:p=>p.rk,d:0,asc:1},
+      {k:'rk',l:ALL?'# in role':'#',n:1,get:p=>p.rk,d:0,asc:1},
       {k:'p',l:'Player',get:p=>p.p||'Name hidden',cls:'pl'},
+      ...(ALL ? [{k:'role',l:'Role',get:p=>D.roles[p._r].label}] : []),
       {k:'c',l:'Nat',get:p=>p.c,flag:1},
       {k:'r',l:'Res',get:p=>p.r,res:1},
       ...(g.name==='ERL' ? [{k:'l',l:'League',get:p=>p.l}] : []),
@@ -347,14 +395,15 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     ];
     if(isPast()){
       const out2 = {k:'nx',l:'Next season',get:p=>p.nl ? p.nl+(p.nt?' · '+p.nt:'') : null}, r2 = {k:'ys',l:'Top league',get:p=>p.ys,yr:1,asc:1};
-      return [base[0], base[1], base[2], ...(g.name==='ERL' ? [base[4]] : []), {k:'t',l:'Team',get:p=>p.t}, base[8], base[9],
+      const bk = k => base.find(c=>c.k===k);
+      return [bk('rk'), bk('p'), ...(ALL ? [bk('role')] : []), bk('c'), ...(g.name==='ERL' ? [bk('l')] : []), {k:'t',l:'Team',get:p=>p.t}, bk('a'), bk('g'),
         ...(dev ? [{k:'ds',l:'Dev score',n:1,get:p=>p.ds,d:0,key:1},{k:'ch',l:'Chance',n:1,get:p=>p.ch,band:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}] : [{k:'cb',l:'Combined',n:1,get:p=>p.cb,key:1}]), out2, r2];
     }
     if(M) return [...base.filter(c=>c.k!=='r'), ...(!dev ? [{k:'rr',l:'Rank range',n:1,get:p=>p.lo,range:1,asc:1,key:1}] : war ? [] : [{k:'ch',l:'Chance',n:1,get:p=>p.ch,band:1,key:1}])];
     return [...base,...key,...rest];
   }
 
-  const prof = p => (p.k && P[S.role+'|'+p.k]) || null;
+  const prof = p => (p.k && P[roleOf(p)+'|'+p.k]) || null;
   const style = p => { const f = prof(p); return (f && f.c && f.c.style) || p.cls || p.st || null; };
   const tagOf = p => { const f = prof(p); return (f && f.c && f.c.tag) || p.tg || null; };
   const ISO = {'Andorra':'AD','Argentina':'AR','Armenia':'AM','Australia':'AU','Austria':'AT','Azerbaijan':'AZ','Belarus':'BY','Belgium':'BE','Bolivia':'BO','Bosnia and Herzegovina':'BA','Brazil':'BR','Bulgaria':'BG','Canada':'CA','Chile':'CL','China':'CN','Colombia':'CO','Costa Rica':'CR','Croatia':'HR','Cyprus':'CY','Czech Republic':'CZ','Czechia':'CZ','Denmark':'DK','Dominican Republic':'DO','Ecuador':'EC','Egypt':'EG','Estonia':'EE','Faroe Islands':'FO','Finland':'FI','France':'FR','Georgia':'GE','Germany':'DE','Greece':'GR','Hong Kong':'HK','Hungary':'HU','Iceland':'IS','India':'IN','Indonesia':'ID','Iran':'IR','Iraq':'IQ','Ireland':'IE','Israel':'IL','Italy':'IT','Japan':'JP','Jordan':'JO','Kazakhstan':'KZ','Kosovo':'XK','Kuwait':'KW','Latvia':'LV','Lebanon':'LB','Lithuania':'LT','Luxembourg':'LU','Macau':'MO','Malaysia':'MY','Malta':'MT','Mexico':'MX','Moldova':'MD','Mongolia':'MN','Montenegro':'ME','Morocco':'MA','Netherlands':'NL','New Zealand':'NZ','North Macedonia':'MK','Norway':'NO','Panama':'PA','Paraguay':'PY','Peru':'PE','Philippines':'PH','Poland':'PL','Portugal':'PT','Puerto Rico':'PR','Romania':'RO','Russia':'RU','Saudi Arabia':'SA','Serbia':'RS','Singapore':'SG','Slovakia':'SK','Slovenia':'SI','South Africa':'ZA','South Korea':'KR','Spain':'ES','Sweden':'SE','Switzerland':'CH','Syria':'SY','Taiwan':'TW','Thailand':'TH','Tunisia':'TN','Turkey':'TR','Ukraine':'UA','United Arab Emirates':'AE','United Kingdom':'GB','United States':'US','Uruguay':'UY','Venezuela':'VE','Vietnam':'VN','Algeria':'DZ','Albania':'AL'};
@@ -379,7 +428,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   }
 
   function render(){
-    const R = D.roles[S.role], g = reg(), C = cols(), dev = S.view==='dev', war = dev && g.devKind==='war';
+    const R = RL(), g = reg(), C = cols(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all';
     document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected', b.dataset.r===S.role));
     document.querySelectorAll('#view button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.v===S.view));
     if(S.page==='lists'){ try{ history.replaceState(null,'','#'+S.role); }catch(e){} }
@@ -391,7 +440,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     $('betaNote').hidden = !R.beta;
     if(R.beta) $('betaNote').innerHTML = `<b>${esc(R.label)} is a beta list.</b> This role's formula is a first version and has not yet beaten simple baselines in the retrospective check. Use it to build a long list, not to rank finalists.`;
     const {list, out, hiddenUnknown, shownUnknown} = rows();
-    const sc = C.find(c=>c.k===S.sort) || C[0]; const dir = S.sort ? S.dir : 1; const natural = sc.k==='rk' && dir===1;
+    const sc = C.find(c=>c.k===S.sort) || (ALL ? (C.find(c=>c.key) || C[0]) : C[0]); const dir = S.sort ? S.dir : (ALL ? -1 : 1); const natural = !ALL && sc.k==='rk' && dir===1;
     out.sort((a,b)=>{ const x=sc.get(a), y=sc.get(b); if(x==null && y==null) return a.rk-b.rk; if(x==null) return 1; if(y==null) return -1; const c = (typeof x==='string'||typeof y==='string') ? String(x).localeCompare(String(y)) : x-y; return c*dir || a.rk-b.rk; });
     $('tbl').querySelector('thead').innerHTML = '<tr>'+C.map(c=>`<th scope="col" class="${c.n?'n':''}" ${c.k===sc.k?`aria-sort="${dir>0?'ascending':'descending'}"`:''}><button type="button" data-k="${esc(c.k)}">${esc(c.l)}</button></th>`).join('')+'</tr>';
     let html = '', lastTier = null;
@@ -419,7 +468,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     const qq = $('fSearch').value.trim().toLowerCase(), sm = qq.length>=2 && !isPast() ? (R.small||[]).filter(x => (x[0]+' '+(x[2]||'')).toLowerCase().includes(qq)).slice(0,6) : [];
     $('smallNote').hidden = !sm.length;
     if(sm.length) $('smallNote').innerHTML = '<b>Not listed, under the '+D.min_games+'-game minimum:</b> ' + sm.map(x=>`${esc(x[0])} (${esc(x[1])}, ${esc(x[2]||'team unknown')}, ${x[3]} games)`).join('; ') + '. Players need '+D.min_games+' games in one league this season before they get a rating that can be listed.';
-    $('count').textContent = `${out.length} of ${list.length} ${R.label.toLowerCase()} players · ${g.name}` + (isPast() ? ` · roster year ${S.year} (backtest)` : '') + (shownUnknown ? ` · includes ${shownUnknown} of unknown age, who may be over the age limit` : '') + (hiddenUnknown ? ` · ${hiddenUnknown} of unknown age hidden` + (dev ? ' (the age rule could not be checked for them)' : '') : '') + ` · players under ${D.min_games} games are never listed`;
+    $('count').textContent = `${out.length} of ${list.length} ${ALL ? 'players of all roles' : R.label.toLowerCase()+' players'} · ${g.name}` + (isPast() ? ` · roster year ${S.year} (backtest)` : '') + (shownUnknown ? ` · includes ${shownUnknown} of unknown age, who may be over the age limit` : '') + (hiddenUnknown ? ` · ${hiddenUnknown} of unknown age hidden` + (dev ? ' (the age rule could not be checked for them)' : '') : '') + ` · players under ${D.min_games} games are never listed`;
   }
 
   $('tbl').addEventListener('click', e => {
@@ -467,14 +516,15 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     return `In the retrospective check, ${esc(region)} prospects in this band reached a top league within two seasons ${num(r['share who reached %'],0)}% of the time (${r['player seasons']} player seasons, 2019 to 2024).`;
   }
   function openCard(i){
-    if(M){ const R=D.roles[S.role], g=reg(), p=(S.view==='dev'?g.dev:g.win)[i]||{}; $('card').innerHTML = `<div class="top"><div><h2 id="cardName">${esc(p.p||'Name hidden')}</h2><p class="sub">${p.p ? esc(R.label+' · '+p.l+' · '+(p.t||''))+'. One of the named sample players. On this public page a name is never shown next to a number: his tier, rank range and full player sheet are in the private preview.' : 'Names, teams, ratings and the full player sheet are in the private preview.'}</p></div><button type="button" class="x" id="closeCard">Close</button></div><p style="margin:0">This public page shows the real lists. ${esc(D.sample_rule||'')} Teams and agencies can ask for access to every name and profile.</p><div><a class="btn go" href="${esc(mail)}">Request access</a></div><p class="note">${esc(D.contact||'')}</p>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); return; }
-    const R=D.roles[S.role], g=reg(), dev=S.view==='dev', list = dev?g.dev:g.win, p=list[i]; if(!p) return;
+    if(M){ const p=(S.view==='dev'?reg().dev:reg().win)[i]||{}, R=D.roles[roleOf(p)]||RL(), g=reg(); $('card').innerHTML = `<div class="top"><div><h2 id="cardName">${esc(p.p||'Name hidden')}</h2><p class="sub">${p.p ? esc(R.label+' · '+p.l+' · '+(p.t||''))+'. One of the named sample players. On this public page a name is never shown next to a number: his tier, rank range and full player sheet are in the private preview.' : 'Names, teams, ratings and the full player sheet are in the private preview.'}</p></div><button type="button" class="x" id="closeCard">Close</button></div><p style="margin:0">This public page shows the real lists. ${esc(D.sample_rule||'')} Teams and agencies can ask for access to every name and profile.</p><div><a class="btn go" href="${esc(mail)}">Request access</a></div><p class="note">${esc(D.contact||'')}</p>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); return; }
+    const p0=(S.view==='dev'?reg().dev:reg().win)[i]; if(!p0) return;
+    const role = roleOf(p0), R=D.roles[role], g=roleRegs(role).find(x=>x.name===S.region) || roleRegs(role)[0], dev=S.view==='dev', list = dev?g.dev:g.win, p=p0; i = list.indexOf(p);
     const past = isPast(), Y = past ? S.year : D.roster_year, SY = Y - 1;
     const other = (dev?g.win:g.dev).find(x=>x.p===p.p && x.t===p.t && x.l===p.l);
     const win = dev?other:p, dv = dev?p:other;
     const kv = past ? [['Team, most games '+SY,p.t],['Age mid-'+Y,p.a==null?'Unknown: the age rule could not be checked':p.a],['Residency (today)',p.r||'Unknown'],['Country',p.c||'Unknown'],['Win rate '+SY,p.w==null?'·':p.w+'%']] : [['Team, most games',p.t],['Latest team',p.lt],['Age mid-'+D.roster_year,p.a==null?'Unknown: the age rule could not be checked':p.a],['Residency',p.r||'Unknown'],['Country',p.c||'Unknown'],
       ['Win rate',p.w==null?'·':p.w+'%'],['Other leagues '+D.season,p.o||'None'],...(p.cls?[['Playstyle',p.cls]]:[]),...(p.n?[['Prospect status','Not listed as a developmental prospect ('+(NOTE[p.n]||p.n)+'). A split is one league split with 3 or more games played, not a year.']]:[])];
-    const pf = past ? pastProf(p, SY) : (p.k ? P[S.role+'|'+p.k] : null), pc = (pf && pf.c) || {};
+    const pf = past ? pastProf(p, SY) : (p.k ? P[role+'|'+p.k] : null), pc = (pf && pf.c) || {};
     const chips = [['Playstyle',pc.style||p.cls],['Tag',pc.tag],['Confidence',pc.conf],['Trend',pc.trend]].filter(x=>x[1]).map(x=>`<span><b>${esc(x[0])}</b> ${esc(x[1])}</span>`).join('');
     if(pc.next!=null) kv.push(['Expected next season', `Combined ${num(pc.next)} plus or minus ${num(pc.pm)}` + (pc.why ? ` (${pc.why})` : '')]);
     const tiles = [
@@ -485,7 +535,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     ];
     // rank among players of his role in his league, and among players of his nationality (all regions), by Combined
     const rankIn = arr => { const v = arr.filter(x => typeof x.cb==='number'); return {r:1+v.filter(x => x.cb>p.cb).length, n:v.length}; };
-    const lgR = rankIn(g.win.filter(x => x.l===p.l)), seenK = {}, allRole = []; regs().forEach(rg => rg.win.forEach(x => { const id = x.k||(x.p+'|'+x.t); if(!seenK[id]){ seenK[id]=1; allRole.push(x); } }));
+    const lgR = rankIn(g.win.filter(x => x.l===p.l)), seenK = {}, allRole = []; roleRegs(role).forEach(rg => rg.win.forEach(x => { const id = x.k||(x.p+'|'+x.t); if(!seenK[id]){ seenK[id]=1; allRole.push(x); } }));
     tiles.push(['In '+p.l, `#${lgR.r} of ${lgR.n}<small>${esc(R.label.toLowerCase())} players in his league</small>`]);
     if(p.c){ const nR = rankIn(allRole.filter(x => x.c===p.c)); tiles.push([p.c, `#${nR.r} of ${nR.n}<small>${esc(R.label.toLowerCase())} players of his nationality, all regions</small>`]); } else tiles.push(['Nationality', '·<small>unknown, no nation rank</small>']);
     $('card').innerHTML = `
@@ -503,12 +553,12 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       <div class="foot">${past ? `Sample ${p.g} games in ${esc(p.l)}, season ${SY}. Backtest: built in 2026 with today's formulas and only the matches played up to the end of ${SY}; the split chart and stat profile stop there too. A simulation with hindsight, not a live track record.` : `Sample ${p.g} games in ${esc(p.l)}, season ${D.season} · data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)}`}</div>
       ${past && liveOf(p) ? `<div><button type="button" class="btn go" id="toLive">Open his ${LIVE} profile</button></div>` : ''}`;
     $('closeCard').onclick = () => $('dlg').close();
-    if(past && $('toLive')) $('toLive').onclick = () => { const lv = liveOf(p), r = D.roles[S.role].regions.find(r=>r.win.includes(lv)); $('dlg').close(); S.region = r.name; S.view = 'win'; setYear(LIVE); openCard(r.win.indexOf(lv)); };
+    if(past && $('toLive')) $('toLive').onclick = () => { const lv = liveOf(p), r = D.roles[role].regions.find(r=>r.win.includes(lv)); $('dlg').close(); S.role = role; S.region = r.name; S.view = 'win'; setYear(LIVE); openCard(r.win.indexOf(lv)); };
     $('dlg').showModal();
   }
-  function liveOf(p){ return D.roles[S.role].regions.flatMap(r=>r.win).find(x => (p.k && x.k===p.k) || (!p.k && x.p===p.p)); }
+  function liveOf(p){ return D.roles[roleOf(p)].regions.flatMap(r=>r.win).find(x => (p.k && x.k===p.k) || (!p.k && x.p===p.p)); }
   function pastProf(p, SY){      // his history cut at the season shown: split chart, season list and stat profile only use what was known then
-    const v = p.k && window.FLEXPICK_HISTORY && window.FLEXPICK_HISTORY.prof[S.role+'|'+p.k]; if(!v) return null;
+    const v = p.k && window.FLEXPICK_HISTORY && window.FLEXPICK_HISTORY.prof[roleOf(p)+'|'+p.k]; if(!v) return null;
     const rd = (v.rd||[]).filter(x => x[0] <= SY);
     return {s: v.s.filter(x => x[0] <= SY).slice(-9), y: v.y.filter(x => x[0] <= SY), rd: rd.length ? rd[rd.length-1] : null};
   }
