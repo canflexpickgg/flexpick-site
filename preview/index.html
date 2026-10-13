@@ -167,6 +167,7 @@ dialog::backdrop{background:rgba(5,6,9,.66)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .chips span{font:500 11px var(--mono);letter-spacing:.04em;border:1px solid var(--line);border-radius:5px;padding:2px 8px;color:var(--ink)}
 .chips span b{color:var(--dim);font-weight:500}
+.years{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;font:12px var(--mono);color:var(--dim)} .years button{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:3px 9px;background:var(--panel);color:var(--ink);cursor:pointer} .years button[aria-pressed="true"]{background:var(--lime);border-color:var(--lime);color:var(--lime-ink)} .years button:hover{border-color:var(--ink)}
 .viz{display:block;width:100%;height:auto}
 .viz text{font:10px var(--mono);fill:var(--dim)} .viz .v{fill:var(--ink)}
 .ask [hidden]{display:none!important}
@@ -328,8 +329,8 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     box.innerHTML = hits.length ? hits.map((o, i) => { const ys = Object.keys(o.years).map(Number).sort((a,b)=>b-a); const last = o.years[ys[0]], lk = last.win || last.dev; return `<button type="button" data-i="${i}">${esc(o.p)} <span style="color:var(--dim)">· ${esc(D.roles[o.role].label)}</span><small>${ys.map(y => `${y===LIVE?LIVE+' live':y}: ${esc((o.years[y].win||o.years[y].dev).l||'')}`).join(' · ')}${lk.t ? ' · last team '+esc(lk.t) : ''}</small></button>`; }).join('') : '<div class="none">No listed player with that name. Players under 15 games in a season are never listed.</div>';
     box.querySelectorAll('button[data-i]').forEach(b => b.onclick = () => findOpen(hits[+b.dataset.i]));
   }
-  function findOpen(o){
-    const ys = Object.keys(o.years).map(Number).sort((a,b)=>b-a), y = ys[0], e = o.years[y], kind = e.win ? 'win' : 'dev', where = e[kind];
+  function findOpen(o, yWant){
+    const ys = Object.keys(o.years).map(Number).sort((a,b)=>b-a), y = (yWant && o.years[yWant]) ? yWant : ys[0], e = o.years[y], kind = (e.win && (S.view!=='dev' || !e.dev)) ? 'win' : 'dev', where = e[kind];
     $('findR').hidden = true; $('findQ').value = o.p;
     S.role = o.role; S.view = kind; S.region = where.region; S.sort = null;
     const open = () => { fill(); resetFilters(); const g = reg(), list = kind==='dev' ? g.dev : g.win, i = list.findIndex(p => (o.k && p.k===o.k) || (!o.k && p.p===o.p)); if(i >= 0) openCard(i); };
@@ -539,7 +540,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     tiles.push(['In '+p.l, `#${lgR.r} of ${lgR.n}<small>${esc(R.label.toLowerCase())} players in his league</small>`]);
     if(p.c){ const nR = rankIn(allRole.filter(x => x.c===p.c)); tiles.push([p.c, `#${nR.r} of ${nR.n}<small>${esc(R.label.toLowerCase())} players of his nationality, all regions</small>`]); } else tiles.push(['Nationality', '·<small>unknown, no nation rank</small>']);
     $('card').innerHTML = `
-      <div class="top"><div><h2 id="cardName">${esc(p.p)}</h2><p class="sub">${esc(R.label)} · ${esc(p.l)} · ${esc(p.t)}${past?` · <b>roster year ${Y} backtest</b>, as he looked after the ${SY} season`:''}${R.beta?' · beta formula':''}</p>${chips?`<div class="chips">${chips}</div>`:''}</div><button type="button" class="x" id="closeCard">Close</button></div>
+      <div class="top"><div><h2 id="cardName">${esc(p.p)}</h2>${yearChips(p, role, Y)}<p class="sub">${esc(R.label)} · ${esc(p.l)} · ${esc(p.t)}${past?` · <b>roster year ${Y} backtest</b>, as he looked after the ${SY} season`:''}${R.beta?' · beta formula':''}</p>${chips?`<div class="chips">${chips}</div>`:''}</div><button type="button" class="x" id="closeCard">Close</button></div>
       <dl class="big">${tiles.map(([a,b])=>`<div><dt>${esc(a)}</dt><dd>${b}</dd></div>`).join('')}</dl>
       <p class="note" style="margin-top:-8px">League and nation ranks use the Combined rating and count listed players only (${D.min_games}+ games, LPL not rated). Neighbours are rarely a real difference: read them with the tier.</p>
       <div><h3 class="sec">Rating build-up</h3>${bar('Elo, career head to head',p.e)}${bar('In-league rating',p.wi)}
@@ -553,8 +554,17 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       <div class="foot">${past ? `Sample ${p.g} games in ${esc(p.l)}, season ${SY}. Backtest: built in 2026 with today's formulas and only the matches played up to the end of ${SY}; the split chart and stat profile stop there too. A simulation with hindsight, not a live track record.` : `Sample ${p.g} games in ${esc(p.l)}, season ${D.season} · data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)}`}</div>
       ${past && liveOf(p) ? `<div><button type="button" class="btn go" id="toLive">Open his ${LIVE} profile</button></div>` : ''}`;
     $('closeCard').onclick = () => $('dlg').close();
+    const cid = role+'|'+(p.k||p.p);
+    $('card').querySelectorAll('.years button[data-y]').forEach(b => b.onclick = () => { const o = findIndex().find(x => x.id===cid); if(o && +b.dataset.y !== Y){ $('dlg').close(); findOpen(o, +b.dataset.y); } });
+    if($('yrLoad')) $('yrLoad').onclick = () => { $('yrLoad').textContent = 'Loading...'; const sc = document.createElement('script'); sc.src = 'history.js'; sc.onload = () => { HB(); FINDEX = null; openCard((S.view==='dev'?reg().dev:reg().win).indexOf(p)); }; sc.onerror = () => { $('yrLoad').textContent = 'Could not load past seasons'; }; document.head.appendChild(sc); };
     if(past && $('toLive')) $('toLive').onclick = () => { const lv = liveOf(p), r = D.roles[role].regions.find(r=>r.win.includes(lv)); $('dlg').close(); S.role = role; S.region = r.name; S.view = 'win'; setYear(LIVE); openCard(r.win.indexOf(lv)); };
     $('dlg').showModal();
+  }
+  function yearChips(p, role, Y){      // every roster year this player was listed in, as buttons; the past years need history.js
+    const id = role+'|'+(p.k||p.p), H = window.FLEXPICK_HISTORY;
+    if(!H && PAST.length) return `<div class="years"><span>Season version:</span><button type="button" aria-pressed="true">${Y===LIVE?LIVE+' live':Y}</button><button type="button" id="yrLoad">Other seasons...</button></div>`;
+    const o = findIndex().find(x => x.id===id); const ys = o ? Object.keys(o.years).map(Number).sort((a,b)=>b-a) : [Y];
+    return `<div class="years"><span>Season version:</span>${ys.map(y => `<button type="button" data-y="${y}" aria-pressed="${y===Y}">${y===LIVE?LIVE+' live':y}</button>`).join('')}</div>`;
   }
   function liveOf(p){ return D.roles[roleOf(p)].regions.flatMap(r=>r.win).find(x => (p.k && x.k===p.k) || (!p.k && x.p===p.p)); }
   function pastProf(p, SY){      // his history cut at the season shown: split chart, season list and stat profile only use what was known then
