@@ -249,7 +249,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
 
 <div class="wrap">
   <header>
-    <h1 class="brand"><span class="mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 2h10v3.2H6.4v2.2H12v3.1H6.4V14H3z" fill="#0d0e12"/></svg></span>flexpick</h1>
+    <h1 class="brand" id="brandHome" style="cursor:pointer" title="Back to the start page"><span class="mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 2h10v3.2H6.4v2.2H12v3.1H6.4V14H3z" fill="#0d0e12"/></svg></span>flexpick</h1>
     <nav aria-label="Views">
       <button type="button" id="navHome" aria-current="page">Product</button>
       <button type="button" id="navLists">Shortlists</button>
@@ -303,7 +303,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
 
     <div class="ask" id="ask">
       <span class="lab">Ask the data</span>
-      <form id="askForm"><input id="askQ" type="text" maxlength="300" autocomplete="off" placeholder="For example: French ADCs under 22 in the regional leagues" aria-label="Question about the lists"><button type="submit" class="btn go" id="askGo" style="padding:8px 16px;font-size:14px">Ask</button><button type="button" class="btn" id="askStop" style="padding:8px 14px;font-size:14px" hidden>Stop</button></form>
+      <form id="askForm"><input id="askQ" type="text" maxlength="300" autocomplete="off" placeholder="For example: French ADCs under 22 in the regional leagues" aria-label="Question about the lists"><button type="submit" class="btn go" id="askGo" style="padding:8px 16px;font-size:14px">Ask</button><button type="button" class="btn" id="askClr" style="padding:8px 14px;font-size:14px" hidden>Clear and go back</button><button type="button" class="btn" id="askStop" style="padding:8px 14px;font-size:14px" hidden>Stop</button></form>
       <div class="eg" id="askEg"></div>
       <div class="st" id="askSt" aria-live="polite" hidden></div>
       <div class="ans" id="askA" hidden></div>
@@ -378,7 +378,12 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   ['fLeague','fCountry','fAge','fGames','fSearch','fShow'].forEach(id => $(id).addEventListener('input', render));
   $('fAgeKnown').addEventListener('change', () => { try{ localStorage.setItem('fp_age_known', $('fAgeKnown').value); }catch(e){} render(); });
   function resetFilters(){ $('fLeague').value=''; $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fShow').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
-  $('resetF').addEventListener('click', resetFilters);
+  // the ask box moves the table to another role, region or list; Reset filters and Clear take it back to where it was before the question
+  let ASKPREV = null;
+  function clearAsk(){ const A = $('askA'); A.hidden = true; A.textContent = ''; $('askQ').value = ''; $('askClr').hidden = true;
+    if(ASKPREV){ const b = ASKPREV; ASKPREV = null; S.role = b.role; S.region = b.region; S.view = b.view; S.watch = false; S.sort = null; if(b.year !== S.year) setYear(b.year); } }
+  $('resetF').addEventListener('click', () => { clearAsk(); fill(); resetFilters(); });
+  $('askClr').addEventListener('click', () => { clearAsk(); fill(); resetFilters(); $('askQ').focus(); });
   // if anything throws while drawing, say so and offer a reset instead of leaving the page stuck
   window.addEventListener('error', e => { const c = $('count'); if(c && S.page==='lists'){ c.innerHTML = `<span class="errbar">Something went wrong while drawing this list. <button type="button" class="btn" id="errReset" style="padding:4px 10px;font-size:13px;margin-left:8px">Reset filters</button></span>`; const b = $('errReset'); if(b) b.onclick = () => { S.role='all'; S.sort=null; fill(); render(); }; } });
   // finder: every listed player of every role and season, by name
@@ -410,6 +415,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   $('findQ').addEventListener('keydown', e => { if(e.key==='Escape') $('findR').hidden = true; if(e.key==='Enter'){ const b = $('findR').querySelector('button[data-i]'); if(b) b.click(); } });
   const go = pg => () => { S.page=pg; show(); window.scrollTo(0,0); };
   $('navHome').addEventListener('click', go('home')); $('navLists').addEventListener('click', go('lists')); $('navMethod').addEventListener('click', go('method'));
+  $('brandHome').addEventListener('click', () => { clearAsk(); go('home')(); });
   $('heroLists').addEventListener('click', go('lists')); $('heroMethod').addEventListener('click', go('method'));
   const mail = 'mailto:' + (D.contact||'') + '?subject=' + encodeURIComponent('Flexpick access');
   ['navAccess','heroAccess','mailLink'].forEach(id => { $(id).href = mail; }); $('mailLink').textContent = D.contact || '';
@@ -1039,6 +1045,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     const args = {role, region:g.name, kind, limit:f.limit || 8}; if(f.league) args.league = f.league; if(f.nationality) args.nationality = f.nationality; if(f.max_age!=null) args.max_age = f.max_age; if(f.min_games!=null) args.min_games = f.min_games; if(f.style) args.playstyle_or_tag = f.style;
     const r = lp(args), said = [R.label, g.name, kind==='dev'?'developmental':'win now', f.league, f.nationality, f.max_age!=null?'age '+f.max_age+' or under':null, f.min_games!=null?f.min_games+'+ games':null, f.style].filter(Boolean);
     // put the same filters on the table below
+    if(!ASKPREV) ASKPREV = {role:S.role, region:S.region, view:S.view, year:S.year};
     S.year = LIVE; if($('fYear')) $('fYear').value = LIVE; S.role = role; S.view = kind; S.region = g.name; S.sort = null; fill(); $('fLeague').value = f.league && [...$('fLeague').options].some(o=>o.value===f.league) ? f.league : ''; $('fCountry').value = f.nationality && [...$('fCountry').options].some(o=>o.value===f.nationality) ? f.nationality : ''; $('fAge').value = f.max_age!=null ? f.max_age : ''; $('fGames').value = Math.max(D.min_games, f.min_games||D.min_games); $('fSearch').value = ''; render();
     const head = `Read as: ${said.join(' · ')}. ${r.matching} player${r.matching===1?'':'s'} match${r.matching===1?'es':''}` + (r.matching>r.shown ? `, ${M?'first':'best'} ${r.shown} shown` : '') + '.';
     const natNote = (M && f.nationality) ? '\nOn this public page nationality is only known for the named sample players, so a nationality filter shows only them.' : '';
@@ -1051,7 +1058,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     $('askEg').innerHTML = EG.map(x => `<button type="button">${esc(x)}</button>`).join('');
     $('askEg').addEventListener('click', e => { const b = e.target.closest('button'); if(b){ $('askQ').value = b.textContent; $('askForm').requestSubmit(); } });
     $('askForm').addEventListener('submit', e => { e.preventDefault(); const q = $('askQ').value.trim(); if(!q) return; St.hidden = true;
-      try{ const r = answer(q); A.hidden = false; A.textContent = r.text; }catch(err){ A.hidden = false; A.textContent = 'That question could not be read. Try a role, a region or league, a nationality, an age or a playstyle.'; } });
+      try{ const r = answer(q); A.hidden = false; A.textContent = r.text; $('askClr').hidden = false; }catch(err){ A.hidden = false; A.textContent = 'That question could not be read. Try a role, a region or league, a nationality, an age or a playstyle.'; } });
   })();
 
   function show(){
