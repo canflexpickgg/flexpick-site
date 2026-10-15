@@ -112,6 +112,8 @@ dialog::backdrop{background:rgba(5,6,9,.66)}
 .rep{border-top:2px solid var(--lime);margin-top:14px;padding-top:12px;display:grid;gap:16px} .rep h3.sec{margin:0 0 6px} .rep .seas{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:12px var(--mono);color:var(--dim)} .rep .seas button{font:500 12px var(--mono);border:1px solid var(--line);border-radius:5px;padding:3px 9px;background:var(--panel);color:var(--ink);cursor:pointer} .rep .seas button[aria-pressed="true"]{background:var(--lime);border-color:var(--lime);color:var(--lime-ink)}
 .rep .tb{overflow-x:auto} .rep table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums} .rep th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);white-space:nowrap} .rep td{padding:5px 8px;border-bottom:1px solid var(--line);white-space:nowrap} .rep td.n,.rep th.n{text-align:right} .rep tr.focus td{background:var(--raise)}
 .rep .m{display:grid;grid-template-columns:minmax(0,200px) 130px 1fr 36px;gap:8px;align-items:center;font-size:13px;padding:3px 0;border-bottom:1px solid var(--line)} .rep .m .v{font:13px var(--mono);text-align:right} .rep .m .pb{height:6px;background:var(--raise);border-radius:3px;position:relative} .rep .m .pb i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--lime)} .rep .m .pc{font:11px var(--mono);color:var(--dim);text-align:right} .rep .cols{display:grid;grid-template-columns:1fr;gap:18px} dialog.wide{width:min(1000px,calc(100vw - 32px))} .rep .cols>div{min-width:0} .rep .ok{color:var(--pos)} .rep .bad{color:var(--neg)}
+#view button:disabled{opacity:.4;cursor:not-allowed} .rep{grid-template-columns:minmax(0,1fr)} .rep>*{min-width:0}
+@media (max-width:560px){ .rep .m{grid-template-columns:minmax(0,1fr) auto 30px;row-gap:4px} .rep .m .pb{grid-column:1/-1;grid-row:2} .rep .m .v{font-size:12px} dialog.wide{width:calc(100vw - 16px);max-width:none} }
 .note{font-size:12.5px;color:var(--dim);margin:6px 0 0}
 /* method view */
 .method{display:flex;flex-direction:column;gap:26px;max-width:920px}
@@ -284,6 +286,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   const P = window.FLEXPICK_PROFILES || {};
   const LOGO = window.FLEXPICK_LOGOS || {};
   const M = !!D.masked;      // public build: names, teams and exact ratings are not in the data file at all
+  if(M && $('finder')) $('finder').style.display = 'none';   // names are not in the public file, so a name search can never hit
   const S = {role:'all', view:'win', region:'ERL', sort:null, dir:1, page:'home', year:D.roster_year};
   const ROLES = Object.keys(D.roles), ALLR = {label:'All roles', beta:false, blocks:[], levels:{}, small:[].concat(...ROLES.map(k=>D.roles[k].small||[]))};
   const RL = r => (r||S.role)==='all' ? ALLR : D.roles[r||S.role];
@@ -432,6 +435,9 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   }
 
   function render(){
+    { const g0 = reg(), noDev = isPast() && !((g0 && g0.dev) || []).length, db = document.querySelector('#view button[data-v="dev"]');
+      if(db){ db.disabled = noDev; db.title = noDev ? 'Past developmental lists cover regional leagues, LCK CL and NACL only' : ''; }
+      if(noDev && S.view==='dev'){ S.view = 'win'; S.sort = null; } }
     const R = RL(), g = reg(), C = cols(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all';
     document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected', b.dataset.r===S.role));
     document.querySelectorAll('#view button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.v===S.view));
@@ -751,6 +757,9 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       return {text:[`Data to ${a.data_to}, patches ${a.patches}, roster year ${a.roster_year}. Players need ${a.minimum_games} games to be listed.`, `Roles: ${a.roles.join(', ')}. Regions: ${a.regions.join(', ')}.`, 'Win now: '+a.meaning.win_now, 'Developmental: '+a.meaning.developmental, 'Not covered: '+a.meaning.not_covered, a.evidence_note + (fr ? ` Of the regional prospects who did reach a top league, ${Math.round(fr['win now rating found %'])}% were in the top 10 of their role the year before (${Math.round(fr['by luck %'])}% by luck).` : ''), 'The full tables are under Method and evidence.'].join('\n')}; }
     if(f.names.length && !filtered){ const outL = []; f.names.slice(0,3).forEach(n => { const r = fp({name:n}); const ex = r.matches.filter(o => o.player.toLowerCase()===n.toLowerCase()), devOf = o => ex.find(x => x.list==='developmental' && x.role===o.role && x.team===o.team); ex.filter(o => o.list==='win now' || !ex.some(x => x.list==='win now' && x.role===o.role && x.team===o.team)).slice(0,2).forEach(o => { let s = `${o.role} · ${o.region_list} · ` + line(o); const dv = !o.sample && o.list==='win now' && devOf(o); if(dv) s += ` · developmental list: tier ${dv.tier}` + (dv.chance_band ? ', chance band '+String(dv.chance_band).toLowerCase() : ''); if(o.profile){ const pr = o.profile; const bits = [pr.confidence?'confidence '+String(pr.confidence).toLowerCase():null, pr.expected_rating_next_season!=null?'expected rating next season '+pr.expected_rating_next_season+' plus or minus '+pr.plus_minus:null, pr.trend?'trend '+String(pr.trend).toLowerCase():null].filter(Boolean).join(' · '); if(bits) s += '\n   ' + bits; const sp = (pr.splits||[]).slice(-3).map(x => `${x.season} ${x.split} ${x.league} ${x.split_rating>0?'+':''}${x.split_rating} (${x.games} games)`).join('; '); if(sp) s += '\n   last splits: ' + sp; } outL.push(s); }); r.under_minimum.forEach(u => outL.push(`${u.player} · ${u.role} · ${u.league} · ${u.games} games · ${u.note}`)); });
       if(outL.length) return {text:outL.join('\n') + (f.names.length>1 ? '\nPlayers in the same tier cannot be separated by the data.' : '')}; }
+    if(!f.names.length && !M){ const mm = q.toLowerCase().match(/(?:who is|who's|tell me about|profile of|look up|find|search|show me)\s+([a-z0-9][a-z0-9 ._'-]{1,24}?)\s*\??$/i);
+      if(mm && !filtered){ const nm = mm[1].trim(); if($('findQ')){ $('findQ').value = nm; findDraw(); $('finder').scrollIntoView({block:'center'}); }
+        return {text:`"${nm}" is not on the ${LIVE} lists (players need ${D.min_games} games in one league this season). The player finder below searches every season back to 2019; matches are listed there.`}; } }
     const role = f.role || S.role, R = D.roles[role], region = f.region || (R.regions.some(r=>r.name===S.region) ? S.region : R.regions[0].name), g = R.regions.find(r=>r.name===region) || R.regions[0];
     let kind = f.kind || 'win'; if(kind==='dev' && !g.dev.length) kind = 'win';
     const args = {role, region:g.name, kind, limit:f.limit || 8}; if(f.league) args.league = f.league; if(f.nationality) args.nationality = f.nationality; if(f.max_age!=null) args.max_age = f.max_age; if(f.min_games!=null) args.min_games = f.min_games; if(f.style) args.playstyle_or_tag = f.style;
