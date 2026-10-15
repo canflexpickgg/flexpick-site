@@ -57,7 +57,7 @@ nav button[aria-current="page"]{color:var(--ink);border-color:var(--line);backgr
 .f label,.f .lab{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
 .f select,.f input{font:14px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);padding:7px 9px;border-radius:8px;max-width:100%}
 .f input[type=number]{width:84px}.f input[type=search]{width:170px}
-.finder{position:relative;margin:10px 0 0} .finder input{width:min(100%,420px)} .fres{position:absolute;z-index:5;left:0;top:100%;margin-top:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:min(100%,520px);max-height:360px;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.35)} .fres button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 12px;color:var(--ink);font:14px var(--body);cursor:pointer} .fres button:hover,.fres button:focus-visible{background:var(--raise);outline:none} .fres button small{display:block;font:12px var(--mono);color:var(--dim)} .fres .none{padding:10px 12px;color:var(--dim);font-size:13px}
+.finder{position:relative;margin:10px 0 0;display:flex;flex-direction:column;gap:4px} .finder .lab{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)} .finder input{width:min(100%,420px);font:14px var(--body);color:var(--ink);background:var(--panel);border:1px solid var(--line);padding:8px 10px;border-radius:8px} .fres{position:absolute;z-index:5;left:0;top:100%;margin-top:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:min(100%,520px);max-height:360px;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.35)} .fres button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 12px;color:var(--ink);font:14px var(--body);cursor:pointer} .fres button:hover,.fres button:focus-visible{background:var(--raise);outline:none} .fres button small{display:block;font:12px var(--mono);color:var(--dim)} .fres .none{padding:10px 12px;color:var(--dim);font-size:13px}
 .errbar{background:var(--neg);color:#fff;border-radius:8px;padding:8px 12px;font-size:14px;margin:8px 0}
 .chk{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--dim);padding-bottom:7px}
 .lede{margin:0;max-width:78ch;color:var(--dim);font-size:14px}
@@ -190,6 +190,61 @@ dialog::backdrop{background:rgba(5,6,9,.66)}
 footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px;max-width:100ch}
 @media (max-width:560px){.srow{grid-template-columns:22px minmax(0,1fr) 92px}.srow .tr{display:none}.brand{font-size:21px}.f input[type=search]{width:140px}.card h2{font-size:24px}}
 @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+/* extras 15 Oct: watchlist, compare, toolbar, scatter, phone cards, print sheet */
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tools .btn,.cardact .btn,.tray .btn{padding:6px 12px;font-size:13px;font-weight:600;border-radius:8px}
+.tools .btn.on,.cardact .btn.on{border-color:var(--accent-text);color:var(--accent-text)}
+.tools .cnt{font:500 11px var(--mono);background:var(--raise);border-radius:4px;padding:0 5px;margin-left:4px}
+.tools .seg button{padding:6px 11px}
+.tools .sp{flex:1}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.star{all:unset;cursor:pointer;color:var(--dim);font-size:15px;margin-right:6px;padding:0 2px;line-height:1}
+.star.on{color:var(--accent-text)} .star:focus-visible{outline:2px solid var(--lime)}
+.chg{font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;border-radius:4px;padding:1px 5px;margin-left:8px}
+.chg.new{background:var(--lime);color:var(--lime-ink)} .chg.up{color:var(--up);border:1px solid var(--up)} .chg.down{color:var(--down);border:1px solid var(--down)}
+.cardact{display:flex;flex-wrap:wrap;gap:8px}
+.note-in{display:flex;flex-direction:column;gap:4px} .note-in .lab,.tray .lab{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.note-in textarea{font:14px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;resize:vertical}
+.tray{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:20;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--accent-text);border-radius:12px;padding:8px 10px;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:calc(100vw - 24px)}
+.tray[hidden]{display:none}
+.tray .ct{font-size:13px;font-weight:600;border:1px solid var(--line);border-radius:6px;padding:3px 4px 3px 8px;display:flex;gap:4px;align-items:center}
+.tray .ct small{font:11px var(--mono);color:var(--dim)} .tray .ct button{all:unset;cursor:pointer;color:var(--dim);padding:0 4px}
+table.cmp td,table.cmp th{white-space:normal;vertical-align:top} table.cmp th[scope=row]{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);background:none;padding:6px 8px;min-width:120px} table.cmp td.best{color:var(--accent-text);font-weight:700}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:0}
+ul.tk{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.sum{border:1px solid var(--line);border-left:3px solid var(--lime);border-radius:8px;padding:10px 14px}
+.rep .jump{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:12px var(--mono);color:var(--dim)} .rep .jump button{font:12px var(--mono);background:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--ink);cursor:pointer}
+dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-weight:600}
+.scbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px} .scbar select{font:13px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.scat{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px 14px} .scv circle.sp{cursor:pointer} .scv circle.sp:hover{stroke:var(--ink);stroke-width:2}
+.tips{border:1px dashed var(--line);border-radius:10px;padding:10px 14px;font-size:13.5px;display:flex;gap:12px;align-items:flex-start;justify-content:space-between} .tips ul{margin:0;padding-left:18px} .tips[hidden]{display:none}
+#fToggle,#phSortBox{display:none}
+.printhead{display:none}
+@media (max-width:700px){
+  #fToggle{display:inline-block} #phSortBox{display:flex}
+  .bar:not(.open) .f:not(.keep){display:none}
+  #tbl thead{display:none} #tbl,#tbl tbody{display:block}
+  #tbl tr.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 12px;padding:10px 12px;border-bottom:1px solid var(--line)}
+  #tbl tr.row td{display:flex;justify-content:space-between;gap:8px;border:0;padding:2px 0;white-space:normal;text-align:right;font-size:13px;min-width:0}
+  #tbl tr.row td::before{content:attr(data-l);font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);text-align:left}
+  #tbl tr.row td.pl{grid-column:1/-1;justify-content:flex-start;font-size:15px;text-align:left;flex-wrap:wrap} #tbl tr.row td.pl::before{display:none}
+  #tbl tr.row td.key{grid-column:1/-1}
+  #tbl tr.tier{display:block} #tbl tr.tier td{display:block;white-space:normal}
+  .tablebox{overflow:visible}
+  .tray{bottom:8px}
+}
+@media print{
+  :root,:root[data-theme]{color-scheme:light;--bg:#fff;--panel:#fff;--raise:#f1f2ec;--line:#cfd2c6;--ink:#0d0e12;--dim:#4f555f;--accent-text:#3d5200;--up:#1c7a4a;--down:#b3402f}
+  body{background:#fff}
+  body.printing .wrap,body.printing .tray{display:none!important}
+  body.printing dialog{position:static;display:block;border:0;width:auto!important;max-width:none;max-height:none;overflow:visible;box-shadow:none;margin:0}
+  body.printing dialog::backdrop{display:none}
+  body.printing .x,body.printing .cardact,body.printing #repBtn,body.printing .years button[id],body.printing .rep .jump,body.printing .rep .seas{display:none!important}
+  body.printing .note-in textarea{border:0;padding:0;resize:none}
+  body.printing .printhead{display:block;font:11px var(--mono);border-bottom:2px solid #0d0e12;padding-bottom:6px}
+  body.printing .card{padding:0;gap:12px} body.printing .card>div,body.printing .rep>div{break-inside:avoid}
+  @page{size:A4;margin:14mm}
+}
 </style>
 
 <div class="wrap">
@@ -226,8 +281,9 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   <section id="viewLists" style="display:none" hidden>
     <div class="tabs" role="tablist" aria-label="Role" id="tabs"></div>
 
-    <div class="bar">
-      <div class="f"><span class="lab" id="lblList">List</span>
+    <div class="bar" id="fbar">
+      <div class="f keep"><span class="lab">&nbsp;</span><button type="button" class="btn" id="fToggle" aria-expanded="false" style="padding:7px 12px;font-size:13px">Filters</button></div>
+      <div class="f keep"><span class="lab" id="lblList">List</span>
         <div class="seg" id="view" role="group" aria-labelledby="lblList">
           <button type="button" data-v="win" aria-pressed="true">Win now</button>
           <button type="button" data-v="dev" aria-pressed="false">Developmental</button>
@@ -240,6 +296,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       <div class="f"><label for="fGames">Min games</label><input id="fGames" type="number" min="20" step="5"></div>
       <div class="f"><label for="fSearch">Player or team</label><input id="fSearch" type="search" placeholder="Search"></div>
       <div class="f"><label for="fAgeKnown">Unknown age</label><select id="fAgeKnown"><option value="all">Show them</option><option value="hide">Hide them</option><option value="only">Only them</option></select></div>
+      <div class="f"><label for="fShow">Show</label><select id="fShow"><option value="">All players</option><option value="rise">Trend improving</option></select></div>
       <div class="f"><span class="lab">&nbsp;</span><button type="button" class="btn" id="resetF" style="padding:7px 12px;font-size:13px">Reset filters</button></div>
     </div>
     <div class="finder" id="finder"><label for="findQ" class="lab">Find a player, any role, any season</label><input id="findQ" type="search" autocomplete="off" placeholder="Type a name, for example Xay"><div class="fres" id="findR" hidden></div></div>
@@ -255,9 +312,12 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
 
     <p class="lede" id="question"></p>
     <div class="warn" id="betaNote" hidden></div>
+    <div class="tips" id="tips" hidden><ul><li><b>★</b> next to a name puts the player on your watchlist; a private note on his sheet does the same.</li><li><b>+ Compare</b> on a player sheet collects up to three players, any role or season, side by side.</li><li><b>Copy link</b> keeps the exact list, player or comparison. Only people with access to this page can open it.</li></ul><button type="button" class="x" id="tipsX">Got it</button></div>
+    <div class="tools" id="tools"><button type="button" class="btn" id="watchBtn" aria-pressed="false">★ Watchlist</button><div class="seg" id="modeSeg" role="group" aria-label="Show as"><button type="button" data-m="table" aria-pressed="true">Table</button><button type="button" data-m="scatter" aria-pressed="false">Scatter</button></div><span class="f" id="phSortBox" style="flex-direction:row;align-items:center;gap:6px"><label for="phSort">Sort</label><select id="phSort"></select></span><span class="sp"></span><span id="wTools" hidden><button type="button" class="btn" id="wExp">Export watchlist</button> <button type="button" class="btn" id="wImp">Import</button><input type="file" id="wFile" accept=".json,application/json" hidden></span><button type="button" class="btn" id="csvBtn">Download CSV</button><button type="button" class="btn" id="linkBtn">Copy link</button><button type="button" class="btn" id="glBtn">Glossary</button></div>
     <div class="count" id="count" aria-live="polite"></div>
     <div class="warn" id="smallNote" hidden></div>
-    <div class="tablebox"><table id="tbl"><thead></thead><tbody></tbody></table><div class="empty" id="empty" hidden>No players match these filters. Lower the minimum games, clear the league or nationality, or set Unknown age to Show them.</div></div>
+    <div class="scat" id="scat" hidden></div>
+    <div class="tablebox" id="tblBox"><table id="tbl"><thead></thead><tbody></tbody></table><div class="empty" id="empty" hidden>No players match these filters. Lower the minimum games, clear the league or nationality, or set Unknown age to Show them.</div></div>
   </section>
 
   <section id="viewMethod" class="method" hidden></section>
@@ -270,6 +330,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
 </div>
 
 <dialog id="dlg" aria-labelledby="cardName"><div class="card" id="card"></div></dialog>
+<div class="tray" id="cmpTray" hidden aria-label="Compare tray"></div>
 
 <script src="data.js"></script>
 <script src="profiles.js"></script>
@@ -289,10 +350,12 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   if(M && $('finder')) $('finder').style.display = 'none';   // names are not in the public file, so a name search can never hit
   const S = {role:'all', view:'win', region:'ERL', sort:null, dir:1, page:'home', year:D.roster_year};
   const ROLES = Object.keys(D.roles), ALLR = {label:'All roles', beta:false, blocks:[], levels:{}, small:[].concat(...ROLES.map(k=>D.roles[k].small||[]))};
-  const RL = r => (r||S.role)==='all' ? ALLR : D.roles[r||S.role];
+  const RL = r => ((r||S.role)==='all' || (!r && S.watch)) ? ALLR : D.roles[r||S.role];
   const LIVE = D.roster_year, PAST = M ? [] : Array.from({length: LIVE - 2019}, (_, i) => LIVE - 1 - i);      // past roster years 2019 to LIVE-1: lists as they would have looked then (tools/export_history.py)
   const isPast = () => S.year !== LIVE && !!window.FLEXPICK_HISTORY;
   try{ const h = location.hash.slice(1); if(h==='method') S.page='method'; else if(has(D.roles,h) || h==='all'){ S.role = h; S.page='lists'; } }catch(e){}
+  const HQ = (() => { try{ const h = location.hash.slice(1); return h.includes('=') ? new URLSearchParams(h) : null; }catch(e){ return null; } })();
+  if(HQ){ S.page = 'lists'; const r = HQ.get('r'); if(r && (r==='all' || has(D.roles, r))) S.role = r; if(HQ.get('g')) S.region = HQ.get('g'); if(HQ.get('v')==='dev') S.view = 'dev'; if(!M && HQ.get('w')) S.watch = true; if(!M && HQ.get('m')==='scatter') S.mode = 'scatter'; }
   try{ const v=localStorage.getItem('fp_age_known'); if(v==='hide'||v==='only') $('fAgeKnown').value = v; }catch(e){}
 
   const stamp = `<span class="preview">${M?'Public preview · sample names only':'Private preview'}</span><span>Data to <b>${fmtDate(D.data_cutoff)}</b></span><span>Patches <b>${esc(D.patches)}</b></span><span>Min <b>${D.min_games}</b> games per player</span>${PAST.length ? `<span>Roster year <select id="fYear" aria-label="Roster year"><option value="${LIVE}">${LIVE} (live)</option>${PAST.map(y=>`<option value="${y}">${y} (backtest)</option>`).join('')}</select></span>` : `<span>Roster year <b>${D.roster_year}</b></span>`}`;
@@ -309,12 +372,12 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   if(M) $('fAgeKnown').closest('.f').hidden = true;      // public file: ages of hidden players are not published
 
   $('tabs').innerHTML = '<button type="button" role="tab" data-r="all">All roles</button>' + Object.keys(D.roles).map(k => `<button type="button" role="tab" data-r="${esc(k)}">${esc(D.roles[k].label)}${D.roles[k].beta?'<span class="beta">beta</span>':''}</button>`).join('');
-  $('tabs').addEventListener('click', e => { const b = e.target.closest('button[data-r]'); if(b){ S.role=b.dataset.r; S.sort=null; fill(); render(); }});
+  $('tabs').addEventListener('click', e => { const b = e.target.closest('button[data-r]'); if(b){ S.role=b.dataset.r; S.watch=false; S.sort=null; fill(); render(); }});
   $('view').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(b){ S.view=b.dataset.v; S.sort=null; render(); }});
-  $('fRegion').addEventListener('change', () => { S.region=$('fRegion').value; S.sort=null; fill(true); render(); });
-  ['fLeague','fCountry','fAge','fGames','fSearch'].forEach(id => $(id).addEventListener('input', render));
+  $('fRegion').addEventListener('change', () => { S.region=$('fRegion').value; S.watch=false; S.sort=null; fill(true); render(); });
+  ['fLeague','fCountry','fAge','fGames','fSearch','fShow'].forEach(id => $(id).addEventListener('input', render));
   $('fAgeKnown').addEventListener('change', () => { try{ localStorage.setItem('fp_age_known', $('fAgeKnown').value); }catch(e){} render(); });
-  function resetFilters(){ $('fLeague').value=''; $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
+  function resetFilters(){ $('fLeague').value=''; $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fShow').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
   $('resetF').addEventListener('click', resetFilters);
   // if anything throws while drawing, say so and offer a reset instead of leaving the page stuck
   window.addEventListener('error', e => { const c = $('count'); if(c && S.page==='lists'){ c.innerHTML = `<span class="errbar">Something went wrong while drawing this list. <button type="button" class="btn" id="errReset" style="padding:4px 10px;font-size:13px;margin-left:8px">Reset filters</button></span>`; const b = $('errReset'); if(b) b.onclick = () => { S.role='all'; S.sort=null; fill(); render(); }; } });
@@ -363,7 +426,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   }
   const regs = () => S.role==='all' ? allRegs() : roleRegs(S.role);
   const roleOf = p => p._r || S.role;
-  const reg = () => { const rs = regs(); return rs.find(r=>r.name===S.region) || rs[0] || {name:S.region, win:[], dev:[]}; };
+  const reg = () => { if(S.watch) return watchReg(); const rs = regs(); return rs.find(r=>r.name===S.region) || rs[0] || {name:S.region, win:[], dev:[]}; };
   function fill(keepRegion){
     const R = RL();
     if(!keepRegion){ const rs = regs(); $('fRegion').innerHTML = rs.map(r=>`<option value="${esc(r.name)}">${esc(r.name)}</option>`).join(''); if(rs.length && !rs.some(r=>r.name===S.region)) S.region = rs[0].name; $('fRegion').value = S.region; }
@@ -376,14 +439,14 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   }
 
   function cols(){
-    const R = RL(), g = reg(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all';
+    const R = RL(), g = reg(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all' || S.watch;
     const base = [
       {k:'rk',l:ALL?'# in role':'#',n:1,get:p=>p.rk,d:0,asc:1},
       {k:'p',l:'Player',get:p=>p.p||'Name hidden',cls:'pl'},
       ...(ALL ? [{k:'role',l:'Role',get:p=>D.roles[p._r].label}] : []),
       {k:'c',l:'Nat',get:p=>p.c,flag:1},
       {k:'r',l:'Res',get:p=>p.r,res:1},
-      ...(g.name==='ERL' ? [{k:'l',l:'League',get:p=>p.l}] : []),
+      ...(g.name==='ERL' || S.watch ? [{k:'l',l:'League',get:p=>p.l}] : []),
       {k:'t',l:'Team',get:p=>p.tc||p.t,team:1},
       {k:'st',l:'Style',get:p=>style(p)},
       {k:'tg',l:'Tag',get:p=>tagOf(p)},
@@ -420,12 +483,13 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
   function rows(){
     const g = reg(), list = S.view==='dev' ? g.dev : g.win;
     const lg=$('fLeague').value, maxAge=parseFloat($('fAge').value), minG=Math.max(D.min_games, parseFloat($('fGames').value)||D.min_games);
-    const q=$('fSearch').value.trim().toLowerCase(), ak=$('fAgeKnown').value, unk=ak!=='hide', nat=$('fCountry').value;
+    const q=$('fSearch').value.trim().toLowerCase(), ak=$('fAgeKnown').value, unk=ak!=='hide', nat=$('fCountry').value, sh=$('fShow').value;
     let hiddenUnknown = 0, shownUnknown = 0;
     const out = list.filter(p => {
       if(lg && p.l!==lg) return false; if(p.g<minG) return false;
       if(nat && (nat==='__unknown' ? !!p.c : p.c!==nat)) return false;
       if(q && !(((p.p||'')+' '+(p.t||'')+' '+(p.lt||'')).toLowerCase().includes(q))) return false;
+      if(sh==='rise'){ const f = prof(p); if(!(f && f.c && f.c.trend==='Improving')) return false; } else if(sh==='chg' && !chgOf(p, g.name)) return false;
       if(ak==='only' && p.a!=null) return false;
       if(M && !p.nm) return ak!=='only' && (isNaN(maxAge) || (p.amax!=null && p.amax<=maxAge));      // public file: a hidden player shows one detail only, so most have no age band
       if(p.a==null){ if(!unk && !q && nat!=='__unknown'){ hiddenUnknown++; return false; } shownUnknown++; return true; }      // asking for unknown nationality shows those players even though their age is unknown too
@@ -438,10 +502,10 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     { const g0 = reg(), noDev = isPast() && !((g0 && g0.dev) || []).length, db = document.querySelector('#view button[data-v="dev"]');
       if(db){ db.disabled = noDev; db.title = noDev ? 'Past developmental lists cover regional leagues, LCK CL and NACL only' : ''; }
       if(noDev && S.view==='dev'){ S.view = 'win'; S.sort = null; } }
-    const R = RL(), g = reg(), C = cols(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all';
-    document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected', b.dataset.r===S.role));
+    const R = RL(), g = reg(), C = cols(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all' || S.watch;
+    document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected', !S.watch && b.dataset.r===S.role));
     document.querySelectorAll('#view button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.v===S.view));
-    if(S.page==='lists'){ try{ history.replaceState(null,'','#'+S.role); }catch(e){} }
+    if(S.page==='lists') writeHash();
     $('question').innerHTML = !dev
       ? '<b>Win now</b> asks who is the best player today. Ranked by Combined: half career head-to-head Elo, half stat Score with league strength built in. <b>Rank range</b> shows where he could sit on this list given how far ratings usually move in a season. Players in the same tier cannot be separated by the data.'
       : war ? '<b>Developmental</b>, for players already in a top league: ranked by expected value next season, a forecast of the rating expressed in win-equivalents per 100 games. A scale for comparing players, not a measured contribution to wins.'
@@ -452,7 +516,8 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     const {list, out, hiddenUnknown, shownUnknown} = rows();
     const sc = C.find(c=>c.k===S.sort) || (ALL ? (C.find(c=>c.key) || C[0]) : C[0]); const dir = S.sort ? S.dir : (ALL ? -1 : 1); const natural = !ALL && sc.k==='rk' && dir===1;
     out.sort((a,b)=>{ const x=sc.get(a), y=sc.get(b); if(x==null && y==null) return a.rk-b.rk; if(x==null) return 1; if(y==null) return -1; const c = (typeof x==='string'||typeof y==='string') ? String(x).localeCompare(String(y)) : x-y; return c*dir || a.rk-b.rk; });
-    $('tbl').querySelector('thead').innerHTML = '<tr>'+C.map(c=>`<th scope="col" class="${c.n?'n':''}" ${c.k===sc.k?`aria-sort="${dir>0?'ascending':'descending'}"`:''}><button type="button" data-k="${esc(c.k)}">${esc(c.l)}</button></th>`).join('')+'</tr>';
+    $('tbl').querySelector('thead').innerHTML = '<tr>'+C.map(c=>`<th scope="col" class="${c.n?'n':''}" ${c.k===sc.k?`aria-sort="${dir>0?'ascending':'descending'}"`:''}><button type="button" data-k="${esc(c.k)}" ${GL[c.l]?`title="${esc(GL[c.l])}"`:''}>${esc(c.l)}</button></th>`).join('')+'</tr>';
+    LAST = {out, C, list}; tools(C, sc, dir, out, list);
     let html = '', lastTier = null;
     out.forEach(p => {
       if(natural && M && p.nm){ if(lastTier!=='nm'){ lastTier = 'nm'; html += `<tr class="tier"><td colspan="${C.length}"><b>Named sample players</b> · by league and name, their numbers are hidden</td></tr>`; } }
@@ -471,21 +536,24 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
         else if(c.team){ const lg = LOGO[p.t]; t = (lg ? `<img class="tlogo" src="${lg}" alt="" width="18" height="18" loading="lazy">` : '') + (p.tc ? `<span title="${esc(p.t||'')}">${esc(p.tc)}</span>` : esc(p.t==null?'·':p.t)); }
         else t = esc(v==null?'·':v);
         if(c.k==='p'){ if(p.ss) t += '<span class="chip" title="Under 20 games this season: treat the rating as a first look">small sample</span>'; if(p.a==null && !p.ab && !(M && !p.nm)) t += '<span class="chip">age unknown</span>'; if(M && p.nm) t += '<span class="chip" title="One named sample player per role in each league">sample</span>'; if(p.n && !dev) t += `<span class="chip" title="Not listed as a developmental prospect">${esc(NOTE[p.n]||p.n)}</span>`; }
-        return `<td class="${cls}">${t}</td>`; }).join('') + '</tr>';
+        if(c.k==='p' && !M){ const id = pid(p), ch = S.watch ? null : chgOf(p, g.name); t = `<button type="button" class="star${isW(id)?' on':''}" data-star="${list.indexOf(p)}" aria-pressed="${isW(id)}" aria-label="${isW(id)?'Remove from':'Add to'} watchlist" title="${isW(id)?'On your watchlist':'Add to watchlist'}">${isW(id)?'★':'☆'}</button>` + t + (ch==='new' ? '<span class="chg new" title="Not on this list at the previous data update you saw">new</span>' : ch==='up' ? '<span class="chg up" title="Tier went up since the previous data update you saw">tier ▴</span>' : ch==='down' ? '<span class="chg down" title="Tier went down since the previous data update you saw">tier ▾</span>' : '') + (S.watch && WATCH[id] && WATCH[id].n ? `<span class="chip" title="${esc(WATCH[id].n)}">note</span>` : ''); }
+        return `<td class="${cls}" data-l="${esc(c.l)}">${t}</td>`; }).join('') + '</tr>';
     });
     $('tbl').querySelector('tbody').innerHTML = html;
-    $('empty').hidden = out.length>0;
+    $('empty').hidden = out.length>0; $('empty').textContent = S.watch ? (Object.keys(WATCH).length ? 'None of your watched players is on the lists of this season. Change the roster year, or reset the filters.' : 'Your watchlist is empty. Use the ☆ next to a name, or write a private note on a player sheet.') : 'No players match these filters. Lower the minimum games, clear the league or nationality, or set Unknown age to Show them.';
+    const scm = S.mode==='scatter' && !M; $('scat').hidden = !scm; $('tblBox').hidden = scm; $('tblBox').style.display = scm ? 'none' : ''; if(scm) scatter(out, C);
     const qq = $('fSearch').value.trim().toLowerCase(), sm = qq.length>=2 && !isPast() ? (R.small||[]).filter(x => (x[0]+' '+(x[2]||'')).toLowerCase().includes(qq)).slice(0,6) : [];
     $('smallNote').hidden = !sm.length;
     if(sm.length) $('smallNote').innerHTML = '<b>Not listed, under the '+D.min_games+'-game minimum:</b> ' + sm.map(x=>`${esc(x[0])} (${esc(x[1])}, ${esc(x[2]||'team unknown')}, ${x[3]} games)`).join('; ') + '. Players need '+D.min_games+' games in one league this season before they get a rating that can be listed.';
-    $('count').textContent = `${out.length} of ${list.length} ${ALL ? 'players of all roles' : R.label.toLowerCase()+' players'} · ${g.name}` + (isPast() ? ` · roster year ${S.year} (backtest)` : '') + (shownUnknown ? ` · includes ${shownUnknown} of unknown age, who may be over the age limit` : '') + (hiddenUnknown ? ` · ${hiddenUnknown} of unknown age hidden` + (dev ? ' (the age rule could not be checked for them)' : '') : '') + ` · players under ${D.min_games} games are never listed`;
+    $('count').textContent = (S.watch ? `Watchlist · ${list.length} of ${Object.keys(WATCH).length} watched players are on the ${S.year} ${dev?'developmental':'win now'} lists · kept in this browser only, export it to keep a copy · ` : '') + `${out.length} of ${list.length} ${ALL ? 'players of all roles' : R.label.toLowerCase()+' players'} · ${g.name}` + (isPast() ? ` · roster year ${S.year} (backtest)` : '') + (shownUnknown ? ` · includes ${shownUnknown} of unknown age, who may be over the age limit` : '') + (hiddenUnknown ? ` · ${hiddenUnknown} of unknown age hidden` + (dev ? ' (the age rule could not be checked for them)' : '') : '') + ` · players under ${D.min_games} games are never listed`;
   }
 
   $('tbl').addEventListener('click', e => {
     const b = e.target.closest('th button'); if(b){ const k=b.dataset.k, c=cols().find(c=>c.k===k); if(S.sort===k) S.dir=-S.dir; else { S.sort=k; S.dir = (c.asc||!c.n)?1:-1; } render(); const nb=$('tbl').querySelector(`th button[data-k="${CSS.escape(k)}"]`); if(nb) nb.focus(); return; }
+    const st = e.target.closest('button[data-star]'); if(st){ const p = LAST.list[+st.dataset.star]; if(p){ toggleWatch(p); render(); const nb = $('tbl').querySelector(`button[data-star="${LAST.list.indexOf(p)}"]`); if(nb) nb.focus(); } return; }
     const tr = e.target.closest('tr[data-id]'); if(tr) openCard(+tr.dataset.id);
   });
-  $('tbl').addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' '){ const tr=e.target.closest('tr[data-id]'); if(tr){ e.preventDefault(); openCard(+tr.dataset.id); } }});
+  $('tbl').addEventListener('keydown', e => { if(e.target.closest('button')) return; if(e.key==='Enter' || e.key===' '){ const tr=e.target.closest('tr[data-id]'); if(tr){ e.preventDefault(); openCard(+tr.dataset.id); } }});
 
   function bar(label,v){
     if(typeof v!=='number') return '';
@@ -503,17 +571,20 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     return `<div><h3 class="sec">Split by split</h3><svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Split rating over his last ${s.length} splits">${ticks}<polyline points="${pts}" fill="none" stroke="var(--accent-text)" stroke-width="2"/>${dots}</svg><ul class="slist">${last}</ul>
       <p class="note">Split rating = half Elo at the end of the split, half that split's stat score, on one scale across leagues. Zero is the average rated player of the role in that split. A split is often under 25 games, so single steps are noisy: direction over three splits says something about the next split, and nothing about next season beyond the rating itself.</p></div>`;
   }
-  function radar(rd, label){
+  function radar(rd, label, prev, canLoad){
     if(!rd || !rd[3] || rd[3].length<3) return '';
     const ax=rd[3], n=ax.length, W=620, H=300, cx=W/2, cy=150, Rr=104;
     const pt=(i,f)=>{ const a=-Math.PI/2+i*2*Math.PI/n; return [cx+Math.cos(a)*Rr*f, cy+Math.sin(a)*Rr*f]; };
     const ring=f=>ax.map((_,i)=>pt(i,f).map(v=>v.toFixed(1)).join(',')).join(' ');
     const poly=ax.map((a,i)=>pt(i,(a[1]==null?50:a[1])/100).map(v=>v.toFixed(1)).join(',')).join(' ');
-    const spokes=ax.map((a,i)=>{ const [x,y]=pt(i,1), [lx,ly]=pt(i,1.16); const anc=Math.abs(lx-cx)<12?'middle':lx>cx?'start':'end'; return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"/><text x="${lx.toFixed(1)}" y="${(ly+3).toFixed(1)}" text-anchor="${anc}">${esc(a[0])} <tspan class="v">${a[1]==null?'·':a[1]}</tspan></text>`; }).join('');
+    const pv = lab => { if(!prev || !prev[3]) return null; const z = prev[3].find(q => q[0]===lab); return z && z[1]!=null ? z[1] : null; }, nMatch = ax.filter(a => pv(a[0])!=null).length;
+    const spokes=ax.map((a,i)=>{ const [x,y]=pt(i,1), [lx,ly]=pt(i,1.16); const anc=Math.abs(lx-cx)<12?'middle':lx>cx?'start':'end'; const w = pv(a[0]); return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"/><text x="${lx.toFixed(1)}" y="${(ly+3).toFixed(1)}" text-anchor="${anc}">${esc(a[0])} <tspan class="v">${a[1]==null?'·':a[1]}</tspan>${w!=null&&nMatch>=3?` <tspan>(${w})</tspan>`:''}</text>`; }).join('');
+    const ppoly = nMatch>=3 ? `<polygon points="${ax.map((a,i)=>pt(i,(pv(a[0])==null?50:pv(a[0]))/100).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#4ea3ff" stroke-width="1.6" stroke-dasharray="5 4"/>` : '';
     return `<div><h3 class="sec">Stat profile in ${esc(rd[1])}, season ${rd[0]} (${rd[2]} games)</h3><svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Percentile of ${n} stats against ${esc(label.toLowerCase())} players of his league">
       <polygon points="${ring(1)}" fill="none" stroke="var(--line)"/><polygon points="${ring(.5)}" fill="none" stroke="var(--dim)" stroke-dasharray="3 4"/>${spokes}
-      <polygon points="${poly}" fill="var(--lime)" fill-opacity=".28" stroke="var(--accent-text)" stroke-width="2"/></svg>
-      <p class="note">Each number is his percentile among ${esc(label.toLowerCase())} players of his own league with 20+ games (100 = best, dashed ring = league median). Stats are champion adjusted. Only stats that repeat between two halves of a season and follow a player to a new team are shown.</p></div>`;
+      ${ppoly}<polygon points="${poly}" fill="var(--lime)" fill-opacity=".28" stroke="var(--accent-text)" stroke-width="2"/></svg>
+      ${nMatch>=3 ? `<p class="note"><span class="dot" style="background:#4ea3ff"></span>Dashed blue line and numbers in brackets: ${esc(prev[1])} ${prev[0]} (${prev[2]} games), each against that season's league.</p>` : canLoad ? '<p class="note"><button type="button" class="btn" id="lastSeason" style="padding:4px 10px;font-size:12px">Show last season on this chart</button></p>' : ''}
+      <p class="note"><b>Pool:</b> ${esc(rd[1])} ${esc(label.toLowerCase())} players with 20+ games in ${rd[0]}. Each number is his percentile among them (100 = best, dashed ring = league median). Stats are champion adjusted. Only stats that repeat between two halves of a season and follow a player to a new team are shown.</p></div>`;
   }
   function similar(sm){
     if(!sm || !sm[1] || !sm[1].length) return '';
@@ -529,7 +600,7 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     $('dlg').classList.remove('wide');
     if(M){ const p=(S.view==='dev'?reg().dev:reg().win)[i]||{}, R=D.roles[roleOf(p)]||RL(), g=reg(); $('card').innerHTML = `<div class="top"><div><h2 id="cardName">${esc(p.p||'Name hidden')}</h2><p class="sub">${p.p ? esc(R.label+' · '+p.l+' · '+(p.t||''))+'. One of the named sample players. On this public page a name is never shown next to a number: his tier, rank range and full player sheet are in the private preview.' : 'Names, teams, ratings and the full player sheet are in the private preview.'}</p></div><button type="button" class="x" id="closeCard">Close</button></div><p style="margin:0">This public page shows the real lists. ${esc(D.sample_rule||'')} Teams and agencies can ask for access to every name and profile.</p><div><a class="btn go" href="${esc(mail)}">Request access</a></div><p class="note">${esc(D.contact||'')}</p>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); return; }
     const p0=(S.view==='dev'?reg().dev:reg().win)[i]; if(!p0) return;
-    const role = roleOf(p0), R=D.roles[role], g=roleRegs(role).find(x=>x.name===S.region) || roleRegs(role)[0], dev=S.view==='dev', list = dev?g.dev:g.win, p=p0; i = list.indexOf(p);
+    const role = roleOf(p0), R=D.roles[role], g=roleRegs(role).find(x=>x.win.includes(p0)||x.dev.includes(p0)) || roleRegs(role).find(x=>x.name===S.region) || roleRegs(role)[0], dev=S.view==='dev', list = dev?g.dev:g.win, p=p0; i = list.indexOf(p);
     const past = isPast(), Y = past ? S.year : D.roster_year, SY = Y - 1;
     const other = (dev?g.win:g.dev).find(x=>x.p===p.p && x.t===p.t && x.l===p.l);
     const win = dev?other:p, dv = dev?p:other;
@@ -550,21 +621,23 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     tiles.push(['In '+p.l, `#${lgR.r} of ${lgR.n}<small>${esc(R.label.toLowerCase())} players in his league</small>`]);
     if(p.c){ const nR = rankIn(allRole.filter(x => x.c===p.c)); tiles.push([p.c, `#${nR.r} of ${nR.n}<small>${esc(R.label.toLowerCase())} players of his nationality, all regions</small>`]); } else tiles.push(['Nationality', '·<small>unknown, no nation rank</small>']);
     $('card').innerHTML = `
+      <div class="printhead">Flexpick player sheet · private, do not forward · data to ${fmtDate(D.data_cutoff)} · printed ${new Date().toLocaleDateString('en-GB')}</div>
       <div class="top"><div><h2 id="cardName">${esc(p.p)}</h2>${yearChips(p, role, Y)}<p class="sub">${esc(R.label)} · ${esc(p.l)} · ${esc(p.t)}${past?` · <b>roster year ${Y} backtest</b>, as he looked after the ${SY} season`:''}${R.beta?' · beta formula':''}</p>${chips?`<div class="chips">${chips}</div>`:''}</div><button type="button" class="x" id="closeCard">Close</button></div>
+      ${cardExtras(p, role, Y)}
       <dl class="big">${tiles.map(([a,b])=>`<div><dt>${esc(a)}</dt><dd>${b}</dd></div>`).join('')}</dl>
       <p class="note" style="margin-top:-8px">League and nation ranks use the Combined rating and count listed players only (${D.min_games}+ games, LPL not rated). Neighbours are rarely a real difference: read them with the tier.</p>
       <div><h3 class="sec">Rating build-up</h3>${bar('Elo, career head to head',p.e)}${bar('In-league rating',p.wi)}
         <p class="note">Score ${num(p.s)} = in-league rating ${num(p.wi)} + league level ${num(p.lv)} (${esc(p.l)}${(!past&&R.levels&&R.levels[p.l]&&R.levels[p.l][1]!==R.levels[p.l][2])?`, could be ${num(R.levels[p.l][1],1)} to ${num(R.levels[p.l][2],1)}`:''}; the average LEC ${esc(R.label.toLowerCase())} is 0). The level moves every player of the league together. Combined puts Elo and Score on one scale first, so it is not their plain average.</p></div>
       <div><h3 class="sec">${esc(R.label)} profile against his own league</h3>${R.blocks.map((b,j)=> b ? bar(b,p.b?p.b[j]:null) : '').join('')}
         <p class="note">Bars run from −3.5 to +3.5. Zero is the average ${esc(R.label.toLowerCase())} in ${esc(p.l)}. A profile inside one league depends partly on his team.</p></div>
-      ${pf ? spark(pf.s) + radar(pf.rd, R.label) + similar(pf.sm) : ''}
+      ${pf ? spark(pf.s) + radar(pf.rd, R.label, prevRd(p, role, pf.rd), !window.FLEXPICK_HISTORY && PAST.length && !!p.k) + similar(pf.sm) : ''}
       ${p.ch!=null ? `<p class="note"><b>Chance band: ${esc(p.bd).toLowerCase()}</b> (model value ${num(p.ch,0)}). ${calText(g.name, p.ch)} The share swings from year to year with the number of top league seats that open. It does not know his contract, buyout or residency.</p>` : ''}
       <dl class="kv">${kv.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>
       ${past ? `<div><h3 class="sec">What happened next</h3><dl class="kv"><dt>Next season (${Y})</dt><dd>${esc(p.nl ? p.nl+(p.nt?' · '+p.nt:'') : 'No league games')}</dd><dt>Top league (10+ games)</dt><dd>${p.ys ? 'After '+p.ys+' season'+(p.ys>1?'s':'') : p.in ? 'Already in one' : 'Not yet'}</dd></dl></div>` : ''}
       <div class="foot">${past ? `Sample ${p.g} games in ${esc(p.l)}, season ${SY}. Backtest: built in 2026 with today's formulas and only the matches played up to the end of ${SY}; the split chart and stat profile stop there too. A simulation with hindsight, not a live track record.` : `Sample ${p.g} games in ${esc(p.l)}, season ${D.season} · data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)}`}</div>
       ${past && liveOf(p) ? `<div><button type="button" class="btn go" id="toLive">Open his ${LIVE} profile</button></div>` : ''}
       ${p.k && !M ? `<div><button type="button" class="btn go" id="repBtn">Scouting report: detailed stats, champion pool, laning, matchups</button></div><div id="repBox"></div>` : ''}`;
-    $('closeCard').onclick = () => $('dlg').close();
+    $('closeCard').onclick = () => $('dlg').close(); wireCard(p, role, Y);
     const cid = role+'|'+(p.k||p.p);
     $('card').querySelectorAll('.years button[data-y]').forEach(b => b.onclick = () => { const o = findIndex().find(x => x.id===cid); if(o && +b.dataset.y !== Y){ $('dlg').close(); findOpen(o, +b.dataset.y); } });
     if($('yrLoad')) $('yrLoad').onclick = () => { $('yrLoad').textContent = 'Loading...'; const sc = document.createElement('script'); sc.src = 'history.js'; sc.onload = () => { HB(); FINDEX = null; openCard((S.view==='dev'?reg().dev:reg().win).indexOf(p)); }; sc.onerror = () => { $('yrLoad').textContent = 'Could not load past seasons'; }; document.head.appendChild(sc); };
@@ -604,12 +677,15 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
       <div><h3 class="sec">Scouting report · ${esc(p.p)} · ${esc(L)}</h3><p class="note">Raw per-game numbers from league games in his main league each season (cups and other leagues left out), not champion adjusted. The bar and small number on a line is his percentile among ${esc(L.toLowerCase())} players of the same league and season with 8+ games (100 = best; for deaths and death share, lowest). This is the material behind the rating, not the rating: the lists and the profile above stay the reference.</p></div>
       <div><h3 class="sec">Career</h3>${career}</div>
       <div class="seas"><span>Season in detail:</span>${ss.map(x => `<button type="button" data-y="${x.y}" aria-pressed="${x.y===s.y}">${x.y} ${esc(x.lg)}</button>`).join('')}</div>
+      ${repSummary(s, L)}
+      <div class="jump"><span>Jump to:</span><button type="button" data-j="rLane">Laning</button><button type="button" data-j="rFight">Fighting</button><button type="button" data-j="rChamp">Champion pool</button><button type="button" data-j="rOpp">Opponents</button></div>
       <div><h3 class="sec">${s.y} · ${esc(s.lg)} · ${esc(s.t)}</h3>${rec}<p class="note">Percentiles below are against ${s.npl} ${esc(L.toLowerCase())} players of ${esc(s.lg)} in ${s.y}.</p></div>
-      <div class="cols"><div><h3 class="sec">Laning</h3>${lane}</div><div><h3 class="sec">Fighting, economy, vision</h3>${fight}</div></div>
-      <div><h3 class="sec">Champion pool</h3>${champs}</div>
-      <div class="cols"><div><h3 class="sec">By champion class</h3>${cls}</div><div><h3 class="sec">Opponents faced most</h3>${opp}</div></div>
+      <div class="cols"><div id="rLane"><h3 class="sec">Laning</h3>${lane}</div><div id="rFight"><h3 class="sec">Fighting, economy, vision</h3>${fight}</div></div>
+      <div id="rChamp"><h3 class="sec">Champion pool</h3>${champs}</div>
+      <div class="cols"><div><h3 class="sec">By champion class</h3>${cls}</div><div id="rOpp"><h3 class="sec">Opponents faced most</h3>${opp}</div></div>
     </div>`;
     box.querySelectorAll('.seas button').forEach(b => b.onclick = () => { renderReport(box, role, p, d, ss, +b.dataset.y); box.scrollIntoView({block:'start'}); });
+    box.querySelectorAll('.jump button').forEach(b => b.onclick = () => { const t = document.getElementById(b.dataset.j); if(t) t.scrollIntoView({block:'start', behavior:'smooth'}); });
     box.scrollIntoView({block:'start', behavior:'smooth'});
   }
   function liveOf(p){ return D.roles[roleOf(p)].regions.flatMap(r=>r.win).find(x => (p.k && x.k===p.k) || (!p.k && x.p===p.p)); }
@@ -619,6 +695,204 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     return {s: v.s.filter(x => x[0] <= SY).slice(-9), y: v.y.filter(x => x[0] <= SY), rd: rd.length ? rd[rd.length-1] : null};
   }
   $('dlg').addEventListener('click', e => { if(e.target===$('dlg')) $('dlg').close(); });
+  // ================= EXTRAS (15 Oct 2026): watchlist and notes, compare, share links, print sheet, CSV, glossary, report summary,
+  // phone layout helpers, changes since last data build, scatter explorer. Everything is kept in this browser; nothing leaves the page.
+  const ST = {get(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v==null ? d : v; }catch(e){ return d; } }, set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }};
+  const pid = (p, role) => (role || roleOf(p)) + '|' + (p.k || p.p);
+  let WATCH = M ? {} : ST.get('fp_watch', {});
+  const saveWatch = () => { ST.set('fp_watch', WATCH); const b = $('watchBtn'); if(b) b.innerHTML = `★ Watchlist <span class="cnt">${Object.keys(WATCH).length}</span>`; };
+  const isW = id => has(WATCH, id);
+  function toggleWatch(p, role){ const id = pid(p, role); if(isW(id)) delete WATCH[id]; else WATCH[id] = {nm:p.p, r:role || roleOf(p), n:'', t:Date.now()}; saveWatch(); return isW(id); }
+  // every listed row of a role and year, with the region it sits in
+  function yRegs(role, y){ if(y===LIVE) return D.roles[role].regions; const H = window.FLEXPICK_HISTORY; return H ? (((H.roles[role]||{}).years||{})[y] || []) : []; }
+  function findP(id, y){ const role = id.split('|')[0], key = id.slice(role.length+1); if(!D.roles[role]) return null;
+    for(const g of yRegs(role, y)){ for(const kind of ['win','dev']){ const p = g[kind].find(x => (x.k||x.p)===key); if(p){ if(!p._r) p._r = role; return {p, role, g, kind}; } } } return null; }
+  function watchReg(){ const seen = {}, out = [];
+    const dv = [], seenD = {};
+    ROLES.forEach(r => roleRegs(r).forEach(g => { g.win.forEach(p => { const id = pid(p, r); if(isW(id) && !seen[id]){ seen[id] = 1; if(!p._r) p._r = r; out.push(p); } }); g.dev.forEach(p => { const id = pid(p, r); if(isW(id) && !seenD[id]){ seenD[id] = 1; if(!p._r) p._r = r; dv.push(p); } }); }));
+    return {name:'Watchlist', win:out, dev:dv, devKind:'dev'}; }
+  // ---- changes between the last two data builds this browser has seen
+  const CHG = (() => { if(M) return null; const now = {}; ROLES.forEach(r => D.roles[r].regions.forEach(g => g.win.forEach(p => { now[pid(p,r)+'@'+g.name] = p.ti; })));
+    const st = ST.get('fp_seen', null); let prev = null;
+    if(!st){ ST.set('fp_seen', {cut:D.data_cutoff, cur:now}); }
+    else if(st.cut !== D.data_cutoff){ prev = st.cur; ST.set('fp_seen', {cut:D.data_cutoff, cur:now, prev, pcut:st.cut}); }
+    else { prev = st.prev || null; }
+    return prev ? {prev, pcut:(st && st.cut !== D.data_cutoff) ? st.cut : (st && st.pcut)} : null; })();
+  function chgOf(p, gname){ if(!CHG || isPast()) return null; const k = pid(p) + '@' + gname, was = CHG.prev[k]; if(was==null) return 'new'; if(S.view==='dev') return null; if(p.ti < was) return 'up'; if(p.ti > was) return 'down'; return null; }
+  // ---- glossary
+  const GL = {'Combined':'The win now rating: half career head-to-head Elo, half stat Score. One scale across leagues; LEC average is about 0.', 'Rank range':'Where he could sit on this list given how far ratings usually move in a season (8 in 10).', 'Tier':'Players in the same tier cannot be separated by the data.', 'Elo':'Career head-to-head result against the players he actually faced in his role.', 'Score':'In-league rating plus league level.', 'In league':'How far above the average player of his own league, in standard deviations, from matchup-adjusted stats.', 'Lg level':'Strength of his league against LEC = 0, in the same units.', 'Dev score':'Developmental score: half Chance, half Expected value. Prospects only.', 'Chance':'A band, not a personal probability: how often similar past prospects played 10+ top league games within two seasons.', 'Expected value':'Forecast rating next season in win-equivalents per 100 games above a real second-choice player. A scale, not a measured contribution.', 'Res':'Residency as recorded on Leaguepedia; nationality is not residency.', 'Style':'Playstyle class from his habits, compared with his league.', 'Tag':'Champion pool or habit tag.', 'Games':'Games in his main league this season. Under 20 games is a small sample.', 'Age':'Age in the middle of the roster year.', '# in role':'Order inside his role on this list. Read it with the tier.', 'Next season':'Where he played the season after (backtest only).', 'Top league':'First season with 10+ games in LCK, LPL, LEC or LCS (backtest only).'};
+  function glossary(){ $('dlg').classList.remove('wide'); $('card').innerHTML = `<div class="top"><div><h2 id="cardName">Glossary</h2><p class="sub">What each number on this page means.</p></div><button type="button" class="x" id="closeCard">Close</button></div><dl class="kv gl">${Object.entries(GL).map(([a,b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl><p class="note">Every list shows tiers and rank ranges because neighbours on a list are rarely a real difference. LPL is not rated. No contract, salary or solo queue data.</p>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); }
+  // ---- share links: the view, the open player and the compare set live in the address
+  let CUR = null, CMPOPEN = false;
+  function stateHash(){
+    if(S.page==='method') return '#method'; if(S.page==='home') return ''; if(M) return '#' + S.role;
+    const q = new URLSearchParams(); q.set('r', S.role); q.set('g', S.region); q.set('v', S.view); if(S.year!==LIVE) q.set('y', S.year); if(S.watch) q.set('w', 1); if(S.mode==='scatter') q.set('m', 'scatter');
+    if(CUR) q.set('p', CUR.id + (CUR.y!==LIVE ? '@'+CUR.y : '')); if(CMPOPEN && CMP.length) q.set('c', CMP.map(x => x.id + (x.y!==LIVE ? '@'+x.y : '')).join('~'));
+    return '#' + q.toString(); }
+  function writeHash(){ try{ history.replaceState(null, '', location.pathname + location.search + stateHash()); }catch(e){} }
+  function copyLink(btn){ const u = location.href, done = () => { if(btn){ const t = btn.textContent; btn.textContent = 'Link copied'; setTimeout(() => btn.textContent = t, 1600); } };
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(done, () => fallbackCopy(u, done)); else fallbackCopy(u, done); }
+  function fallbackCopy(u, done){ const i = document.createElement('input'); i.value = u; document.body.appendChild(i); i.select(); try{ document.execCommand('copy'); done(); }catch(e){} i.remove(); }
+  function printSheet(){ document.body.classList.add('printing'); const off = () => { document.body.classList.remove('printing'); window.removeEventListener('afterprint', off); }; window.addEventListener('afterprint', off); window.print(); setTimeout(off, 4000); }
+  // ---- compare tray (up to 3 players, any role, any season)
+  let CMP = M ? [] : ST.get('fp_cmp', []).filter(x => x && x.id);
+  const saveCmp = () => { ST.set('fp_cmp', CMP); drawTray(); };
+  const inCmp = (id, y) => CMP.some(x => x.id===id && x.y===y);
+  function addCmp(id, y, nm){ if(inCmp(id, y)) return; if(CMP.length>=3) CMP.shift(); CMP.push({id, y, nm}); saveCmp(); }
+  function drawTray(){ const t = $('cmpTray'); if(!t) return; t.hidden = !CMP.length;
+    t.innerHTML = CMP.length ? `<span class="lab">Compare</span>${CMP.map((x,i) => `<span class="ct">${esc(x.nm||'?')}${x.y!==LIVE?` <small>${x.y}</small>`:''}<button type="button" data-rm="${i}" aria-label="Remove ${esc(x.nm||'')}">×</button></span>`).join('')}<button type="button" class="btn go" id="cmpGo" ${CMP.length<2?'disabled':''}>${CMP.length<2?'Add one more':'Compare '+CMP.length}</button><button type="button" class="btn" id="cmpClr">Clear</button>` : ''; }
+  function ensureHistory(cb){ if(window.FLEXPICK_HISTORY || !PAST.length) return cb(); const sc = document.createElement('script'); sc.src = 'history.js'; sc.onload = () => { HB(); FINDEX = null; cb(); }; sc.onerror = cb; document.head.appendChild(sc); }
+  const COLS3 = ['var(--accent-text)', '#4ea3ff', '#ff8a4c'];
+  function openCompare(){
+    const need = CMP.some(x => x.y!==LIVE); if(need && !window.FLEXPICK_HISTORY) return ensureHistory(openCompare);
+    const E = CMP.map(x => { const f = findP(x.id, x.y); if(!f) return null; const {p, role, g, kind} = f; const win = kind==='win' ? p : g.win.find(z => (z.k||z.p)===(p.k||p.p)), dv = g.dev.find(z => (z.k||z.p)===(p.k||p.p));
+      const pf = x.y===LIVE ? (p.k ? P[role+'|'+p.k] : null) : pastProf(p, x.y-1); return {x, p, role, g, win, dv, pf, c:(pf && pf.c) || {}}; }).filter(Boolean);
+    if(E.length < 2){ $('card').innerHTML = `<div class="top"><div><h2 id="cardName">Compare</h2><p class="sub">Some players in the compare set are no longer on the lists for that season.</p></div><button type="button" class="x" id="closeCard">Close</button></div>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); return; }
+    E.forEach(e => { e.x.nm = e.p.p; }); ST.set('fp_cmp', CMP); drawTray();
+    CMPOPEN = true; CUR = null; writeHash();
+    const sameRole = E.every(e => e.role===E[0].role);
+    const R0 = (fn) => E.map(fn);
+    const rowsDef = [
+      ['Role · season', e => esc(D.roles[e.role].label) + ' · ' + (e.x.y===LIVE ? LIVE+' live' : e.x.y+' backtest')],
+      ['League · team', e => esc(e.p.l) + ' · ' + esc(e.p.t||'')],
+      ['Age', e => e.p.a==null ? 'unknown' : e.p.a, e => e.p.a, 0],
+      ['Games', e => e.p.g + (e.p.g<20 ? ' <span class="chip">small sample</span>' : ''), e => e.p.g, 1],
+      ['Win now tier', e => e.win ? 'tier '+e.win.ti : '·', e => e.win ? -e.win.ti : null, 1],
+      ['Rank range', e => e.win && e.win.lo!=null ? `${e.win.lo} to ${e.win.hi} <small>in ${esc(e.g.name)}</small>` : '·'],
+      ['Combined', e => num(e.p.cb), e => e.p.cb, 1],
+      ['Elo', e => num(e.p.e), e => e.p.e, 1],
+      ['In-league rating', e => num(e.p.wi), e => e.p.wi, 1],
+      ['League level', e => num(e.p.lv) + ' <small>' + esc(e.p.l) + '</small>', e => e.p.lv, 1],
+      ['Developmental', e => e.dv ? (e.dv.ds!=null ? `score ${num(e.dv.ds,0)} · tier ${e.dv.ti}` : `tier ${e.dv.ti}`) : '· <small>not a prospect</small>', e => e.dv ? e.dv.ds : null, 1],
+      ['Chance band', e => e.p.ch==null && !(e.dv && e.dv.ch!=null) ? '·' : esc((e.dv||e.p).bd || '') ],
+      ['Playstyle · tag', e => esc([e.c.style||e.p.cls, e.c.tag].filter(Boolean).join(' · ') || '·')],
+      ['Trend · confidence', e => esc([e.c.trend, e.c.conf ? e.c.conf+' confidence' : null].filter(Boolean).join(' · ') || '·')],
+      ['Nationality · residency', e => esc([e.p.c, e.p.r].filter(Boolean).join(' · ') || '·')],
+    ];
+    const tbl = `<div class="tb"><table class="cmp"><thead><tr><th></th>${E.map((e,i) => `<th><span class="dot" style="background:${COLS3[i]}"></span>${esc(e.p.p)}</th>`).join('')}</tr></thead><tbody>${rowsDef.map(([lab, f, v, hi]) => { const vals = v ? E.map(v) : null, best = (vals && hi) ? Math.max(...vals.filter(z => typeof z==='number')) : null;
+      return `<tr><th scope="row">${esc(lab)}</th>${E.map((e,i) => `<td class="${vals && hi && vals[i]===best && vals.filter(z => z===best).length===1 ? 'best' : ''}">${f(e)}</td>`).join('')}</tr>`; }).join('')}</tbody></table></div>`;
+    // take-aways, plain rules on the numbers above
+    const tk = [];
+    const wins = E.filter(e => e.win); if(wins.length>=2){ const ts = wins.map(e => e.win.ti); if(sameRole && wins.every(e => e.g===wins[0].g) && new Set(ts).size===1) tk.push(`Same win now tier (tier ${ts[0]}) on the same list: the data cannot separate them as players today.`); else { const b = [...E].sort((a,b) => (b.p.cb||-9) - (a.p.cb||-9)); tk.push(`${esc(b[0].p.p)} has the highest Combined rating (${num(b[0].p.cb)} against ${b.slice(1).map(e => num(e.p.cb)).join(' and ')}).` + (sameRole ? (wins.every(e => e.win.lo!=null) && wins.every(e => e.g===wins[0].g) ? ` Rank ranges: ${wins.map(e => esc(e.p.p)+' '+e.win.lo+' to '+e.win.hi).join(', ')}; overlapping ranges mean the order can flip.` : '') : ' Each rating is against his own role, so across roles this is a rough comparison only.')); } }
+    const lv = E.map(e => e.p.lv).filter(v => typeof v==='number'); if(lv.length===E.length && Math.max(...lv) - Math.min(...lv) >= 1){ const hi = E.reduce((a,b) => b.p.lv>a.p.lv ? b : a), lo = E.reduce((a,b) => b.p.lv<a.p.lv ? b : a); tk.push(`League strength differs: ${esc(hi.p.l)} is about ${num(hi.p.lv - lo.p.lv,1)} steps above ${esc(lo.p.l)}, so similar in-league numbers do not mean similar players.`); }
+    const small = E.filter(e => e.p.g < 20); if(small.length) tk.push(`${small.map(e => esc(e.p.p)).join(' and ')} ${small.length>1?'have':'has'} under 20 games: treat ${small.length>1?'those ratings':'that rating'} as a first look.`);
+    if(sameRole){ const ax = (E[0].pf && E[0].pf.rd) ? E[0].pf.rd[3].map(a => a[0]) : []; const gaps = [];
+      ax.forEach(lab => { const v = E.map(e => { const a = e.pf && e.pf.rd && e.pf.rd[3].find(z => z[0]===lab); return a ? a[1] : null; }); if(v.every(z => z!=null)){ const mx = Math.max(...v), mn = Math.min(...v); if(mx - mn >= 30) gaps.push({lab, hi:E[v.indexOf(mx)], lo:E[v.indexOf(mn)], d:mx-mn}); } });
+      gaps.sort((a,b) => b.d - a.d).slice(0,3).forEach(gp => tk.push(`${esc(gp.lab)}: ${esc(gp.hi.p.p)} is ${gp.d} percentile points above ${esc(gp.lo.p.p)} within their own leagues.`)); }
+    const ages = E.filter(e => e.p.a!=null); if(ages.length>=2){ const y = ages.reduce((a,b) => b.p.a<a.p.a ? b : a), o = ages.reduce((a,b) => b.p.a>a.p.a ? b : a); if(o.p.a - y.p.a >= 3) tk.push(`${esc(y.p.p)} is ${o.p.a - y.p.a} years younger than ${esc(o.p.p)}.`); }
+    // overlaid radar (same role only) and split history
+    let rad = ''; if(sameRole && E.every(e => e.pf && e.pf.rd)){ const ax = E[0].pf.rd[3].map(a => a[0]).filter(lab => E.every(e => e.pf.rd[3].some(z => z[0]===lab))); if(ax.length>=3){ const n = ax.length, W = 620, H = 310, cx = W/2, cy = 155, Rr = 104, pt = (i,f) => { const a = -Math.PI/2 + i*2*Math.PI/n; return [cx + Math.cos(a)*Rr*f, cy + Math.sin(a)*Rr*f]; }, ring = f => ax.map((_,i) => pt(i,f).map(v => v.toFixed(1)).join(',')).join(' ');
+      const spokes = ax.map((lab,i) => { const [x,y] = pt(i,1), [lx,ly] = pt(i,1.17); const anc = Math.abs(lx-cx)<12 ? 'middle' : lx>cx ? 'start' : 'end'; return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"/><text x="${lx.toFixed(1)}" y="${(ly+3).toFixed(1)}" text-anchor="${anc}">${esc(lab)}</text>`; }).join('');
+      const polys = E.map((e,k) => `<polygon points="${ax.map((lab,i) => pt(i, (e.pf.rd[3].find(z => z[0]===lab)[1]||0)/100).map(v => v.toFixed(1)).join(',')).join(' ')}" fill="${COLS3[k]}" fill-opacity=".12" stroke="${COLS3[k]}" stroke-width="2"/>`).join('');
+      rad = `<div><h3 class="sec">Stat profiles, each against his own league</h3><svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Overlaid stat profiles"><polygon points="${ring(1)}" fill="none" stroke="var(--line)"/><polygon points="${ring(.5)}" fill="none" stroke="var(--dim)" stroke-dasharray="3 4"/>${spokes}${polys}</svg><p class="note">${E.map((e,k) => `<span class="dot" style="background:${COLS3[k]}"></span>${esc(e.p.p)}: ${esc(e.pf.rd[1])} ${e.pf.rd[0]}, ${e.pf.rd[2]} games`).join(' · ')}. Percentiles are inside each player's own league, so two players in different leagues are not on one scale here; the Combined rating is.</p></div>`; } }
+    let spl = ''; const ss = E.map(e => (e.pf && e.pf.s) ? e.pf.s.slice(-8) : []); if(ss.filter(s => s.length>=2).length>=2){ const keys = []; ss.forEach(s => s.forEach(x => { const k = x[0]+' '+x[1]; if(!keys.includes(k)) keys.push(k); })); keys.sort((a,b) => { const ka = ss.flat().find(x => x[0]+' '+x[1]===a), kb = ss.flat().find(x => x[0]+' '+x[1]===b); return ka[0]-kb[0] || String(ka[1]).localeCompare(String(kb[1])); });
+      const vs = ss.flat().map(x => x[4]), lo = Math.min(-0.5, ...vs) - 0.2, hi = Math.max(1.5, ...vs) + 0.2, W = 620, H = 190, L = 34, Rt = 14, T = 12, B = 40, X = i => L + (W-L-Rt)*(keys.length===1 ? .5 : i/(keys.length-1)), Y = v => T + (H-T-B)*(1-(v-lo)/(hi-lo));
+      const lines = ss.map((s,k) => s.length ? `<polyline points="${s.map(x => X(keys.indexOf(x[0]+' '+x[1])).toFixed(1)+','+Y(x[4]).toFixed(1)).join(' ')}" fill="none" stroke="${COLS3[k]}" stroke-width="2"/>${s.map(x => `<circle cx="${X(keys.indexOf(x[0]+' '+x[1])).toFixed(1)}" cy="${Y(x[4]).toFixed(1)}" r="3.5" fill="${COLS3[k]}"><title>${esc(E[k].p.p+' · '+x[0]+' '+x[1]+' · '+x[2]+' · '+x[3]+' games · '+x[4].toFixed(2))}</title></circle>`).join('')}` : '').join('');
+      const lab = keys.map((k,i) => (keys.length<=10 || i%2===0) ? `<text x="${X(i).toFixed(1)}" y="${H-24}" text-anchor="middle">'${esc(k.slice(2,4))}</text><text x="${X(i).toFixed(1)}" y="${H-11}" text-anchor="middle">${esc(k.slice(5).replace(/Split /,'S').slice(0,7))}</text>` : '').join('');
+      spl = `<div><h3 class="sec">Split by split</h3><svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Split ratings"><line x1="${L}" x2="${W-Rt}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--dim)" stroke-dasharray="4 4"/><text x="${L-6}" y="${Y(0)+3}" text-anchor="end">0</text>${lines}${lab}</svg><p class="note">Split rating on one scale across leagues for each player's role; zero is the average rated player of the role. Single splits are noisy.</p></div>`; }
+    $('dlg').classList.add('wide');
+    $('card').innerHTML = `<div class="printhead">Flexpick comparison · private · data to ${fmtDate(D.data_cutoff)} · printed ${new Date().toLocaleDateString('en-GB')}</div>
+      <div class="top"><div><h2 id="cardName">Compare ${E.length} players</h2><p class="sub">${sameRole ? esc(D.roles[E[0].role].label) : 'Different roles: each rating is against his own role'}. Best value per row in colour where one player leads.</p></div><button type="button" class="x" id="closeCard">Close</button></div>
+      ${tk.length ? `<div><h3 class="sec">Take-aways</h3><ul class="tk">${tk.map(t => `<li>${t}</li>`).join('')}</ul></div>` : ''}
+      ${tbl}${rad}${spl}
+      <div class="cardact"><button type="button" class="btn" id="cmpLink">Copy link</button><button type="button" class="btn" id="cmpPrint">Print or save as PDF</button>${E.map((e,i) => `<button type="button" class="btn" data-open="${i}">Open ${esc(e.p.p)}</button>`).join('')}</div>
+      <div class="foot">Take-aways are plain rules on the numbers shown, not a verdict. Data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)}. Backtest seasons use only matches up to that season.</div>`;
+    $('closeCard').onclick = () => $('dlg').close(); $('cmpLink').onclick = e => copyLink(e.target); $('cmpPrint').onclick = printSheet;
+    $('card').querySelectorAll('button[data-open]').forEach(b => b.onclick = () => { const e = E[+b.dataset.open]; $('dlg').close(); openById(e.x.id, e.x.y); });
+    if(!$('dlg').open) $('dlg').showModal();
+  }
+  // open any player by id and season (used by share links, compare, watchlist)
+  function openById(id, y){
+    y = +y || LIVE; if(y!==LIVE && !window.FLEXPICK_HISTORY) return ensureHistory(() => openById(id, y));
+    const f = findP(id, y); if(!f) return false;
+    S.watch = false; S.year = y; if($('fYear')) $('fYear').value = y; S.role = f.role; S.region = f.g.name; S.view = f.kind; S.sort = null; S.page = 'lists'; show(); fill(); resetFilters();
+    const list = f.kind==='dev' ? reg().dev : reg().win, i = list.indexOf(f.p); if(i>=0) openCard(i); return true;
+  }
+  // ---- card extras: action row, private note, last season on the radar
+  function cardExtras(p, role, Y){
+    if(M) return ''; const id = pid(p, role), w = WATCH[id];
+    return `<div class="cardact"><button type="button" class="btn ${isW(id)?'on':''}" id="wBtn" aria-pressed="${isW(id)}">${isW(id)?'★ On watchlist':'☆ Add to watchlist'}</button><button type="button" class="btn" id="cBtn" ${inCmp(id,Y)?'disabled':''}>${inCmp(id,Y)?'In compare':'+ Compare'}</button><button type="button" class="btn" id="lBtn">Copy link</button><button type="button" class="btn" id="prBtn">Print or save as PDF</button></div>
+      <div class="note-in"><label for="pNote" class="lab">Private note, kept in this browser only</label><textarea id="pNote" rows="2" placeholder="Tryout notes, contract info, who to call...">${esc(w && w.n || '')}</textarea></div>`;
+  }
+  function wireCard(p, role, Y){
+    if(M) return; const id = pid(p, role);
+    CUR = {id, y:Y}; CMPOPEN = false; writeHash();
+    const wb = $('wBtn'); if(wb) wb.onclick = () => { const on = toggleWatch(p, role); wb.classList.toggle('on', on); wb.setAttribute('aria-pressed', on); wb.textContent = on ? '★ On watchlist' : '☆ Add to watchlist'; if(S.page==='lists') render(); };
+    const cb = $('cBtn'); if(cb) cb.onclick = () => { addCmp(id, Y, p.p); cb.disabled = true; cb.textContent = 'In compare'; };
+    const lb = $('lBtn'); if(lb) lb.onclick = () => copyLink(lb);
+    const pb = $('prBtn'); if(pb) pb.onclick = printSheet;
+    const nt = $('pNote'); let tm = null; if(nt) nt.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { const v = nt.value.trim(); if(v){ if(!isW(id)) WATCH[id] = {nm:p.p, r:role, n:'', t:Date.now()}; WATCH[id].n = v; } else if(isW(id)) WATCH[id].n = ''; saveWatch(); if(wb){ wb.classList.toggle('on', isW(id)); wb.textContent = isW(id) ? '★ On watchlist' : '☆ Add to watchlist'; } }, 400); });
+    const ls = $('lastSeason'); if(ls) ls.onclick = () => { ls.textContent = 'Loading last season...'; ensureHistory(() => { const list = S.view==='dev' ? reg().dev : reg().win; openCard(list.indexOf(p)); }); };
+  }
+  function prevRd(p, role, rd){ const H = window.FLEXPICK_HISTORY; if(!H || !rd || !p.k) return null; const v = H.prof[role+'|'+p.k]; if(!v || !v.rd) return null; const c = v.rd.filter(x => x[0] < rd[0]); return c.length ? c[c.length-1] : null; }
+  // ---- CSV of the rows on screen
+  let LAST = {out:[], C:[]};
+  function csv(){ const {out, C} = LAST; const cell = v => { v = v==null ? '' : String(v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v; };
+    const head = C.map(c => c.l); const lines = out.map(p => C.map(c => { const v = c.range ? (p.lo!=null ? p.lo+'-'+p.hi : '') : c.yr ? (p.ys ? 'after '+p.ys : p.in ? 'already there' : 'not yet') : c.band ? (p.bd||'') : c.get(p); return cell(typeof v==='number' ? +v.toFixed(3) : v); }).concat(cell(isW(pid(p)) && WATCH[pid(p)].n ? WATCH[pid(p)].n : '')).join(','));
+    const meta = `# Flexpick ${S.watch?'watchlist':(S.role==='all'?'all roles':D.roles[S.role].label)} · ${S.watch?'':reg().name+' · '}${S.view==='dev'?'developmental':'win now'} · roster year ${S.year}${isPast()?' (backtest)':''} · data to ${D.data_cutoff} · private, do not forward`;
+    const blob = new Blob(['﻿' + meta + '\n' + head.concat('Note').map(cell).join(',') + '\n' + lines.join('\n')], {type:'text/csv;charset=utf-8'}), a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `flexpick_${S.watch?'watchlist':S.role}_${S.watch?'':reg().name.replace(/\s+/g,'')+'_'}${S.view}_${S.year}.csv`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+  function exportWatch(){ const blob = new Blob([JSON.stringify({flexpick_watchlist:1, saved:new Date().toISOString(), items:WATCH}, null, 1)], {type:'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'flexpick_watchlist.json'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+  function importWatch(file){ const r = new FileReader(); r.onload = () => { try{ const j = JSON.parse(r.result); const it = j.items || j; let n = 0; Object.entries(it).forEach(([k,v]) => { if(k.includes('|') && v && typeof v==='object'){ WATCH[k] = Object.assign({}, WATCH[k]||{}, v); n++; } }); saveWatch(); render(); $('count').textContent = `Imported ${n} watchlist entries.`; }catch(e){ $('count').textContent = 'That file is not a Flexpick watchlist.'; } }; r.readAsText(file); }
+  // ---- scatter explorer
+  function scatter(out, C){
+    const box = $('scat'); const numc = C.filter(c => c.n && c.k!=='rk' && !c.range && out.some(p => typeof c.get(p)==='number'));
+    if(numc.length < 2){ box.innerHTML = '<p class="note">Not enough numeric columns on this list for a scatter.</p>'; return; }
+    const pick = (id, def) => { const v = S['sc'+id]; return numc.find(c => c.k===v) || numc.find(c => c.k===def) || numc[id==='x'?0:1]; };
+    const cx = pick('x', 'wi'), cy = pick('y', S.view==='dev' ? 'ds' : 'cb');
+    const pts = out.map(p => ({p, x:cx.get(p), y:cy.get(p)})).filter(o => typeof o.x==='number' && typeof o.y==='number');
+    const W = 900, H = 520, L = 56, Rr = 18, T = 16, B = 46;
+    const xs = pts.map(o => o.x), ys = pts.map(o => o.y), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), px = (x1-x0)*.06 || 1, py = (y1-y0)*.06 || 1;
+    const X = v => L + (W-L-Rr)*(v - (x0-px))/((x1+px) - (x0-px)), Y = v => T + (H-T-B)*(1 - (v - (y0-py))/((y1+py) - (y0-py)));
+    const med = a => { const s = [...a].sort((u,v) => u-v); return s[Math.floor(s.length/2)]; }, mx = med(xs), my = med(ys);
+    const rk = (a, v) => a.filter(z => z<v).length / Math.max(1, a.length-1); const flipX = cx.asc ? -1 : 1, flipY = cy.asc ? -1 : 1;
+    const lab = [...pts].sort((a,b) => (flipX*rk(xs,b.x) + flipY*rk(ys,b.y)) - (flipX*rk(xs,a.x) + flipY*rk(ys,a.y))).slice(0, 10);
+    const col = p => p.ti===1 ? 'var(--accent-text)' : p.ti===2 ? '#4ea3ff' : 'var(--dim)';
+    const ticks = (a0, a1, n) => { const st = (a1-a0)/n; return Array.from({length:n+1}, (_,i) => a0 + i*st); };
+    const fmt = v => Math.abs(v)>=10 ? v.toFixed(0) : v.toFixed(1);
+    const gx = ticks(x0, x1, 5).map(v => `<line x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${T}" y2="${H-B}" stroke="var(--line)"/><text x="${X(v).toFixed(1)}" y="${H-B+16}" text-anchor="middle">${fmt(v)}</text>`).join('');
+    const gy = ticks(y0, y1, 5).map(v => `<line x1="${L}" x2="${W-Rr}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)"/><text x="${L-8}" y="${(Y(v)+3).toFixed(1)}" text-anchor="end">${fmt(v)}</text>`).join('');
+    const dots = pts.map(o => `<circle class="sp" data-id="${LAST.list.indexOf(o.p)}" cx="${X(o.x).toFixed(1)}" cy="${Y(o.y).toFixed(1)}" r="${isW(pid(o.p))?6:4.5}" fill="${col(o.p)}" fill-opacity=".85" stroke="${isW(pid(o.p))?'var(--ink)':'var(--panel)'}" stroke-width="1.2"><title>${esc((o.p.p||'Name hidden')+' · '+(o.p.l||'')+' · '+cx.l+' '+fmt(o.x)+' · '+cy.l+' '+fmt(o.y)+' · tier '+o.p.ti)}</title></circle>`).join('');
+    const names = lab.map(o => `<text class="v" x="${(X(o.x)+7).toFixed(1)}" y="${(Y(o.y)-6).toFixed(1)}">${esc(o.p.p||'')}</text>`).join('');
+    const opt = (sel) => numc.map(c => `<option value="${esc(c.k)}" ${c.k===sel.k?'selected':''}>${esc(c.l)}</option>`).join('');
+    box.innerHTML = `<div class="scbar"><label class="lab" for="scX">Across</label><select id="scX">${opt(cx)}</select><label class="lab" for="scY">Up</label><select id="scY">${opt(cy)}</select><span class="note">${pts.length} players · colour = win now tier (1 lime, 2 blue, 3+ grey) · ringed = on your watchlist · dashed = median · click a dot to open the player</span></div>
+      <svg class="viz scv" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(cy.l)} against ${esc(cx.l)}">${gx}${gy}<line x1="${X(mx).toFixed(1)}" x2="${X(mx).toFixed(1)}" y1="${T}" y2="${H-B}" stroke="var(--dim)" stroke-dasharray="4 4"/><line x1="${L}" x2="${W-Rr}" y1="${Y(my).toFixed(1)}" y2="${Y(my).toFixed(1)}" stroke="var(--dim)" stroke-dasharray="4 4"/>${dots}${names}<text x="${W-Rr}" y="${H-8}" text-anchor="end" class="v">${esc(cx.l)} →</text><text x="${L}" y="${T-4}" class="v">↑ ${esc(cy.l)}</text></svg>
+      <p class="note">Names shown for the ten players furthest into the good corner. ${GL[cx.l] ? esc(cx.l)+': '+esc(GL[cx.l])+' ' : ''}${GL[cy.l] ? esc(cy.l)+': '+esc(GL[cy.l]) : ''}</p>`;
+    $('scX').onchange = e => { S.scx = e.target.value; render(); }; $('scY').onchange = e => { S.scy = e.target.value; render(); };
+    box.querySelectorAll('circle.sp').forEach(c => c.addEventListener('click', () => openCard(+c.dataset.id)));
+  }
+  // ---- report summary: a few plain sentences from the season's percentiles, each naming its stat
+  function repSummary(s, L){
+    const lab = {golddiffat15:'gold lead at 15', xpdiffat15:'XP lead at 15', csdiffat15:'CS lead at 15', golddiffat10:'gold lead at 10', golddiffat20:'gold lead at 20', ahead15:'games ahead at 15', dead15:'deathless by 15', fbi:'first blood involvement', kp:'kill participation', ks:'kill share', dsh:'death share', dpm:'damage per minute', damageshare:'damage share', cspm:'CS per minute', egpm:'gold per minute', earnedgoldshare:'gold share', vspm:'vision score per minute', wcpm:'wards cleared'};
+    const pc = Object.entries(s.pct||{}).filter(([k,v]) => lab[k] && v!=null);
+    const top = pc.filter(([k,v]) => v>=80).sort((a,b) => b[1]-a[1]).slice(0,3), low = pc.filter(([k,v]) => v<=20).sort((a,b) => a[1]-b[1]).slice(0,2);
+    const out = [];
+    if(top.length) out.push(`Strongest against ${s.npl} ${L.toLowerCase()} players of ${s.lg} ${s.y}: ${top.map(([k,v]) => `${lab[k]} (${v})`).join(', ')}.`);
+    if(low.length) out.push(`Weakest: ${low.map(([k,v]) => `${lab[k]} (${v})`).join(', ')}.`);
+    if(!top.length && !low.length && pc.length) out.push(`No stat in the top or bottom fifth of ${s.lg} ${s.y}: an even profile.`);
+    if(s.rec && s.rec[0]) out.push(`${s.rec[1]} wins in ${s.rec[0]} games; ${s.nch} champions${s.champs && s.champs[0] ? `, most played ${s.champs[0][0]} (${s.champs[0][1]} games)` : ''}.`);
+    if(s.side && s.side.blue && s.side.red && s.side.blue[0]>=8 && s.side.red[0]>=8){ const b = s.side.blue[1]/s.side.blue[0], r = s.side.red[1]/s.side.red[0]; if(Math.abs(b-r) >= .2) out.push(`Win rate ${Math.round(100*b)}% on blue side against ${Math.round(100*r)}% on red.`); }
+    return out.length ? `<div class="sum"><h3 class="sec">Summary</h3><ul class="tk">${out.map(x => `<li>${esc(x)}</li>`).join('')}</ul><p class="note">Numbers in brackets are percentiles (100 = best; for death share, fewest). Built from the lines below by fixed rules, not written by AI.</p></div>` : '';
+  }
+
+  // ---- toolbar above the table
+  function tools(C, sc, dir, out, list){
+    if(M){ ['watchBtn','modeSeg','wTools','csvBtn','linkBtn'].forEach(id => { $(id).hidden = true; $(id).style.display = 'none'; }); }
+    const wb = $('watchBtn'); wb.innerHTML = `★ Watchlist <span class="cnt">${Object.keys(WATCH).length}</span>`; wb.classList.toggle('on', !!S.watch); wb.setAttribute('aria-pressed', !!S.watch);
+    $('wTools').hidden = !S.watch;
+    document.querySelectorAll('#modeSeg button').forEach(b => b.setAttribute('aria-pressed', (S.mode==='scatter') === (b.dataset.m==='scatter')));
+    $('phSort').innerHTML = C.filter(c => !c.range && !c.yr && !c.flag && !c.res).map(c => [[c.k, c.n ? -1 : 1, c.l + (c.n ? (c.asc ? ' (low first)' : ' (high first)') : ' (A to Z)')]].map(([k, d, l]) => `<option value="${esc(k)}" ${k===sc.k?'selected':''}>${esc(l)}</option>`).join('')).join('');
+    const show = $('fShow'); if(M){ const sf = show.closest('.f'); if(sf) sf.style.display = 'none'; } if(CHG && !show.querySelector('option[value="chg"]')) show.insertAdjacentHTML('beforeend', `<option value="chg">Changed since ${esc(CHG.pcut ? fmtDate(CHG.pcut) : 'last update')}</option>`);
+  }
+  $('watchBtn').addEventListener('click', () => { S.watch = !S.watch; S.sort = null; if(S.watch) resetFilters(); fill(); render(); });
+  $('modeSeg').addEventListener('click', e => { const b = e.target.closest('button[data-m]'); if(b){ S.mode = b.dataset.m==='scatter' ? 'scatter' : null; render(); } });
+  $('phSort').addEventListener('change', e => { const k = e.target.value, c = cols().find(x => x.k===k); S.sort = k; S.dir = (c && (c.asc || !c.n)) ? 1 : -1; render(); });
+  $('csvBtn').addEventListener('click', csv); $('linkBtn').addEventListener('click', e => copyLink(e.target)); $('glBtn').addEventListener('click', glossary);
+  $('wExp').addEventListener('click', exportWatch); $('wImp').addEventListener('click', () => $('wFile').click()); $('wFile').addEventListener('change', e => { if(e.target.files[0]) importWatch(e.target.files[0]); e.target.value = ''; });
+  $('fToggle').addEventListener('click', () => { const o = $('fbar').classList.toggle('open'); $('fToggle').setAttribute('aria-expanded', o); });
+  $('cmpTray').addEventListener('click', e => { const rm = e.target.closest('button[data-rm]'); if(rm){ CMP.splice(+rm.dataset.rm, 1); saveCmp(); return; } if(e.target.id==='cmpGo') openCompare(); if(e.target.id==='cmpClr'){ CMP = []; saveCmp(); } });
+  $('dlg').addEventListener('close', () => { CUR = null; CMPOPEN = false; if(S.page==='lists') writeHash(); });
+  if(!M){ if(!ST.get('fp_tips', 0)) $('tips').hidden = false; $('tipsX').onclick = () => { $('tips').hidden = true; ST.set('fp_tips', 1); }; drawTray(); }
 
   function method(){
     const B = D.benchmark || {}, T = (B.erl_top5_A||[]), get = n => T.find(r=>r.ranking.indexOf(n)===0) || {};
@@ -785,9 +1059,13 @@ footer{font:12px var(--mono);color:var(--dim);border-top:1px solid var(--line);p
     $('viewHome').hidden = !h; $('viewHome').style.display = h ? '' : 'none';
     $('viewLists').hidden = !l; $('viewLists').style.display = l ? 'contents' : 'none'; $('viewMethod').hidden = !m; $('viewMethod').style.display = m ? '' : 'none'; $('stamp').style.display = h ? 'none' : '';
     [['navHome',h],['navLists',l],['navMethod',m]].forEach(([id,on]) => { if(on) $(id).setAttribute('aria-current','page'); else $(id).removeAttribute('aria-current'); });
-    try{ history.replaceState(null,'', m ? '#method' : l ? '#'+S.role : location.pathname+location.search); }catch(e){}
+    writeHash();
   }
   if(M){ const sb = $('fSearch').closest('.f'); if(sb) sb.querySelector('label').textContent = 'Sample player or team'; const nb = $('fCountry').closest('.f'); if(nb) nb.style.display = 'none'; document.querySelectorAll('footer span')[1].textContent = 'Public preview. A few sample players are named without numbers; every number belongs to a hidden player. Ratings are opinions derived from public match statistics; they are a shortlist aid, not a recommendation to sign anyone.'; }
   home(); method(); fill(); render(); show();
+  if(HQ && !M){ const y = +HQ.get('y'), pp = HQ.get('p'), cc = HQ.get('c');
+    if(cc){ CMP = cc.split('~').slice(0,3).map(z => { const [id, yy] = z.split('@'); return {id, y:+yy || LIVE, nm:id.split('|').slice(1).join('|')}; }); saveCmp(); openCompare(); }
+    else if(pp){ const [id, yy] = pp.split('@'); if(openById(id, +yy || LIVE)===false && y && y!==LIVE) setYear(y); }
+    else if(y && y!==LIVE) setYear(y); }
 })();
 </script>
