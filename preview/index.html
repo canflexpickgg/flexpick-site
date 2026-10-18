@@ -53,10 +53,11 @@ nav button[aria-current="page"]{color:var(--ink);border-color:var(--line);backgr
 .bar{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:flex-end;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .seg{display:flex;gap:6px}
 .seg button{padding:7px 12px;font-size:13px}
-.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}.f[hidden]{display:none}
 .f label,.f .lab{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
 .f select,.f input{font:14px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);padding:7px 9px;border-radius:8px;max-width:100%}
 .f input[type=number]{width:84px}.f input[type=search]{width:170px}
+.msel{position:relative}.mselb{font:14px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);padding:7px 28px 7px 9px;border-radius:8px;min-width:130px;max-width:220px;text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative}.mselb::after{content:'';position:absolute;right:10px;top:50%;margin-top:-3px;border:5px solid transparent;border-top-color:var(--dim)}.mselp{position:absolute;z-index:6;left:0;top:100%;margin-top:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:220px;max-height:340px;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.35);padding:6px}.mselp label{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font:14px var(--body);color:var(--ink);text-transform:none;letter-spacing:0;cursor:pointer}.mselp label:hover{background:var(--raise)}.mselp label small{margin-left:auto;font:12px var(--mono);color:var(--dim)}.mselp .mtop{display:flex;gap:6px;flex-wrap:wrap;padding:4px 4px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}.mselp .mtop button{font:12px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer}.mselp .mtop button:hover{border-color:var(--dim)}
 .finder{position:relative;margin:10px 0 0;display:flex;flex-direction:column;gap:4px} .finder .lab{font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--dim)} .finder input{width:min(100%,420px);font:14px var(--body);color:var(--ink);background:var(--panel);border:1px solid var(--line);padding:8px 10px;border-radius:8px} .fres{position:absolute;z-index:5;left:0;top:100%;margin-top:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:min(100%,520px);max-height:360px;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.35)} .fres button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 12px;color:var(--ink);font:14px var(--body);cursor:pointer} .fres button:hover,.fres button:focus-visible{background:var(--raise);outline:none} .fres button small{display:block;font:12px var(--mono);color:var(--dim)} .fres .none{padding:10px 12px;color:var(--dim);font-size:13px}
 .errbar{background:var(--neg);color:#fff;border-radius:8px;padding:8px 12px;font-size:14px;margin:8px 0}
 .chk{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--dim);padding-bottom:7px}
@@ -290,7 +291,8 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
         </div>
       </div>
       <div class="f"><label for="fRegion">Region</label><select id="fRegion"></select></div>
-      <div class="f" id="fLeagueBox"><label for="fLeague">League</label><select id="fLeague"></select></div>
+      <div class="f" id="fTierBox"><label for="fTier">League group</label><select id="fTier"><option value="">All leagues</option><option value="major">Major ERLs</option><option value="minor">Minor ERLs</option></select></div>
+      <div class="f" id="fLeagueBox"><span class="lab" id="lblLg">League</span><div class="msel" id="fLeague"><button type="button" class="mselb" id="fLeagueBtn" aria-haspopup="true" aria-expanded="false" aria-labelledby="lblLg fLeagueBtn">All leagues</button><div class="mselp" id="fLeaguePop" role="group" aria-label="Pick one or more leagues" hidden></div></div></div>
       <div class="f"><label for="fCountry">Nationality</label><select id="fCountry"></select></div>
       <div class="f"><label for="fAge">Max age</label><input id="fAge" type="number" min="16" max="40" placeholder="any"></div>
       <div class="f"><label for="fGames">Min games</label><input id="fGames" type="number" min="20" step="5"></div>
@@ -355,6 +357,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   const isPast = () => S.year !== LIVE && !!window.FLEXPICK_HISTORY;
   try{ const h = location.hash.slice(1); if(h==='method') S.page='method'; else if(has(D.roles,h) || h==='all'){ S.role = h; S.page='lists'; } }catch(e){}
   const HQ = (() => { try{ const h = location.hash.slice(1); return h.includes('=') ? new URLSearchParams(h) : null; }catch(e){ return null; } })();
+  let HQLG = HQ && HQ.get('lg') ? HQ.get('lg').split(',') : null; if(HQ && ['major','minor'].includes(HQ.get('t'))) $('fTier').value = HQ.get('t');
   if(HQ){ S.page = 'lists'; const r = HQ.get('r'); if(r && (r==='all' || has(D.roles, r))) S.role = r; if(HQ.get('g')) S.region = HQ.get('g'); if(HQ.get('v')==='dev') S.view = 'dev'; if(!M && HQ.get('w')) S.watch = true; if(!M && HQ.get('m')==='scatter') S.mode = 'scatter'; }
   try{ const v=localStorage.getItem('fp_age_known'); if(v==='hide'||v==='only') $('fAgeKnown').value = v; }catch(e){}
 
@@ -375,9 +378,26 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   $('tabs').addEventListener('click', e => { const b = e.target.closest('button[data-r]'); if(b){ S.role=b.dataset.r; S.watch=false; S.sort=null; fill(); render(); }});
   $('view').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(b){ S.view=b.dataset.v; S.sort=null; render(); }});
   $('fRegion').addEventListener('change', () => { S.region=$('fRegion').value; S.watch=false; S.sort=null; fill(true); render(); });
-  ['fLeague','fCountry','fAge','fGames','fSearch','fShow'].forEach(id => $(id).addEventListener('input', render));
+  ['fCountry','fAge','fGames','fSearch','fShow'].forEach(id => $(id).addEventListener('input', render));
+  // league filter: pick any number of leagues; League group narrows the ERL to the major leagues (PRM, LFL, TCL, LES) or the rest (second divisions count as minor)
+  const MAJOR_ERL = new Set(['PRM','LFL','TCL','LES','LVP']);
+  const LSEL = new Set(); let LCOUNT = {};
+  const inTier = l => { const t = $('fTier').value; return !t || (t==='major' ? MAJOR_ERL.has(l) : !MAJOR_ERL.has(l)); };
+  function lgLabel(){ const a = [...LSEL]; const t = $('fTier').value; const base = t==='major' ? 'All major ERLs' : t==='minor' ? 'All minor ERLs' : 'All leagues';
+    $('fLeagueBtn').textContent = !a.length ? base : a.length<=3 ? a.join(', ') : a.length+' leagues'; $('fLeagueBtn').title = a.length ? a.join(', ') : base; }
+  function lgPop(){ const ks = Object.keys(LCOUNT).filter(inTier).sort();
+    $('fLeaguePop').innerHTML = `<div class="mtop"><button type="button" data-lq="major">Major ERLs</button><button type="button" data-lq="minor">Minor ERLs</button><button type="button" data-lq="clear">All leagues</button></div>` +
+      ks.map(l => `<label><input type="checkbox" value="${esc(l)}"${LSEL.has(l)?' checked':''}> ${esc(l)}${MAJOR_ERL.has(l)?' <span class="iso">major</span>':''}<small>${LCOUNT[l]}</small></label>`).join('') || '<div class="none" style="padding:8px;color:var(--dim)">No leagues in this group</div>'; }
+  function setLeagues(arr){ LSEL.clear(); (arr||[]).forEach(l => { if(LCOUNT[l]) LSEL.add(l); }); lgLabel(); lgPop(); }
+  $('fLeagueBtn').addEventListener('click', e => { e.stopPropagation(); const p = $('fLeaguePop'); p.hidden = !p.hidden; $('fLeagueBtn').setAttribute('aria-expanded', String(!p.hidden)); if(!p.hidden) lgPop(); });
+  $('fLeaguePop').addEventListener('click', e => { e.stopPropagation(); const b = e.target.closest('button[data-lq]'); if(!b) return; const q = b.dataset.lq;
+    $('fTier').value = q==='clear' ? '' : q; LSEL.clear(); lgLabel(); lgPop(); S.sort=null; render(); });
+  $('fLeaguePop').addEventListener('change', e => { const c = e.target; if(c.type!=='checkbox') return; if(c.checked) LSEL.add(c.value); else LSEL.delete(c.value); lgLabel(); render(); });
+  $('fTier').addEventListener('change', () => { [...LSEL].forEach(l => { if(!inTier(l)) LSEL.delete(l); }); lgLabel(); lgPop(); render(); });
+  document.addEventListener('click', e => { if(!e.target.closest('#fLeague')){ $('fLeaguePop').hidden = true; $('fLeagueBtn').setAttribute('aria-expanded','false'); } });
+  document.addEventListener('keydown', e => { if(e.key==='Escape' && !$('fLeaguePop').hidden){ $('fLeaguePop').hidden = true; $('fLeagueBtn').setAttribute('aria-expanded','false'); $('fLeagueBtn').focus(); } });
   $('fAgeKnown').addEventListener('change', () => { try{ localStorage.setItem('fp_age_known', $('fAgeKnown').value); }catch(e){} render(); });
-  function resetFilters(){ $('fLeague').value=''; $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fShow').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
+  function resetFilters(){ $('fTier').value=''; setLeagues([]); $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fShow').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
   // the ask box moves the table to another role, region or list; Reset filters and Clear take it back to where it was before the question
   let ASKPREV = null;
   function clearAsk(){ const A = $('askA'); A.hidden = true; A.textContent = ''; $('askQ').value = ''; $('askClr').hidden = true;
@@ -437,8 +457,9 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     const R = RL();
     if(!keepRegion){ const rs = regs(); $('fRegion').innerHTML = rs.map(r=>`<option value="${esc(r.name)}">${esc(r.name)}</option>`).join(''); if(rs.length && !rs.some(r=>r.name===S.region)) S.region = rs[0].name; $('fRegion').value = S.region; }
     const g = reg(), c = {}; g.win.forEach(p => { if(p.l) c[p.l]=(c[p.l]||0)+1; }); const ks = Object.keys(c).sort();
-    $('fLeagueBox').hidden = ks.length < 2;
-    $('fLeague').innerHTML = '<option value="">All leagues</option>' + ks.map(l=>`<option value="${esc(l)}">${esc(l)} (${c[l]})</option>`).join('');
+    $('fLeagueBox').hidden = ks.length < 2; LCOUNT = c;
+    $('fTierBox').hidden = !ks.some(l => MAJOR_ERL.has(l)) || ks.every(l => MAJOR_ERL.has(l)); if($('fTierBox').hidden) $('fTier').value = '';
+    const keep = [...LSEL].filter(l => c[l]); setLeagues(HQLG ? HQLG.filter(l => c[l]) : keep); HQLG = null;
     const n = {}; let unk = 0; g.win.forEach(p => { if(p.c) n[p.c]=(n[p.c]||0)+1; else unk++; }); const cs = Object.keys(n).sort((a,b)=>n[b]-n[a]||a.localeCompare(b)), was = $('fCountry').value;
     $('fCountry').innerHTML = '<option value="">All nationalities</option>' + cs.map(x=>`<option value="${esc(x)}">${esc(x)} (${n[x]})</option>`).join('') + (unk ? `<option value="__unknown">Unknown (${unk})</option>` : '');
     if(was && [...$('fCountry').options].some(o=>o.value===was)) $('fCountry').value = was;
@@ -488,11 +509,11 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   const NOTE = {'2+ major league splits':'established: 2+ splits in a top league','3+ major league splits':'established: 3+ splits in a top league','older than 25':'over 25','4+ international years':'established: 4+ international years'};
   function rows(){
     const g = reg(), list = S.view==='dev' ? g.dev : g.win;
-    const lg=$('fLeague').value, maxAge=parseFloat($('fAge').value), minG=Math.max(D.min_games, parseFloat($('fGames').value)||D.min_games);
+    const lgs=LSEL, maxAge=parseFloat($('fAge').value), minG=Math.max(D.min_games, parseFloat($('fGames').value)||D.min_games);
     const q=$('fSearch').value.trim().toLowerCase(), ak=$('fAgeKnown').value, unk=ak!=='hide', nat=$('fCountry').value, sh=$('fShow').value;
     let hiddenUnknown = 0, shownUnknown = 0;
     const out = list.filter(p => {
-      if(lg && p.l!==lg) return false; if(p.g<minG) return false;
+      if(lgs.size ? !lgs.has(p.l) : !inTier(p.l)) return false; if(p.g<minG) return false;
       if(nat && (nat==='__unknown' ? !!p.c : p.c!==nat)) return false;
       if(q && !(((p.p||'')+' '+(p.t||'')+' '+(p.lt||'')).toLowerCase().includes(q))) return false;
       if(sh==='rise'){ const f = prof(p); if(!(f && f.c && f.c.trend==='Improving')) return false; } else if(sh==='chg' && !chgOf(p, g.name)) return false;
@@ -732,7 +753,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   let CUR = null, CMPOPEN = false;
   function stateHash(){
     if(S.page==='method') return '#method'; if(S.page==='home') return ''; if(M) return '#' + S.role;
-    const q = new URLSearchParams(); q.set('r', S.role); q.set('g', S.region); q.set('v', S.view); if(S.year!==LIVE) q.set('y', S.year); if(S.watch) q.set('w', 1); if(S.mode==='scatter') q.set('m', 'scatter');
+    const q = new URLSearchParams(); q.set('r', S.role); q.set('g', S.region); q.set('v', S.view); if(S.year!==LIVE) q.set('y', S.year); if(S.watch) q.set('w', 1); if(S.mode==='scatter') q.set('m', 'scatter'); if($('fTier').value) q.set('t', $('fTier').value); if(LSEL.size) q.set('lg', [...LSEL].join(','));
     if(CUR) q.set('p', CUR.id + (CUR.y!==LIVE ? '@'+CUR.y : '')); if(CMPOPEN && CMP.length) q.set('c', CMP.map(x => x.id + (x.y!==LIVE ? '@'+x.y : '')).join('~'));
     return '#' + q.toString(); }
   function writeHash(){ try{ history.replaceState(null, '', location.pathname + location.search + stateHash()); }catch(e){} }
@@ -1046,7 +1067,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     const r = lp(args), said = [R.label, g.name, kind==='dev'?'developmental':'win now', f.league, f.nationality, f.max_age!=null?'age '+f.max_age+' or under':null, f.min_games!=null?f.min_games+'+ games':null, f.style].filter(Boolean);
     // put the same filters on the table below
     if(!ASKPREV) ASKPREV = {role:S.role, region:S.region, view:S.view, year:S.year};
-    S.year = LIVE; if($('fYear')) $('fYear').value = LIVE; S.role = role; S.view = kind; S.region = g.name; S.sort = null; fill(); $('fLeague').value = f.league && [...$('fLeague').options].some(o=>o.value===f.league) ? f.league : ''; $('fCountry').value = f.nationality && [...$('fCountry').options].some(o=>o.value===f.nationality) ? f.nationality : ''; $('fAge').value = f.max_age!=null ? f.max_age : ''; $('fGames').value = Math.max(D.min_games, f.min_games||D.min_games); $('fSearch').value = ''; render();
+    S.year = LIVE; if($('fYear')) $('fYear').value = LIVE; S.role = role; S.view = kind; S.region = g.name; S.sort = null; fill(); $('fTier').value = ''; setLeagues(f.league ? [f.league] : []); $('fCountry').value = f.nationality && [...$('fCountry').options].some(o=>o.value===f.nationality) ? f.nationality : ''; $('fAge').value = f.max_age!=null ? f.max_age : ''; $('fGames').value = Math.max(D.min_games, f.min_games||D.min_games); $('fSearch').value = ''; render();
     const head = `Read as: ${said.join(' · ')}. ${r.matching} player${r.matching===1?'':'s'} match${r.matching===1?'es':''}` + (r.matching>r.shown ? `, ${M?'first':'best'} ${r.shown} shown` : '') + '.';
     const natNote = (M && f.nationality) ? '\nOn this public page nationality is only known for the named sample players, so a nationality filter shows only them.' : '';
     if(!r.matching) return {text: head + natNote + '\nNothing matches. Try a wider region, a higher age or fewer filters.' + (f.nationality ? ' Players of unknown age are left out when an age is asked for.' : '')};
