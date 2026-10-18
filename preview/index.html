@@ -298,7 +298,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
       <div class="f"><label for="fGames">Min games</label><input id="fGames" type="number" min="20" step="5"></div>
       <div class="f"><label for="fSearch">Player or team</label><input id="fSearch" type="search" placeholder="Search"></div>
       <div class="f"><label for="fAgeKnown">Unknown age</label><select id="fAgeKnown"><option value="all">Show them</option><option value="hide">Hide them</option><option value="only">Only them</option></select></div>
-      <div class="f"><label for="fShow">Show</label><select id="fShow"><option value="">All players</option><option value="rise">Trend improving</option></select></div>
+      <div class="f"><label for="fShow">Show</label><select id="fShow"><option value="">All players</option><option value="rise">Trend improving</option><option value="rookie">Rookies</option></select></div>
       <div class="f"><span class="lab">&nbsp;</span><button type="button" class="btn" id="resetF" style="padding:7px 12px;font-size:13px">Reset filters</button></div>
     </div>
     <div class="finder" id="finder"><label for="findQ" class="lab">Find a player, any role, any season</label><input id="findQ" type="search" autocomplete="off" placeholder="Type a name, for example Xay"><div class="fres" id="findR" hidden></div></div>
@@ -516,7 +516,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
       if(lgs.size ? !lgs.has(p.l) : !inTier(p.l)) return false; if(p.g<minG) return false;
       if(nat && (nat==='__unknown' ? !!p.c : p.c!==nat)) return false;
       if(q && !(((p.p||'')+' '+(p.t||'')+' '+(p.lt||'')).toLowerCase().includes(q))) return false;
-      if(sh==='rise'){ const f = prof(p); if(!(f && f.c && f.c.trend==='Improving')) return false; } else if(sh==='chg' && !chgOf(p, g.name)) return false;
+      if(sh==='rise'){ const f = prof(p); if(!(f && f.c && f.c.trend==='Improving')) return false; } else if(sh==='rookie' && !isRookie(p)) return false; else if(sh==='chg' && !chgOf(p, g.name)) return false;
       if(ak==='only' && p.a!=null) return false;
       if(M && !p.nm) return ak!=='only' && (isNaN(maxAge) || (p.amax!=null && p.amax<=maxAge));      // public file: a hidden player shows one detail only, so most have no age band
       if(p.a==null){ if(!unk && !q && nat!=='__unknown'){ hiddenUnknown++; return false; } shownUnknown++; return true; }      // asking for unknown nationality shows those players even though their age is unknown too
@@ -598,7 +598,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     return `<div><h3 class="sec">Split by split</h3><svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Split rating over his last ${s.length} splits">${ticks}<polyline points="${pts}" fill="none" stroke="var(--accent-text)" stroke-width="2"/>${dots}</svg><ul class="slist">${last}</ul>
       <p class="note">Split rating = half Elo at the end of the split, half that split's stat score, on one scale across leagues. Zero is the average rated player of the role in that split. A split is often under 25 games, so single steps are noisy: direction over three splits says something about the next split, and nothing about next season beyond the rating itself.</p></div>`;
   }
-  function radar(rd, label, prev, canLoad){
+  function radar(rd, label, prev, canLoad, title, pool){
     if(!rd || !rd[3] || rd[3].length<3) return '';
     const ax=rd[3], n=ax.length, W=620, H=300, cx=W/2, cy=150, Rr=104;
     const pt=(i,f)=>{ const a=-Math.PI/2+i*2*Math.PI/n; return [cx+Math.cos(a)*Rr*f, cy+Math.sin(a)*Rr*f]; };
@@ -607,11 +607,35 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     const pv = lab => { if(!prev || !prev[3]) return null; const z = prev[3].find(q => q[0]===lab); return z && z[1]!=null ? z[1] : null; }, nMatch = ax.filter(a => pv(a[0])!=null).length;
     const spokes=ax.map((a,i)=>{ const [x,y]=pt(i,1), [lx,ly]=pt(i,1.16); const anc=Math.abs(lx-cx)<12?'middle':lx>cx?'start':'end'; const w = pv(a[0]); return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"/><text x="${lx.toFixed(1)}" y="${(ly+3).toFixed(1)}" text-anchor="${anc}">${esc(a[0])} <tspan class="v">${a[1]==null?'·':a[1]}</tspan>${w!=null&&nMatch>=3?` <tspan>(${w})</tspan>`:''}</text>`; }).join('');
     const ppoly = nMatch>=3 ? `<polygon points="${ax.map((a,i)=>pt(i,(pv(a[0])==null?50:pv(a[0]))/100).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#4ea3ff" stroke-width="1.6" stroke-dasharray="5 4"/>` : '';
-    return `<div><h3 class="sec">Stat profile in ${esc(rd[1])}, season ${rd[0]} (${rd[2]} games)</h3><svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Percentile of ${n} stats against ${esc(label.toLowerCase())} players of his league">
+    return `<div><h3 class="sec">${title || `Stat profile in ${esc(rd[1])}, season ${rd[0]} (${rd[2]} games)`}</h3><svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Percentile of ${n} stats against ${esc(label.toLowerCase())} players of his league">
       <polygon points="${ring(1)}" fill="none" stroke="var(--line)"/><polygon points="${ring(.5)}" fill="none" stroke="var(--dim)" stroke-dasharray="3 4"/>${spokes}
       ${ppoly}<polygon points="${poly}" fill="var(--lime)" fill-opacity=".28" stroke="var(--accent-text)" stroke-width="2"/></svg>
       ${nMatch>=3 ? `<p class="note"><span class="dot" style="background:#4ea3ff"></span>Dashed blue line and numbers in brackets: ${esc(prev[1])} ${prev[0]} (${prev[2]} games), each against that season's league.</p>` : canLoad ? '<p class="note"><button type="button" class="btn" id="lastSeason" style="padding:4px 10px;font-size:12px">Show last season on this chart</button></p>' : ''}
-      <p class="note"><b>Pool:</b> ${esc(rd[1])} ${esc(label.toLowerCase())} players with 20+ games in ${rd[0]}. Each number is his percentile among them (100 = best, dashed ring = league median). Stats are champion adjusted. Only stats that repeat between two halves of a season and follow a player to a new team are shown.</p></div>`;
+      <p class="note"><b>Pool:</b> ${pool || `${esc(rd[1])} ${esc(label.toLowerCase())} players with 20+ games in ${rd[0]}`}. Each number is his percentile among them (100 = best, dashed ring = league median). Stats are champion adjusted. Only stats that repeat between two halves of a season and follow a player to a new team are shown.</p></div>`;
+  }
+  // Rookie (Can, 18 Oct 2026): 19 or under, or no season in a major ERL (PRM, LFL, TCL, LES) or a top league and at most two seasons in the minor ERLs (second divisions count as minor). Seasons = listed seasons in his history (8+ games).
+  const TOPLG = new Set(['LEC','LCS','LCK','LPL','LCP','CBLOL','LCKC','NACL','LTA','PCS','VCS','LJL','LLA','LCO']);
+  function isRookie(p){
+    if(p.a!=null && p.a <= 19) return true;
+    const f = prof(p), ys = (f && f.y) || []; if(!ys.length) return false;
+    if(ys.some(y => MAJOR_ERL.has(y[1]) || TOPLG.has(y[1]))) return false;
+    return new Set(ys.map(y => y[0])).size <= 2;
+  }
+  // By split: one chip per split of the last two seasons; a chip shows that split alone (record, split rating, rank in his league, stat profile against his league in that split)
+  function splitPick(pf, label){
+    const ss = (pf.s||[]).filter(x => x[7] && +String(x[7]).split('_')[0] >= D.season-1); if(ss.length < 2) return '';
+    const chip = x => `<button type="button" data-sk="${esc(x[7])}" aria-pressed="false">${esc("'"+String(x[0]).slice(2)+' '+x[1])} · ${esc(x[2])}</button>`;
+    return `<div><h3 class="sec">By split</h3><div class="years" id="splitPick"><span>Whole season or one split:</span><button type="button" data-sk="" aria-pressed="true">Season ${D.season}</button>${ss.map(chip).join('')}</div><div id="splitBox"></div>
+      <p class="note">A split is one block of league games (regular season with its playoffs). Pick one to see how he did in that block alone; the season card above stays as it is.</p></div>`;
+  }
+  function splitShow(pf, label, key){
+    const box = $('splitBox'); if(!box) return; $('splitPick').querySelectorAll('button[data-sk]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sk===key)));
+    if(!key){ box.innerHTML = ''; return; }
+    const x = (pf.s||[]).find(z => z[7]===key), sr = pf.sr && pf.sr[key]; if(!x){ box.innerHTML = ''; return; }
+    const wins = sr && sr[2]!=null ? `${sr[2]}-${sr[1]-sr[2]}` : '·';
+    const tiles = [[`${x[0]} ${x[1]}`, `${esc(x[2])}<small>league</small>`], ['Record', `${wins}<small>${x[3]} games in the split</small>`], ['Split rating', `${num(x[4])}<small>z across all leagues that split window (0 = average ranked player)</small>`], ['In '+esc(x[2]), x[5]!=null ? `#${x[5]} of ${x[6]}<small>${esc(label.toLowerCase())} players ranked in his league that split</small>` : '·<small>not ranked (under 8 games)</small>']];
+    box.innerHTML = `<dl class="big">${tiles.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>` +
+      (sr && sr[4] && sr[4].some(a => a[1]!=null) ? radar([x[0], sr[0], sr[1], sr[4]], label, null, false, `Stat profile in ${esc(sr[0])}, ${x[0]} ${esc(sr[3])} (${sr[1]} games)`, `${esc(sr[0])} ${esc(label.toLowerCase())} players with 8+ games in that split`) : '<p class="note">No stat profile for this split (under 6 ranked players in his league that split).</p>');
   }
   function similar(sm){
     if(!sm || !sm[1] || !sm[1].length) return '';
@@ -657,7 +681,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
         <p class="note">Score ${num(p.s)} = in-league rating ${num(p.wi)} + league level ${num(p.lv)} (${esc(p.l)}${(!past&&R.levels&&R.levels[p.l]&&R.levels[p.l][1]!==R.levels[p.l][2])?`, could be ${num(R.levels[p.l][1],1)} to ${num(R.levels[p.l][2],1)}`:''}; the average LEC ${esc(R.label.toLowerCase())} is 0). The level moves every player of the league together. Combined puts Elo and Score on one scale first, so it is not their plain average.</p></div>
       <div><h3 class="sec">${esc(R.label)} profile against his own league</h3>${R.blocks.map((b,j)=> b ? bar(b,p.b?p.b[j]:null) : '').join('')}
         <p class="note">Bars run from −3.5 to +3.5. Zero is the average ${esc(R.label.toLowerCase())} in ${esc(p.l)}. A profile inside one league depends partly on his team.</p></div>
-      ${pf ? spark(pf.s) + radar(pf.rd, R.label, prevRd(p, role, pf.rd), !window.FLEXPICK_HISTORY && PAST.length && !!p.k) + similar(pf.sm) : ''}
+      ${pf ? spark(pf.s) + splitPick(pf, R.label) + radar(pf.rd, R.label, prevRd(p, role, pf.rd), !window.FLEXPICK_HISTORY && PAST.length && !!p.k) + similar(pf.sm) : ''}
       ${p.ch!=null ? `<p class="note"><b>Chance band: ${esc(p.bd).toLowerCase()}</b> (model value ${num(p.ch,0)}). ${calText(g.name, p.ch)} The share swings from year to year with the number of top league seats that open. It does not know his contract, buyout or residency.</p>` : ''}
       <dl class="kv">${kv.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>
       ${past ? `<div><h3 class="sec">What happened next</h3><dl class="kv"><dt>Next season (${Y})</dt><dd>${esc(p.nl ? p.nl+(p.nt?' · '+p.nt:'') : 'No league games')}</dd><dt>Top league (10+ games)</dt><dd>${p.ys ? 'After '+p.ys+' season'+(p.ys>1?'s':'') : p.in ? 'Already in one' : 'Not yet'}</dd></dl></div>` : ''}
@@ -665,6 +689,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
       ${past && liveOf(p) ? `<div><button type="button" class="btn go" id="toLive">Open his ${LIVE} profile</button></div>` : ''}
       ${p.k && !M ? `<div><button type="button" class="btn go" id="repBtn">Scouting report: detailed stats, champion pool, laning, matchups</button></div><div id="repBox"></div>` : ''}`;
     $('closeCard').onclick = () => $('dlg').close(); wireCard(p, role, Y);
+    if($('splitPick')) $('splitPick').addEventListener('click', e => { const b = e.target.closest('button[data-sk]'); if(b) splitShow(pf, R.label, b.dataset.sk); });
     const cid = role+'|'+(p.k||p.p);
     $('card').querySelectorAll('.years button[data-y]').forEach(b => b.onclick = () => { const o = findIndex().find(x => x.id===cid); if(o && +b.dataset.y !== Y){ $('dlg').close(); findOpen(o, +b.dataset.y); } });
     if($('yrLoad')) $('yrLoad').onclick = () => { $('yrLoad').textContent = 'Loading...'; const sc = document.createElement('script'); sc.src = 'history.js'; sc.onload = () => { HB(); FINDEX = null; openCard((S.view==='dev'?reg().dev:reg().win).indexOf(p)); }; sc.onerror = () => { $('yrLoad').textContent = 'Could not load past seasons'; }; document.head.appendChild(sc); };
@@ -747,7 +772,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     return prev ? {prev, pcut:(st && st.cut !== D.data_cutoff) ? st.cut : (st && st.pcut)} : null; })();
   function chgOf(p, gname){ if(!CHG || isPast()) return null; const k = pid(p) + '@' + gname, was = CHG.prev[k]; if(was==null) return 'new'; if(S.view==='dev') return null; if(p.ti < was) return 'up'; if(p.ti > was) return 'down'; return null; }
   // ---- glossary
-  const GL = {'Combined':'The win now rating: half career head-to-head Elo, half stat Score. One scale across leagues; LEC average is about 0.', 'Rank range':'Where he could sit on this list given how far ratings usually move in a season (8 in 10).', 'Tier':'Players in the same tier cannot be separated by the data.', 'Elo':'Career head-to-head result against the players he actually faced in his role.', 'Score':'In-league rating plus league level.', 'In league':'How far above the average player of his own league, in standard deviations, from matchup-adjusted stats.', 'Lg level':'Strength of his league against LEC = 0, in the same units.', 'Dev score':'Developmental score: half Chance, half Expected value. Prospects only.', 'Chance':'A band, not a personal probability: how often similar past prospects played 10+ top league games within two seasons.', 'Expected value':'Forecast rating next season in win-equivalents per 100 games above a real second-choice player. A scale, not a measured contribution.', 'Res':'Residency as recorded on Leaguepedia; nationality is not residency.', 'Style':'Playstyle class from his habits, compared with his league.', 'Tag':'Champion pool or habit tag.', 'Games':'Games in his main league this season. Under 20 games is a small sample.', 'Age':'Age in the middle of the roster year.', '# in role':'Order inside his role on this list. Read it with the tier.', 'Next season':'Where he played the season after (backtest only).', 'Top league':'First season with 10+ games in LCK, LPL, LEC or LCS (backtest only).'};
+  const GL = {'Rookies':'19 or under, or never a season in a major ERL (PRM, LFL, TCL, LES) or a top league and at most two seasons in the minor ERLs. Second divisions count as minor. A season = 8+ games in that league.', 'Combined':'The win now rating: half career head-to-head Elo, half stat Score. One scale across leagues; LEC average is about 0.', 'Rank range':'Where he could sit on this list given how far ratings usually move in a season (8 in 10).', 'Tier':'Players in the same tier cannot be separated by the data.', 'Elo':'Career head-to-head result against the players he actually faced in his role.', 'Score':'In-league rating plus league level.', 'In league':'How far above the average player of his own league, in standard deviations, from matchup-adjusted stats.', 'Lg level':'Strength of his league against LEC = 0, in the same units.', 'Dev score':'Developmental score: half Chance, half Expected value. Prospects only.', 'Chance':'A band, not a personal probability: how often similar past prospects played 10+ top league games within two seasons.', 'Expected value':'Forecast rating next season in win-equivalents per 100 games above a real second-choice player. A scale, not a measured contribution.', 'Res':'Residency as recorded on Leaguepedia; nationality is not residency.', 'Style':'Playstyle class from his habits, compared with his league.', 'Tag':'Champion pool or habit tag.', 'Games':'Games in his main league this season. Under 20 games is a small sample.', 'Age':'Age in the middle of the roster year.', '# in role':'Order inside his role on this list. Read it with the tier.', 'Next season':'Where he played the season after (backtest only).', 'Top league':'First season with 10+ games in LCK, LPL, LEC or LCS (backtest only).'};
   function glossary(){ $('dlg').classList.remove('wide'); $('card').innerHTML = `<div class="top"><div><h2 id="cardName">Glossary</h2><p class="sub">What each number on this page means.</p></div><button type="button" class="x" id="closeCard">Close</button></div><dl class="kv gl">${Object.entries(GL).map(([a,b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl><p class="note">Every list shows tiers and rank ranges because neighbours on a list are rarely a real difference. LPL is not rated. No contract, salary or solo queue data.</p>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); }
   // ---- share links: the view, the open player and the compare set live in the address
   let CUR = null, CMPOPEN = false;
