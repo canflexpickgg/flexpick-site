@@ -246,15 +246,39 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   body.printing .card{padding:0;gap:12px} body.printing .card>div,body.printing .rep>div{break-inside:avoid}
   @page{size:A4;margin:14mm}
 }
+
+/* Teams view and Back navigation (21 Oct 2026) */
+nav #navBack{color:var(--ink);border-color:var(--lime)}
+.dback{display:inline-block;margin:0 0 10px;font:600 13px inherit;background:var(--raise);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
+.teams .tbar{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:6px 0 14px}
+.teams .tbar .f{display:flex;flex-direction:column;gap:4px}
+.teams .tbar input,.teams .tbar select{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-width:240px}
+.teams h2.tn{margin:6px 0 2px;display:flex;align-items:center;gap:8px} .teams .sub{color:var(--dim);margin:0 0 12px}
+.tmtl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel);margin-bottom:8px}
+.tmtl table{border-collapse:collapse;min-width:100%} .tmtl th,.tmtl td{padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:left;font-size:13px;vertical-align:top}
+.tmtl th{font:600 11px var(--mono);letter-spacing:.04em;color:var(--dim);text-transform:uppercase} .tmtl td.n,.tmtl th.n{text-align:right}
+.tmtl th.cur,.tmtl td.cur{background:var(--raise)}
+.tmtl button.sp{background:none;border:0;color:var(--accent-text);font:inherit;cursor:pointer;padding:0;text-align:left}
+.tmtl button.sp:hover{text-decoration:underline}
+.pl{background:none;border:0;color:var(--ink);font:inherit;cursor:pointer;padding:0;text-align:left} .pl:hover{text-decoration:underline;color:var(--accent-text)}
+.rt{font:500 12px var(--mono);color:var(--dim);margin-left:5px} .rt.hi{color:var(--accent-text)}
+.teamsnote{color:var(--dim);font-size:13px;margin:10px 0}
+.xlink{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid var(--line);border-radius:8px;color:var(--dim);text-decoration:none}
+.xlink:hover{color:var(--ink);border-color:var(--lime)}
+nav .xlink{margin-left:6px}
+nav{align-items:center}
 </style>
 
 <div class="wrap">
   <header>
     <h1 class="brand" id="brandHome" style="cursor:pointer" title="Back to the start page"><span class="mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M3 2h10v3.2H6.4v2.2H12v3.1H6.4V14H3z" fill="#0d0e12"/></svg></span>flexpick</h1>
     <nav aria-label="Views">
+      <button type="button" id="navBack" hidden title="Go back one step">← Back</button>
       <button type="button" id="navHome" aria-current="page">Product</button>
       <button type="button" id="navLists">Shortlists</button>
+      <button type="button" id="navTeams">Teams</button>
       <button type="button" id="navMethod">Method and evidence</button>
+      <a class="xlink" href="https://x.com/flexpickgg" target="_blank" rel="noopener" aria-label="Flexpick on X" title="Flexpick on X"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor"/></svg></a>
       <a class="btn go" id="navAccess" style="padding:7px 14px;font-size:14px;margin-left:6px" href="#">Request access</a>
     </nav>
   </header>
@@ -298,6 +322,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
       <div class="f"><label for="fGames">Min games</label><input id="fGames" type="number" min="20" step="5"></div>
       <div class="f"><label for="fSearch">Player or team</label><input id="fSearch" type="search" placeholder="Search"></div>
       <div class="f"><label for="fAgeKnown">Unknown age</label><select id="fAgeKnown"><option value="all">Show them</option><option value="hide">Hide them</option><option value="only">Only them</option></select></div>
+      <div class="f" id="fColBox" hidden><label for="fCol">College background</label><select id="fCol"><option value="">All players</option><option value="yes">College roster found</option><option value="no">None found</option></select></div>
       <div class="f"><label for="fShow">Show</label><select id="fShow"><option value="">All players</option><option value="rise">Trend improving</option><option value="rookie">Rookies</option><option value="fa">Free agents</option></select></div>
       <div class="f"><span class="lab">&nbsp;</span><button type="button" class="btn" id="resetF" style="padding:7px 12px;font-size:13px">Reset filters</button></div>
     </div>
@@ -323,6 +348,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   </section>
 
   <section id="viewMethod" class="method" hidden></section>
+  <section id="viewTeams" class="teams" hidden style="display:none"></section>
 
   <footer>
     <span id="footStamp"></span>
@@ -331,7 +357,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   </footer>
 </div>
 
-<dialog id="dlg" aria-labelledby="cardName"><div class="card" id="card"></div></dialog>
+<dialog id="dlg" aria-labelledby="cardName"><button type="button" class="dback" id="dlgBack" hidden>← Back</button><div class="card" id="card"></div></dialog>
 <div class="tray" id="cmpTray" hidden aria-label="Compare tray"></div>
 
 <script src="data.js"></script>
@@ -351,6 +377,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   const M = !!D.masked;      // public build: names, teams and exact ratings are not in the data file at all
   if(M && $('finder')) $('finder').style.display = 'none';   // names are not in the public file, so a name search can never hit
   const S = {role:'all', view:'win', region:'ERL', sort:null, dir:1, page:'home', year:D.roster_year};
+  const TS = {team:null, sp:null}; const NAV = []; let NAVLOCK = false, LASTCARD = null, TEAMS = null, WANT = null;      // team view state and the Back history (21 Oct 2026)
   const ROLES = Object.keys(D.roles), ALLR = {label:'All roles', beta:false, blocks:[], levels:{}, small:[].concat(...ROLES.map(k=>D.roles[k].small||[]))};
   const RL = r => ((r||S.role)==='all' || (!r && S.watch)) ? ALLR : D.roles[r||S.role];
   const LIVE = D.roster_year, PAST = M ? [] : Array.from({length: LIVE - 2019}, (_, i) => LIVE - 1 - i);      // past roster years 2019 to LIVE-1: lists as they would have looked then (tools/export_history.py)
@@ -358,7 +385,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   try{ const h = location.hash.slice(1); if(h==='method') S.page='method'; else if(has(D.roles,h) || h==='all'){ S.role = h; S.page='lists'; } }catch(e){}
   const HQ = (() => { try{ const h = location.hash.slice(1); return h.includes('=') ? new URLSearchParams(h) : null; }catch(e){ return null; } })();
   let HQLG = HQ && HQ.get('lg') ? HQ.get('lg').split(',') : null; if(HQ && ['major','minor'].includes(HQ.get('t'))) $('fTier').value = HQ.get('t');
-  if(HQ){ S.page = 'lists'; const r = HQ.get('r'); if(r && (r==='all' || has(D.roles, r))) S.role = r; if(HQ.get('g')) S.region = HQ.get('g'); if(HQ.get('v')==='dev') S.view = 'dev'; if(!M && HQ.get('w')) S.watch = true; if(!M && HQ.get('m')==='scatter') S.mode = 'scatter'; }
+  if(HQ && HQ.get('team')){ S.page = 'teams'; TS.team = HQ.get('team'); TS.sp = HQ.get('sp') || null; } else if(HQ){ S.page = 'lists'; const r = HQ.get('r'); if(r && (r==='all' || has(D.roles, r))) S.role = r; if(HQ.get('g')) S.region = HQ.get('g'); if(HQ.get('v')==='dev') S.view = 'dev'; if(!M && HQ.get('w')) S.watch = true; if(!M && HQ.get('m')==='scatter') S.mode = 'scatter'; }
   try{ const v=localStorage.getItem('fp_age_known'); if(v==='hide'||v==='only') $('fAgeKnown').value = v; }catch(e){}
 
   const stamp = `<span class="preview">${M?'Public preview · sample names only':'Private preview'}</span><span>Data to <b>${fmtDate(D.data_cutoff)}</b></span><span>Patches <b>${esc(D.patches)}</b></span><span>Min <b>${D.min_games}</b> games per player</span>${PAST.length ? `<span>Roster year <select id="fYear" aria-label="Roster year"><option value="${LIVE}">${LIVE} (live)</option>${PAST.map(y=>`<option value="${y}">${y} (backtest)</option>`).join('')}</select></span>` : `<span>Roster year <b>${D.roster_year}</b></span>`}`;
@@ -369,15 +396,16 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     $('count').textContent = 'Loading the ' + y + ' lists...'; const sc = document.createElement('script'); sc.src = 'history.js'; sc.onload = () => { HB(); apply(); }; sc.onerror = () => { $('count').textContent = 'Could not load the past lists. Reload the page and try again.'; if($('fYear')) $('fYear').value = S.year; }; document.head.appendChild(sc);
   }
   function HB(){ const H = window.FLEXPICK_HISTORY; if(!H || H._b) return; H._b = 1; Object.values(H.roles).forEach(R => Object.values(R.years).forEach(rs => rs.forEach(g => { g.devKind = 'dev'; g.dev.forEach(p => { p.bd = p.ch==null ? null : p.ch>=50?'Strong':p.ch>=20?'Realistic':p.ch>=5?'Possible':'Long shot'; }); }))); }
-  if($('fYear')) $('fYear').addEventListener('change', e => { setYear(e.target.value); if(S.page !== 'lists'){ S.page = 'lists'; show(); } });
+  if($('fYear')) $('fYear').addEventListener('change', e => { navPush(); setYear(e.target.value); if(S.page !== 'lists'){ S.page = 'lists'; show(); } });
   $('footStamp').textContent = `Games up to ${D.data_cutoff} · season ${D.season} patches ${D.patches} · ${D.games_in_data.toLocaleString('en-GB')} games in the data, ${D.season_games.toLocaleString('en-GB')} this season`;
   $('fGames').value = D.min_games; $('fGames').min = D.min_games;
+  if(M) $('navTeams').hidden = true;      // public file: no team histories (teams.js is private)
   if(M) $('fAgeKnown').closest('.f').hidden = true;      // public file: ages of hidden players are not published
 
   $('tabs').innerHTML = '<button type="button" role="tab" data-r="all">All roles</button>' + Object.keys(D.roles).map(k => `<button type="button" role="tab" data-r="${esc(k)}">${esc(D.roles[k].label)}${D.roles[k].beta?'<span class="beta">beta</span>':''}</button>`).join('');
-  $('tabs').addEventListener('click', e => { const b = e.target.closest('button[data-r]'); if(b){ S.role=b.dataset.r; S.watch=false; S.sort=null; fill(); render(); }});
-  $('view').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(b){ S.view=b.dataset.v; S.sort=null; render(); }});
-  $('fRegion').addEventListener('change', () => { S.region=$('fRegion').value; S.watch=false; S.sort=null; fill(true); render(); });
+  $('tabs').addEventListener('click', e => { const b = e.target.closest('button[data-r]'); if(b){ navPush(); S.role=b.dataset.r; S.watch=false; S.sort=null; fill(); render(); }});
+  $('view').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(b){ navPush(); S.view=b.dataset.v; S.sort=null; render(); }});
+  $('fRegion').addEventListener('change', () => { navPush(); S.region=$('fRegion').value; S.watch=false; S.sort=null; fill(true); render(); });
   ['fCountry','fAge','fGames','fSearch','fShow'].forEach(id => $(id).addEventListener('input', render));
   // league filter: pick any number of leagues; League group narrows the ERL to the major leagues (PRM, LFL, TCL, LES) or the rest (second divisions count as minor)
   const MAJOR_ERL = new Set(['PRM','LFL','TCL','LES','LVP']);
@@ -396,8 +424,9 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   $('fTier').addEventListener('change', () => { [...LSEL].forEach(l => { if(!inTier(l)) LSEL.delete(l); }); lgLabel(); lgPop(); render(); });
   document.addEventListener('click', e => { if(!e.target.closest('#fLeague')){ $('fLeaguePop').hidden = true; $('fLeagueBtn').setAttribute('aria-expanded','false'); } });
   document.addEventListener('keydown', e => { if(e.key==='Escape' && !$('fLeaguePop').hidden){ $('fLeaguePop').hidden = true; $('fLeagueBtn').setAttribute('aria-expanded','false'); $('fLeagueBtn').focus(); } });
+  $('fCol').addEventListener('change', () => { S.sort=null; render(); });
   $('fAgeKnown').addEventListener('change', () => { try{ localStorage.setItem('fp_age_known', $('fAgeKnown').value); }catch(e){} render(); });
-  function resetFilters(){ $('fTier').value=''; setLeagues([]); $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fShow').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
+  function resetFilters(){ $('fTier').value=''; setLeagues([]); $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fShow').value=''; $('fCol').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
   // the ask box moves the table to another role, region or list; Reset filters and Clear take it back to where it was before the question
   let ASKPREV = null;
   function clearAsk(){ const A = $('askA'); A.hidden = true; A.textContent = ''; $('askQ').value = ''; $('askClr').hidden = true;
@@ -433,7 +462,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   $('findQ').addEventListener('input', findDraw); $('findQ').addEventListener('focus', findDraw);
   document.addEventListener('click', e => { if(!e.target.closest('#finder')) $('findR').hidden = true; });
   $('findQ').addEventListener('keydown', e => { if(e.key==='Escape') $('findR').hidden = true; if(e.key==='Enter'){ const b = $('findR').querySelector('button[data-i]'); if(b) b.click(); } });
-  const go = pg => () => { S.page=pg; show(); window.scrollTo(0,0); };
+  const go = pg => () => { if(S.page!==pg) navPush(); S.page=pg; show(); window.scrollTo(0,0); };
   $('navHome').addEventListener('click', go('home')); $('navLists').addEventListener('click', go('lists')); $('navMethod').addEventListener('click', go('method'));
   $('brandHome').addEventListener('click', () => { clearAsk(); go('home')(); });
   $('heroLists').addEventListener('click', go('lists')); $('heroMethod').addEventListener('click', go('method'));
@@ -458,6 +487,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     if(!keepRegion){ const rs = regs(); $('fRegion').innerHTML = rs.map(r=>`<option value="${esc(r.name)}">${esc(r.name)}</option>`).join(''); if(rs.length && !rs.some(r=>r.name===S.region)) S.region = rs[0].name; $('fRegion').value = S.region; }
     const g = reg(), c = {}; g.win.forEach(p => { if(p.l) c[p.l]=(c[p.l]||0)+1; }); const ks = Object.keys(c).sort();
     $('fLeagueBox').hidden = ks.length < 2; LCOUNT = c;
+    { const na = !M && ['LCS','NACL'].includes(g.name); $('fColBox').hidden = !na; if(!na) $('fCol').value = ''; }
     $('fTierBox').hidden = !ks.some(l => MAJOR_ERL.has(l)) || ks.every(l => MAJOR_ERL.has(l)); if($('fTierBox').hidden) $('fTier').value = '';
     const keep = [...LSEL].filter(l => c[l]); setLeagues(HQLG ? HQLG.filter(l => c[l]) : keep); HQLG = null;
     const n = {}; let unk = 0; g.win.forEach(p => { if(p.c) n[p.c]=(n[p.c]||0)+1; else unk++; }); const cs = Object.keys(n).sort((a,b)=>n[b]-n[a]||a.localeCompare(b)), was = $('fCountry').value;
@@ -468,7 +498,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   function cols(){
     const R = RL(), g = reg(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all' || S.watch;
     const base = [
-      {k:'rk',l:ALL?'# in role':'#',n:1,get:p=>p.rk,d:0,asc:1},
+      {k:'rk',l:ALL?'# in role':(S.view==='dev' && reg() && reg().name==='ERL' && $('fTier').value ? '# in group' : '#'),n:1,get:p=>(S.view==='dev' && reg() && reg().name==='ERL' && $('fTier').value && p.gk) ? p.gk : p.rk,d:0,asc:1},
       {k:'p',l:'Player',get:p=>p.p||'Name hidden',cls:'pl'},
       ...(ALL ? [{k:'role',l:'Role',get:p=>D.roles[p._r].label}] : []),
       {k:'c',l:'Nat',get:p=>p.c,flag:1},
@@ -482,7 +512,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     ];
     const key = !dev ? [{k:'cb',l:'Combined',n:1,get:p=>p.cb,key:1},{k:'rr',l:'Rank range',n:1,get:p=>p.lo,range:1,asc:1}]
       : war ? [{k:'xw',l:'Expected value',n:1,get:p=>p.xw,d:1,key:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}]
-      : [{k:'ds',l:'Dev score',n:1,get:p=>p.ds,d:0,key:1},{k:'ch',l:'Chance',n:1,get:p=>p.ch,band:1},{k:'xw',l:'Expected value',n:1,get:p=>p.xw,d:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}];
+      : [{k:'ds',l:'Dev score',n:1,get:p=>p.ds,d:0,key:1},{k:'ch',l:'Chance of next step',n:1,get:p=>p.ch,band:1},{k:'cht',l:'Chance of top league',n:1,get:p=>p.cht,d:0},{k:'xw',l:'Expected value',n:1,get:p=>p.xw,d:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}];
     const rest = [
       {k:'e',l:'Elo',n:1,get:p=>p.e,sign:1},
       {k:'s',l:'Score',n:1,get:p=>p.s,sign:1},
@@ -494,9 +524,9 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
       const out2 = {k:'nx',l:'Next season',get:p=>p.nl ? p.nl+(p.nt?' · '+p.nt:'') : null}, r2 = {k:'ys',l:'Top league',get:p=>p.ys,yr:1,asc:1};
       const bk = k => base.find(c=>c.k===k);
       return [bk('rk'), bk('p'), ...(ALL ? [bk('role')] : []), bk('c'), ...(g.name==='ERL' ? [bk('l')] : []), {k:'t',l:'Team',get:p=>p.t}, bk('a'), bk('g'),
-        ...(dev ? [{k:'ds',l:'Dev score',n:1,get:p=>p.ds,d:0,key:1},{k:'ch',l:'Chance',n:1,get:p=>p.ch,band:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}] : [{k:'cb',l:'Combined',n:1,get:p=>p.cb,key:1}]), out2, r2];
+        ...(dev ? [{k:'ds',l:'Dev score',n:1,get:p=>p.ds,d:0,key:1},{k:'ch',l:'Chance of next step',n:1,get:p=>p.ch,band:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}] : [{k:'cb',l:'Combined',n:1,get:p=>p.cb,key:1}]), out2, r2];
     }
-    if(M) return [...base.filter(c=>c.k!=='r'), ...(!dev ? [{k:'rr',l:'Rank range',n:1,get:p=>p.lo,range:1,asc:1,key:1}] : war ? [] : [{k:'ch',l:'Chance',n:1,get:p=>p.ch,band:1,key:1}])];
+    if(M) return [...base.filter(c=>c.k!=='r'), ...(!dev ? [{k:'rr',l:'Rank range',n:1,get:p=>p.lo,range:1,asc:1,key:1}] : war ? [] : [{k:'ch',l:'Chance of next step',n:1,get:p=>p.ch,band:1,key:1}])];
     return [...base,...key,...rest];
   }
 
@@ -517,6 +547,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
       if(nat && (nat==='__unknown' ? !!p.c : p.c!==nat)) return false;
       if(q && !(((p.p||'')+' '+(p.t||'')+' '+(p.lt||'')).toLowerCase().includes(q))) return false;
       if(sh==='rise'){ const f = prof(p); if(!(f && f.c && f.c.trend==='Improving')) return false; } else if(sh==='rookie' && !isRookie(p)) return false; else if(sh==='fa' && !p.fa) return false; else if(sh==='chg' && !chgOf(p, g.name)) return false;
+      { const fc = $('fCol').value; if(fc==='yes' && !p.col) return false; if(fc==='no' && p.col) return false; }
       if(ak==='only' && p.a!=null) return false;
       if(M && !p.nm) return ak!=='only' && (isNaN(maxAge) || (p.amax!=null && p.amax<=maxAge));      // public file: a hidden player shows one detail only, so most have no age band
       if(p.a==null){ if(!unk && !q && nat!=='__unknown'){ hiddenUnknown++; return false; } shownUnknown++; return true; }      // asking for unknown nationality shows those players even though their age is unknown too
@@ -529,6 +560,8 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     { const g0 = reg(), noDev = isPast() && !((g0 && g0.dev) || []).length, db = document.querySelector('#view button[data-v="dev"]');
       if(db){ db.disabled = noDev; db.title = noDev ? 'Past developmental lists cover regional leagues, LCK CL and NACL only' : ''; }
       if(noDev && S.view==='dev'){ S.view = 'win'; S.sort = null; } }
+    { const g1 = reg(), ao = $('fTier').querySelector('option[value=""]'), need = S.view==='dev' && g1 && g1.name==='ERL' && !S.watch && !isPast();
+      if(ao) ao.disabled = need; if(need && !$('fTier').value){ $('fTier').value = 'major'; [...LSEL].forEach(l => { if(!inTier(l)) LSEL.delete(l); }); lgLabel(); } }
     const R = RL(), g = reg(), C = cols(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all' || S.watch;
     document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected', !S.watch && b.dataset.r===S.role));
     document.querySelectorAll('#view button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.v===S.view));
@@ -536,7 +569,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     $('question').innerHTML = !dev
       ? '<b>Win now</b> asks who is the best player today. Ranked by Combined: half career head-to-head Elo, half stat Score with league strength built in. <b>Rank range</b> shows where he could sit on this list given how far ratings usually move in a season. Players in the same tier cannot be separated by the data.'
       : war ? '<b>Developmental</b>, for players already in a top league: ranked by expected value next season, a forecast of the rating expressed in win-equivalents per 100 games. A scale for comparing players, not a measured contribution to wins.'
-      : '<b>Developmental</b> asks who has the profile of a player that reaches a top league within two seasons. Ranked by the Developmental score: half Chance, half expected value. <b>Chance</b> is a band, not a personal probability, and it does not know contracts, buyouts or residency. Players over 25 or already established in a top league are not listed.';
+      : '<b>Developmental</b> asks who has the profile of a player who makes his <b>next step</b> within two seasons: a major regional league (LFL, Prime League, TCL, LES) for minor regional-league players, LEC or another top league for major regional-league players, CBLOL for the Circuito Desafiante, LCP for VCS and LJL, LCK for LCK CL, LCS for NACL. Ranked by the Developmental score: half Chance of next step, half expected value at that step, so <b>scores only compare inside one group</b>: the regional-league list is shown as major or minor ERLs. <b>Chance of top league</b> is kept beside it. Chance is a band, not a personal probability, and it does not know contracts, buyouts or residency. Players over 25 or already established in a top league are not listed.';
     if(isPast()) $('question').innerHTML = `<div class="pastnote"><b>Roster year ${S.year}, backtest.</b> The ${dev?'developmental':'win now'} list as it would have looked going into ${S.year}, built in 2026 with today's formulas and only the matches played up to the end of ${S.year-1}. Next season and Top league show what happened afterwards: Top league is the first season he played 10+ games in LCK, LPL, LEC or LCS, however many seasons later (the benchmark itself counts only the first two). A simulation with hindsight, not a live track record. No rank ranges for past years.${S.year===2019 ? ' <b>2019 lists are short</b>: the 2018 match data covers fewer regional leagues and games than later years, so fewer players reach the 15-game minimum.' : ''}${dev && !g.dev.length ? ' Past developmental lists exist for ERL, LCK CL and NACL.' : ''}</div>` + $('question').innerHTML;
     $('betaNote').hidden = !R.beta;
     if(R.beta) $('betaNote').innerHTML = `<b>${esc(R.label)} is a beta list.</b> This role's formula is a first version and has not yet beaten simple baselines in the retrospective check. Use it to build a long list, not to rank finalists.`;
@@ -554,7 +587,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
         if(M && p.nm && (c.k==='rk' || c.range || c.band)) t = '·';
         else if(c.yr) t = v ? `<span class="yes" title="First season with 10+ games in LCK, LPL, LEC or LCS">after ${v} season${v>1?'s':''}</span>` : p.in ? '<span class="no">already there</span>' : '<span class="no">not yet</span>';
         else if(c.range) t = (p.lo!=null) ? `<span class="rr">${p.lo} to ${p.hi}</span>` : '·';
-        else if(c.band) t = v==null ? '·' : `<span class="band b${v>=50?3:v>=20?2:v>=5?1:0}">${esc(p.bd)}${M?'':' · '+num(v,0)}</span>`;
+        else if(c.band) t = v==null ? '·' : `<span class="band b${v>=50?3:v>=20?2:v>=5?1:0}">${esc(p.bd)}${M?'':' · '+num(v,0)}</span>${!M && p.ns ? ` <small class="ns">→ ${esc(p.ns)}</small>` : ''}`;
         else if(c.age && p.a==null && p.ab) t = esc(p.ab);
         else if(c.games && p.gr) t = 'about ' + p.g;
         else if(c.n){ if(c.sign && typeof v==='number') cls += v<0?' neg':' pos'; t = (c.sign && typeof v==='number' && v>0 ? '+' : '') + num(v, c.d==null?2:c.d); }
@@ -562,7 +595,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
         else if(c.res) t = v ? `<span title="Residency on Leaguepedia: ${esc(v)}">${esc(RES[v]||v)}</span>` : '·';
         else if(c.team){ const lg = LOGO[p.t]; t = (lg ? `<img class="tlogo" src="${lg}" alt="" width="18" height="18" loading="lazy">` : '') + (p.tc ? `<span title="${esc(p.t||'')}">${esc(p.tc)}</span>` : esc(p.t==null?'·':p.t)); }
         else t = esc(v==null?'·':v);
-        if(c.k==='p'){ if(p.ss) t += '<span class="chip" title="Under 20 games this season: treat the rating as a first look">small sample</span>'; if(p.a==null && !p.ab && !(M && !p.nm)) t += '<span class="chip">age unknown</span>'; if(M && p.nm) t += '<span class="chip" title="One named sample player per role in each league">sample</span>'; if(p.n && !dev) t += `<span class="chip" title="Not listed as a developmental prospect">${esc(NOTE[p.n]||p.n)}</span>`; }
+        if(c.k==='p'){ if(p.ss) t += '<span class="chip" title="Under 20 games this season: treat the rating as a first look">small sample</span>'; if(p.col && ['LCS','NACL'].includes(S.region)) t += `<span class="chip" title="College roster on Leaguepedia: ${esc(p.col)}">college</span>`; if(p.a==null && !p.ab && !(M && !p.nm)) t += '<span class="chip">age unknown</span>'; if(M && p.nm) t += '<span class="chip" title="One named sample player per role in each league">sample</span>'; if(p.n && !dev) t += `<span class="chip" title="Not listed as a developmental prospect">${esc(NOTE[p.n]||p.n)}</span>`; }
         if(c.k==='p' && !M){ const id = pid(p), ch = S.watch ? null : chgOf(p, g.name); t = `<button type="button" class="star${isW(id)?' on':''}" data-star="${list.indexOf(p)}" aria-pressed="${isW(id)}" aria-label="${isW(id)?'Remove from':'Add to'} watchlist" title="${isW(id)?'On your watchlist':'Add to watchlist'}">${isW(id)?'★':'☆'}</button>` + t + (ch==='new' ? '<span class="chg new" title="Not on this list at the previous data update you saw">new</span>' : ch==='up' ? '<span class="chg up" title="Tier went up since the previous data update you saw">tier ▴</span>' : ch==='down' ? '<span class="chg down" title="Tier went down since the previous data update you saw">tier ▾</span>' : '') + (S.watch && WATCH[id] && WATCH[id].n ? `<span class="chip" title="${esc(WATCH[id].n)}">note</span>` : ''); }
         return `<td class="${cls}" data-l="${esc(c.l)}">${t}</td>`; }).join('') + '</tr>';
     });
@@ -624,31 +657,35 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   }
   // By split: one chip per split of the last two seasons; a chip shows that split alone (record, split rating, rank in his league, stat profile against his league in that split)
   function splitPick(pf, label){
-    const ss = (pf.s||[]).filter(x => x[7] && +String(x[7]).split('_')[0] >= D.season-1); if(ss.length < 2) return '';
-    const chip = x => `<button type="button" data-sk="${esc(x[7])}" aria-pressed="false">${esc("'"+String(x[0]).slice(2)+' '+x[1])} · ${esc(x[2])}</button>`;
-    return `<div><h3 class="sec">By split</h3><div class="years" id="splitPick"><span>Whole season or one split:</span><button type="button" data-sk="" aria-pressed="true">Season ${D.season}</button>${ss.map(chip).join('')}</div><div id="splitBox"></div>
+    const all = (pf.s||[]).filter(x => x[7]), top = all.length ? Math.max(...all.map(x => x[0])) : D.season, wb = WANT && String(WANT.sp);
+    const ss = all.filter(x => x[0] >= top-1 || (wb && String(x[7]).split('|')[0]===wb && x[2]===WANT.lg)); if(ss.length < 2 && !(wb && ss.length)) return '';
+    const chip = x => `<button type="button" data-sk="${esc(x[7])}" data-base="${esc(String(x[7]).split('|')[0])}" data-lg="${esc(x[2])}" aria-pressed="false">${esc("'"+String(x[0]).slice(2)+' '+x[1])} · ${esc(x[2])}</button>`;
+    return `<div><h3 class="sec">By split</h3><div class="years" id="splitPick"><span>Whole season or one split:</span><button type="button" data-sk="" aria-pressed="true">Season ${top}</button>${ss.map(chip).join('')}</div><div id="splitBox"></div>
       <p class="note">A split is one block of league games (regular season with its playoffs). Pick one to see how he did in that block alone; the season card above stays as it is.</p></div>`;
   }
   function splitShow(pf, label, key){
     const box = $('splitBox'); if(!box) return; $('splitPick').querySelectorAll('button[data-sk]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sk===key)));
     if(!key){ box.innerHTML = ''; return; }
-    const x = (pf.s||[]).find(z => z[7]===key), sr = pf.sr && pf.sr[key]; if(!x){ box.innerHTML = ''; return; }
+    const x = (pf.s||[]).find(z => z[7]===key); if(!x){ box.innerHTML = ''; return; }
+    const base = String(key).split('|')[0], sr = pf.sr && (pf.sr[key] || (pf.sr[base] && pf.sr[base][0]===x[2] ? pf.sr[base] : null));
     const wins = sr && sr[2]!=null ? `${sr[2]}-${sr[1]-sr[2]}` : '·';
     const tiles = [[`${x[0]} ${x[1]}`, `${esc(x[2])}<small>league</small>`], ['Record', `${wins}<small>${x[3]} games in the split</small>`], ['Split rating', `${num(x[4])}<small>z across all leagues that split window (0 = average ranked player)</small>`], ['In '+esc(x[2]), x[5]!=null ? `#${x[5]} of ${x[6]}<small>${esc(label.toLowerCase())} players ranked in his league that split</small>` : '·<small>not ranked (under 8 games)</small>']];
     box.innerHTML = `<dl class="big">${tiles.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>` +
-      (sr && sr[4] && sr[4].some(a => a[1]!=null) ? radar([x[0], sr[0], sr[1], sr[4]], label, null, false, `Stat profile in ${esc(sr[0])}, ${x[0]} ${esc(sr[3])} (${sr[1]} games)`, `${esc(sr[0])} ${esc(label.toLowerCase())} players with 8+ games in that split`) : '<p class="note">No stat profile for this split (under 6 ranked players in his league that split).</p>');
+      (sr && sr[4] && sr[4].some(a => a[1]!=null) ? radar([x[0], sr[0], sr[1], sr[4]], label, null, false, `Stat profile in ${esc(sr[0])}, ${x[0]} ${esc(sr[3])} (${sr[1]} games)`, `${esc(sr[0])} ${esc(label.toLowerCase())} players with 8+ games in that split`) : (pf.sr ? '<p class="note">No stat profile for this split (under 6 ranked players in his league that split).</p>' : '<p class="note">Stat profiles by split are kept for the last two seasons only.</p>'));
   }
   function similar(sm){
     if(!sm || !sm[1] || !sm[1].length) return '';
     return `<p class="note"><b>Closest stat profiles in ${esc(sm[0])}:</b> ${sm[1].slice(0,3).map(x=>`${esc(x[0])} ${x[1]} (${num(x[2])})`).join(', ')}. A loose guide to how he plays, not how good he is: in a repeat test these matches beat chance, but only weakly. The number is a correlation, 1 = same shape.</p>`;
   }
-  function calText(region, ch){
+  function calText(region, ch, p){
+    if(region==='ERL' && p && p.ns) return 'In the past data the next-step bands in the regional leagues ran high (minor ERL players given 50 or more averaged 67, and 38% made the step, 2019 to 2024), so read the band as a rough guide.';
     const lab = ch>=50 ? '50% and over' : ch>=20 ? '20 to 50%' : ch>=5 ? '5 to 20%' : 'under 5%';
     const r = ((D.benchmark||{}).calibration||[]).find(x => x.region===region && x['chance band']===lab);
     if(!r) return 'There is no retrospective check for this region, so read the band as a rough guide only.';
     return `In the retrospective check, ${esc(region)} prospects in this band reached a top league within two seasons ${num(r['share who reached %'],0)}% of the time (${r['player seasons']} player seasons, 2019 to 2024).`;
   }
   function openCard(i){
+    navPush();
     $('dlg').classList.remove('wide');
     if(M){ const p=(S.view==='dev'?reg().dev:reg().win)[i]||{}, R=D.roles[roleOf(p)]||RL(), g=reg(); $('card').innerHTML = `<div class="top"><div><h2 id="cardName">${esc(p.p||'Name hidden')}</h2><p class="sub">${p.p ? esc(R.label+' · '+p.l+' · '+(p.t||''))+'. One of the named sample players. On this public page a name is never shown next to a number: his tier, rank range and full player sheet are in the private preview.' : 'Names, teams, ratings and the full player sheet are in the private preview.'}</p></div><button type="button" class="x" id="closeCard">Close</button></div><p style="margin:0">This public page shows the real lists. ${esc(D.sample_rule||'')} Teams and agencies can ask for access to every name and profile.</p><div><a class="btn go" href="${esc(mail)}">Request access</a></div><p class="note">${esc(D.contact||'')}</p>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); return; }
     const p0=(S.view==='dev'?reg().dev:reg().win)[i]; if(!p0) return;
@@ -657,7 +694,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     const other = (dev?g.win:g.dev).find(x=>x.p===p.p && x.t===p.t && x.l===p.l);
     const win = dev?other:p, dv = dev?p:other;
     const kv = past ? [['Team, most games '+SY,p.t],['Age mid-'+Y,p.a==null?'Unknown: the age rule could not be checked':p.a],['Residency (today)',p.r||'Unknown'],['Country',p.c||'Unknown'],['Win rate '+SY,p.w==null?'·':p.w+'%']] : [['Team, most games',p.t],['Latest team',p.lt],['Current team (Leaguepedia, '+fmtDate(D.lp_players_date||D.data_cutoff)+')', p.ct || (p.fa ? 'None listed: free agent' : 'Unknown')],['Age mid-'+D.roster_year,p.a==null?'Unknown: the age rule could not be checked':p.a],['Residency',p.r||'Unknown'],['Country',p.c||'Unknown'],
-      ['Win rate',p.w==null?'·':p.w+'%'],['Other leagues '+D.season,p.o||'None'],...(p.cls?[['Playstyle',p.cls]]:[]),...(p.n?[['Prospect status','Not listed as a developmental prospect ('+(NOTE[p.n]||p.n)+'). A split is one league split with 3 or more games played, not a year.']]:[])];
+      ['Win rate',p.w==null?'·':p.w+'%'],['Other leagues '+D.season,p.o||'None'],...(p.col ? [['College (Leaguepedia rosters)',p.col]] : (!M && reg() && ['LCS','NACL'].includes(reg().name) ? [['College (Leaguepedia rosters)','None found. A roster listing is not proof of games played, and an empty line does not prove he never played college.']] : [])),...(p.cls?[['Playstyle',p.cls]]:[]),...(p.n?[['Prospect status','Not listed as a developmental prospect ('+(NOTE[p.n]||p.n)+'). A split is one league split with 3 or more games played, not a year.']]:[])];
     const pf = past ? pastProf(p, SY) : (p.k ? P[role+'|'+p.k] : null), pc = (pf && pf.c) || {};
     const chips = [['Playstyle',pc.style||p.cls],['Tag',pc.tag],['Confidence',pc.conf],['Trend',pc.trend]].filter(x=>x[1]).map(x=>`<span><b>${esc(x[0])}</b> ${esc(x[1])}</span>`).join('');
     if(pc.next!=null) kv.push(['Expected next season', `Combined ${num(pc.next)} plus or minus ${num(pc.pm)}` + (pc.why ? ` (${pc.why})` : '')]);
@@ -665,7 +702,8 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
       ['Win now', win ? (past ? `#${win.rk}<small>tier ${win.ti}</small>` : `#${win.rk}<small>could be ${win.lo} to ${win.hi} · tier ${win.ti}</small>`) : '·'],
       ['Combined', num(p.cb)],
       [g.devKind==='war'?'Expected value':'Developmental', dv ? (g.devKind==='war' ? `${num(dv.xw,1)}<small>#${dv.rk} · tier ${dv.ti}</small>` : `#${dv.rk}<small>score ${num(dv.ds,0)} · tier ${dv.ti}</small>`) : '·<small>not on that list</small>'],
-      ['Chance', p.ch==null ? '·<small>prospects only</small>' : `${esc(p.bd)}<small>band of ${num(p.ch,0)}</small>`],
+      ['Chance of next step', p.ch==null ? '·<small>prospects only</small>' : `${esc(p.bd)}<small>next step: ${esc(p.ns || 'a top league')} · ${num(p.ch,0)}</small>`],
+      ['Chance of top league', p.cht==null ? (p.ch==null ? '·<small>prospects only</small>' : '·') : `${num(p.cht,0)}<small>10+ games in LCK, LPL, LEC or LCS within two seasons</small>`],
     ];
     // rank among players of his role in his league, and among players of his nationality (all regions), by Combined
     const rankIn = arr => { const v = arr.filter(x => typeof x.cb==='number'); return {r:1+v.filter(x => x.cb>p.cb).length, n:v.length}; };
@@ -683,7 +721,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
       <div><h3 class="sec">${esc(R.label)} profile against his own league</h3>${R.blocks.map((b,j)=> b ? bar(b,p.b?p.b[j]:null) : '').join('')}
         <p class="note">Bars run from −3.5 to +3.5. Zero is the average ${esc(R.label.toLowerCase())} in ${esc(p.l)}. A profile inside one league depends partly on his team.</p></div>
       ${pf ? spark(pf.s) + splitPick(pf, R.label) + radar(pf.rd, R.label, prevRd(p, role, pf.rd), !window.FLEXPICK_HISTORY && PAST.length && !!p.k) + similar(pf.sm) : ''}
-      ${p.ch!=null ? `<p class="note"><b>Chance band: ${esc(p.bd).toLowerCase()}</b> (model value ${num(p.ch,0)}). ${calText(g.name, p.ch)} The share swings from year to year with the number of top league seats that open. It does not know his contract, buyout or residency.</p>` : ''}
+      ${p.ch!=null ? `<p class="note"><b>Chance of next step${p.ns ? ' ('+esc(p.ns)+')' : ''}: ${esc(p.bd).toLowerCase()}</b> (model value ${num(p.ch,0)}${p.cht!=null ? '; chance of top league '+num(p.cht,0) : ''}). ${calText(g.name, p.ch, p)} The share swings from year to year with the number of seats that open. It does not know his contract, buyout or residency.</p>` : ''}
       <dl class="kv">${kv.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>
       ${past ? `<div><h3 class="sec">What happened next</h3><dl class="kv"><dt>Next season (${Y})</dt><dd>${esc(p.nl ? p.nl+(p.nt?' · '+p.nt:'') : 'No league games')}</dd><dt>Top league (10+ games)</dt><dd>${p.ys ? 'After '+p.ys+' season'+(p.ys>1?'s':'') : p.in ? 'Already in one' : 'Not yet'}</dd></dl></div>` : ''}
       <div class="foot">${past ? `Sample ${p.g} games in ${esc(p.l)}, season ${SY}. Backtest: built in 2026 with today's formulas and only the matches played up to the end of ${SY}; the split chart and stat profile stop there too. A simulation with hindsight, not a live track record.` : `Sample ${p.g} games in ${esc(p.l)}, season ${D.season} · data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)}`}</div>
@@ -691,6 +729,10 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
       ${p.k && !M ? `<div><button type="button" class="btn go" id="repBtn">Scouting report: detailed stats, champion pool, laning, matchups</button></div><div id="repBox"></div>` : ''}`;
     $('closeCard').onclick = () => $('dlg').close(); wireCard(p, role, Y);
     if($('splitPick')) $('splitPick').addEventListener('click', e => { const b = e.target.closest('button[data-sk]'); if(b) splitShow(pf, R.label, b.dataset.sk); });
+    if(WANT){ const w = WANT, pick = $('splitPick'), bs = pick ? [...pick.querySelectorAll('button[data-base]')] : [], b = bs.find(z => z.dataset.base===w.sp && z.dataset.lg===w.lg) || bs.find(z => z.dataset.base===w.sp);
+      if(b){ splitShow(pf, R.label, b.dataset.sk); setTimeout(() => { if($('splitPick')) $('splitPick').scrollIntoView({block:'start'}); }, 30); }
+      else { const rs = TEAMS && Object.keys(TEAMS.r).filter(k => k.endsWith('|'+w.sp)).map(k => TEAMS.r[k].find(r => (r[0]+'|'+r[1])===w.id && r[3]===w.lg)).find(Boolean), big = $('card').querySelector('dl.big');
+        if(rs && big){ big.insertAdjacentHTML('afterend', `<div id="wantBox"><h3 class="sec">The split you came from</h3><dl class="big"><div><dt>${esc(w.sp.split('_')[0])}</dt><dd>${esc(rs[3])}<small>league</small></dd></div><div><dt>Games</dt><dd>${rs[4]}</dd></div><div><dt>Split rating</dt><dd>${num(rs[5])}<small>z across all leagues that split window</small></dd></div><div><dt>In ${esc(rs[3])}</dt><dd>${rs[6]!=null ? '#'+rs[6]+' of '+rs[7] : '·'}</dd></div></dl></div>`); setTimeout(() => { if($('wantBox')) $('wantBox').scrollIntoView({block:'start'}); }, 30); } } }
     const cid = role+'|'+(p.k||p.p);
     $('card').querySelectorAll('.years button[data-y]').forEach(b => b.onclick = () => { const o = findIndex().find(x => x.id===cid); if(o && +b.dataset.y !== Y){ $('dlg').close(); findOpen(o, +b.dataset.y); } });
     if($('yrLoad')) $('yrLoad').onclick = () => { $('yrLoad').textContent = 'Loading...'; const sc = document.createElement('script'); sc.src = 'history.js'; sc.onload = () => { HB(); FINDEX = null; openCard((S.view==='dev'?reg().dev:reg().win).indexOf(p)); }; sc.onerror = () => { $('yrLoad').textContent = 'Could not load past seasons'; }; document.head.appendChild(sc); };
@@ -714,13 +756,13 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   function renderReport(box, role, p, d, ss, y){
     const s = ss.find(x => x.y===y) || ss[ss.length-1], L = D.roles[role].label, f = (v,dd=0) => v==null ? '·' : (typeof v==='number' ? v.toFixed(dd) : v), sg = v => v==null ? '·' : (v>0?'+':'')+v.toFixed(0);
     const wl = r => r && r[0] ? `${r[1]}-${r[0]-r[1]} (${Math.round(100*r[1]/r[0])}%)` : '·';
-    const PCTL = {golddiffat10:'Gold lead @10', golddiffat15:'Gold lead @15', xpdiffat15:'XP lead @15', csdiffat15:'CS lead @15', golddiffat20:'Gold lead @20', golddiffat25:'Gold lead @25', ahead15:'Games ahead at 15', dead15:'Deathless by 15', fbi:'First blood involvement', kills:'Kills', deaths:'Deaths (fewer is better)', assists:'Assists', kp:'Kill participation', ks:'Kill share', dsh:'Death share (fewer is better)', dpm:'Damage / min', damageshare:'Damage share', damagetakenperminute:'Damage taken / min', cspm:'CS / min', egpm:'Gold / min', earnedgoldshare:'Gold share', vspm:'Vision score / min', wcpm:'Wards cleared / min'};
+    const PCTL = {golddiffat10:'Gold lead @10', golddiffat15:'Gold lead @15', xpdiffat15:'XP lead @15', csdiffat15:'CS lead @15', golddiffat20:'Gold lead @20', golddiffat25:'Gold lead @25', ahead15:'Games ahead at 15', dead15:'Deathless by 15', fbi:'First blood involvement', kills:'Kills', deaths:'Deaths (fewer is better)', assists:'Assists', kp:'Kill participation', kp_early:'Kill participation by 15 min', kp_late:'Kill participation after 15 min', ks:'Kill share', dsh:'Death share (fewer is better)', dpm:'Damage / min', damageshare:'Damage share', damagetakenperminute:'Damage taken / min', cspm:'CS / min', egpm:'Gold / min', earnedgoldshare:'Gold share', vspm:'Vision score / min', wcpm:'Wards cleared / min'};
     const m = (label, val, key) => { const pc = s.pct && s.pct[key]; return `<div class="m"><span>${esc(label)}</span><span class="v">${val}</span><div class="pb">${pc!=null?`<i style="width:${pc}%"></i>`:''}</div><span class="pc">${pc!=null?pc:''}</span></div>`; };
     const career = `<div class="tb"><table><thead><tr><th>Season</th><th>League</th><th>Team</th><th class="n">Games</th><th class="n">Record</th><th class="n">Combined</th><th class="n">Gold @15</th><th class="n">KDA</th><th class="n">DPM</th><th class="n">CS/min</th><th class="n">Vision/min</th><th class="n">Champions</th></tr></thead><tbody>${ss.map(x => `<tr class="${x.y===s.y?'focus':''}"><td>${x.y}</td><td>${esc(x.lg)}</td><td>${esc(x.t)}</td><td class="n">${x.rec[0]}</td><td class="n">${wl(x.rec)}</td><td class="n">${x.cb==null?'·':(x.cb>0?'+':'')+x.cb.toFixed(2)}</td><td class="n">${sg(x.lane.gd15)}</td><td class="n">${f(x.fight.kda,2)}</td><td class="n">${f(x.fight.dpm)}</td><td class="n">${f(x.econ.cspm,1)}</td><td class="n">${f(x.vision.vspm,2)}</td><td class="n">${x.nch}</td></tr>`).join('')}</tbody></table></div>`;
     const rec = `<dl class="kv"><dt>Record</dt><dd>${wl(s.rec)} in ${esc(s.lg)}${s.other.length?' · also '+s.other.map(o=>`${esc(o[0])} ${o[2]}-${o[1]-o[2]}`).join(', '):''}</dd><dt>Blue / red side</dt><dd>${wl(s.side.blue)} / ${wl(s.side.red)}</dd><dt>Playoffs</dt><dd>${s.po[0]?wl(s.po):'no playoff games'}</dd><dt>Short games (under 28 min)</dt><dd>${s.len.short[0]?wl(s.len.short):'none'}</dd><dt>Long games (35 min and over)</dt><dd>${s.len.long[0]?wl(s.len.long):'none'}</dd><dt>Average game length</dt><dd>${f(s.mins,1)} min</dd><dt>Draft position</dt><dd>${s.draft.pick==null?'not in the data for this league':`pick ${f(s.draft.pick,1)} of 10 on average · ${f(s.draft.first3)}% in the first three picks · ${f(s.draft.last2)}% in the last two (counter-pick)`}</dd></dl>`;
     const lane = m('Gold lead @10', sg(s.lane.gd10), 'golddiffat10') + m('XP lead @10', sg(s.lane.xd10), null) + m('CS lead @10', f(s.lane.cd10,1), null) + m('Gold lead @15', sg(s.lane.gd15), 'golddiffat15') + m('XP lead @15', sg(s.lane.xd15), 'xpdiffat15') + m('CS lead @15', f(s.lane.cd15,1), 'csdiffat15') + m('Gold lead @20', sg(s.lane.gd20), 'golddiffat20') + m('Gold lead @25', sg(s.lane.gd25), 'golddiffat25')
       + m('Ahead in gold at 15', f(s.lane.ahead15)+'%', 'ahead15') + m('Lead of 500+ at 15', f(s.lane.big15)+'%', null) + m('Behind by 500+ at 15', f(s.lane.bad15)+'%', null) + m('Kills / deaths / assists by 15', `${f(s.lane.k15,2)} / ${f(s.lane.d15,2)} / ${f(s.lane.a15,2)}`, null) + m('Deathless by 15', f(s.lane.dead15)+'%', 'dead15') + m('First blood involvement', f(s.lane.fbi)+'%', 'fbi') + m('First blood victim', f(s.lane.fbv)+'%', null);
-    const fight = m('Kills / deaths / assists', `${f(s.fight.k,1)} / ${f(s.fight.d,1)} / ${f(s.fight.a,1)}`, null) + m('KDA', f(s.fight.kda,2), null) + m('Kill participation', f(s.fight.kp)+'%', 'kp') + m('Kill share', f(s.fight.ks)+'%', 'ks') + m('Death share', f(s.fight.dsh)+'%', 'dsh') + m('Damage / min', f(s.fight.dpm), 'dpm') + m('Damage share', f(s.fight.dmgsh,1)+'%', 'damageshare') + m('Damage taken / min', f(s.fight.dtpm), 'damagetakenperminute') + m('Damage mitigated / min', f(s.fight.dmit), null) + m('Double kills per game', f(s.fight.dbl,2), null)
+    const fight = m('Kills / deaths / assists', `${f(s.fight.k,1)} / ${f(s.fight.d,1)} / ${f(s.fight.a,1)}`, null) + m('KDA', f(s.fight.kda,2), null) + (s.fight.kpe!=null ? m('Kill participation by 15 min', f(s.fight.kpe)+'%', 'kp_early') + m('Kill participation after 15 min', f(s.fight.kpl)+'%', 'kp_late') : m('Kill participation', f(s.fight.kp)+'%', 'kp')) + m('Kill share', f(s.fight.ks)+'%', 'ks') + m('Death share', f(s.fight.dsh)+'%', 'dsh') + m('Damage / min', f(s.fight.dpm), 'dpm') + m('Damage share', f(s.fight.dmgsh,1)+'%', 'damageshare') + m('Damage taken / min', f(s.fight.dtpm), 'damagetakenperminute') + m('Damage mitigated / min', f(s.fight.dmit), null) + m('Double kills per game', f(s.fight.dbl,2), null)
       + m('CS / min', f(s.econ.cspm,2), 'cspm') + m('Gold / min (earned)', f(s.econ.gpm), 'egpm') + m('Gold share', f(s.econ.gsh,1)+'%', 'earnedgoldshare') + m('Vision score / min', f(s.vision.vspm,2), 'vspm') + m('Wards placed / min', f(s.vision.wpm,2), null) + m('Wards cleared / min', f(s.vision.wcpm,2), 'wcpm') + m('Control wards per game', f(s.vision.cw,1), null);
     const champs = `<div class="tb"><table><thead><tr><th>Champion</th><th>Class</th><th class="n">Games</th><th class="n">Record</th><th class="n">KDA</th><th class="n">Gold @15</th><th class="n">DPM</th><th class="n">KP</th></tr></thead><tbody>${s.champs.map(c => `<tr><td>${esc(c[0])}</td><td>${esc(c[7])}</td><td class="n">${c[1]}</td><td class="n">${wl([c[1],c[2]])}</td><td class="n">${f(c[3],1)}</td><td class="n">${sg(c[4])}</td><td class="n">${f(c[5])}</td><td class="n">${f(c[6])}%</td></tr>`).join('')}</tbody></table></div><p class="note">${s.nch} different champions in ${s.rec[0]} games${s.champs.length<s.nch?'; the '+s.champs.length+' most played are shown':''}.</p>`;
     const cls = s.cls.length>1 ? `<div class="tb"><table><thead><tr><th>Champion class</th><th class="n">Games</th><th class="n">Record</th><th class="n">Gold @15</th><th class="n">DPM</th><th class="n">KDA</th></tr></thead><tbody>${s.cls.map(c => `<tr><td>${esc(c[0])}</td><td class="n">${c[1]}</td><td class="n">${wl([c[1],c[2]])}</td><td class="n">${sg(c[3])}</td><td class="n">${f(c[4])}</td><td class="n">${f(c[5],1)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="note">One champion class only this season.</p>';
@@ -778,11 +820,12 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   // ---- share links: the view, the open player and the compare set live in the address
   let CUR = null, CMPOPEN = false;
   function stateHash(){
+    if(S.page==='teams'){ const q = new URLSearchParams(); if(TS.team) q.set('team', TS.team); if(TS.sp) q.set('sp', TS.sp); return '#' + q.toString(); }
     if(S.page==='method') return '#method'; if(S.page==='home') return ''; if(M) return '#' + S.role;
     const q = new URLSearchParams(); q.set('r', S.role); q.set('g', S.region); q.set('v', S.view); if(S.year!==LIVE) q.set('y', S.year); if(S.watch) q.set('w', 1); if(S.mode==='scatter') q.set('m', 'scatter'); if($('fTier').value) q.set('t', $('fTier').value); if(LSEL.size) q.set('lg', [...LSEL].join(','));
     if(CUR) q.set('p', CUR.id + (CUR.y!==LIVE ? '@'+CUR.y : '')); if(CMPOPEN && CMP.length) q.set('c', CMP.map(x => x.id + (x.y!==LIVE ? '@'+x.y : '')).join('~'));
     return '#' + q.toString(); }
-  function writeHash(){ try{ history.replaceState(null, '', location.pathname + location.search + stateHash()); }catch(e){} }
+  function writeHash(){ try{ history.replaceState(history.state, '', location.pathname + location.search + stateHash()); }catch(e){} }
   function copyLink(btn){ const u = location.href, done = () => { if(btn){ const t = btn.textContent; btn.textContent = 'Link copied'; setTimeout(() => btn.textContent = t, 1600); } };
     if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(done, () => fallbackCopy(u, done)); else fallbackCopy(u, done); }
   function fallbackCopy(u, done){ const i = document.createElement('input'); i.value = u; document.body.appendChild(i); i.select(); try{ document.execCommand('copy'); done(); }catch(e){} i.remove(); }
@@ -817,7 +860,8 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
       ['In-league rating', e => num(e.p.wi), e => e.p.wi, 1],
       ['League level', e => num(e.p.lv) + ' <small>' + esc(e.p.l) + '</small>', e => e.p.lv, 1],
       ['Developmental', e => e.dv ? (e.dv.ds!=null ? `score ${num(e.dv.ds,0)} · tier ${e.dv.ti}` : `tier ${e.dv.ti}`) : '· <small>not a prospect</small>', e => e.dv ? e.dv.ds : null, 1],
-      ['Chance band', e => e.p.ch==null && !(e.dv && e.dv.ch!=null) ? '·' : esc((e.dv||e.p).bd || '') ],
+      ['Chance of next step', e => e.p.ch==null && !(e.dv && e.dv.ch!=null) ? '·' : esc((e.dv||e.p).bd || '') + ((e.dv||e.p).ns ? ' → ' + esc((e.dv||e.p).ns) : '') ],
+      ['Chance of top league', e => { const q = e.dv || e.p; return q.cht==null ? '·' : num(q.cht,0); } ],
       ['Playstyle · tag', e => esc([e.c.style||e.p.cls, e.c.tag].filter(Boolean).join(' · ') || '·')],
       ['Trend · confidence', e => esc([e.c.trend, e.c.conf ? e.c.conf+' confidence' : null].filter(Boolean).join(' · ') || '·')],
       ['Nationality · residency', e => esc([e.p.c, e.p.r].filter(Boolean).join(' · ') || '·')],
@@ -857,14 +901,14 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   // open any player by id and season (used by share links, compare, watchlist)
   function openById(id, y){
     y = +y || LIVE; if(y!==LIVE && !window.FLEXPICK_HISTORY) return ensureHistory(() => openById(id, y));
-    const f = findP(id, y); if(!f) return false;
+    const f = findP(id, y); if(!f) return false; navPush(); const lk = NAVLOCK; NAVLOCK = true;
     S.watch = false; S.year = y; if($('fYear')) $('fYear').value = y; S.role = f.role; S.region = f.g.name; S.view = f.kind; S.sort = null; S.page = 'lists'; show(); fill(); resetFilters();
-    const list = f.kind==='dev' ? reg().dev : reg().win, i = list.indexOf(f.p); if(i>=0) openCard(i); return true;
+    const list = f.kind==='dev' ? reg().dev : reg().win, i = list.indexOf(f.p); if(i>=0) openCard(i); NAVLOCK = lk; return true;
   }
   // ---- card extras: action row, private note, last season on the radar
   function cardExtras(p, role, Y){
     if(M) return ''; const id = pid(p, role), w = WATCH[id];
-    return `<div class="cardact"><button type="button" class="btn ${isW(id)?'on':''}" id="wBtn" aria-pressed="${isW(id)}">${isW(id)?'★ On watchlist':'☆ Add to watchlist'}</button><button type="button" class="btn" id="cBtn" ${inCmp(id,Y)?'disabled':''}>${inCmp(id,Y)?'In compare':'+ Compare'}</button><button type="button" class="btn" id="lBtn">Copy link</button><button type="button" class="btn" id="prBtn">Print or save as PDF</button></div>
+    return `<div class="cardact"><button type="button" class="btn ${isW(id)?'on':''}" id="wBtn" aria-pressed="${isW(id)}">${isW(id)?'★ On watchlist':'☆ Add to watchlist'}</button><button type="button" class="btn" id="cBtn" ${inCmp(id,Y)?'disabled':''}>${inCmp(id,Y)?'In compare':'+ Compare'}</button><button type="button" class="btn" id="lBtn">Copy link</button><button type="button" class="btn" id="prBtn">Print or save as PDF</button>${p.t ? `<button type="button" class="btn" id="tBtn">Team history: ${esc(p.t)}</button>` : ''}</div>
       <div class="note-in"><label for="pNote" class="lab">Private note, kept in this browser only</label><textarea id="pNote" rows="2" placeholder="Tryout notes, contract info, who to call...">${esc(w && w.n || '')}</textarea></div>`;
   }
   function wireCard(p, role, Y){
@@ -874,6 +918,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     const cb = $('cBtn'); if(cb) cb.onclick = () => { addCmp(id, Y, p.p); cb.disabled = true; cb.textContent = 'In compare'; };
     const lb = $('lBtn'); if(lb) lb.onclick = () => copyLink(lb);
     const pb = $('prBtn'); if(pb) pb.onclick = printSheet;
+    const tb = $('tBtn'); if(tb) tb.onclick = () => { navPush(); NAVLOCK = true; $('dlg').close(); NAVLOCK = false; TS.team = p.t; TS.sp = null; S.page = 'teams'; show(); window.scrollTo(0, 0); };
     const nt = $('pNote'); let tm = null; if(nt) nt.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { const v = nt.value.trim(); if(v){ if(!isW(id)) WATCH[id] = {nm:p.p, r:role, n:'', t:Date.now()}; WATCH[id].n = v; } else if(isW(id)) WATCH[id].n = ''; saveWatch(); if(wb){ wb.classList.toggle('on', isW(id)); wb.textContent = isW(id) ? '★ On watchlist' : '☆ Add to watchlist'; } }, 400); });
     const ls = $('lastSeason'); if(ls) ls.onclick = () => { ls.textContent = 'Loading last season...'; ensureHistory(() => { const list = S.view==='dev' ? reg().dev : reg().win; openCard(list.indexOf(p)); }); };
   }
@@ -944,18 +989,19 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   $('wExp').addEventListener('click', exportWatch); $('wImp').addEventListener('click', () => $('wFile').click()); $('wFile').addEventListener('change', e => { if(e.target.files[0]) importWatch(e.target.files[0]); e.target.value = ''; });
   $('fToggle').addEventListener('click', () => { const o = $('fbar').classList.toggle('open'); $('fToggle').setAttribute('aria-expanded', o); });
   $('cmpTray').addEventListener('click', e => { const rm = e.target.closest('button[data-rm]'); if(rm){ CMP.splice(+rm.dataset.rm, 1); saveCmp(); return; } if(e.target.id==='cmpGo') openCompare(); if(e.target.id==='cmpClr'){ CMP = []; saveCmp(); } });
-  $('dlg').addEventListener('close', () => { CUR = null; CMPOPEN = false; if(S.page==='lists') writeHash(); });
+  $('dlg').addEventListener('close', () => { if(CUR) LASTCARD = {c:{id:CUR.id, y:CUR.y}, t:Date.now()}; CUR = null; CMPOPEN = false; if(S.page==='lists') writeHash(); });
   if(!M){ if(!ST.get('fp_tips', 0)) $('tips').hidden = false; $('tipsX').onclick = () => { $('tips').hidden = true; ST.set('fp_tips', 1); }; drawTray(); }
 
   function method(){
-    const B = D.benchmark || {}, T = (B.erl_top5_A||[]), get = n => T.find(r=>r.ranking.indexOf(n)===0) || {};
-    const me = get('Developmental score'), wn = get('Win now rating'), base = get('BASELINE league + age'), all = get('All eligible');
-    const max = Math.max(...T.map(r=>r['hit %']||0), 1);
-    const rowsT = T.map(r => `<tr><td class="${/product|Win now/.test(r.ranking)?'you':''}">${esc(r.ranking.replace('BASELINE ','Simple rule: '))}</td><td class="n">${r.picks}</td><td><span class="hbar ${/product|Win now/.test(r.ranking)?'me':''}" style="width:${Math.round(120*(r['hit %']||0)/max)}px"></span><span style="font-family:var(--mono)">${num(r['hit %'],0)}%</span></td><td class="n">${esc(r['range 90%']||'')}</td><td class="n">${r['unique players']}</td></tr>`).join('');
+    const B = D.benchmark || {}, T = (B.erl_major_top5_A||[]), T2 = (B.erl_minor_top5_L||[]), get = (t,n) => t.find(r=>r.ranking.indexOf(n)===0) || {};
+    const me = get(T,'Developmental score'), wn = get(T,'Win now rating'), base = get(T,'BASELINE league + age'), all = get(T,'All eligible');
+    const me2 = get(T2,'Developmental score'), wn2 = get(T2,'Win now rating'), base2 = get(T2,'BASELINE league + age'), all2 = get(T2,'All eligible');
+    const max = Math.max(...T.concat(T2).map(r=>r['hit %']||0), 1);
+    const rows = TT => TT.map(r => `<tr><td class="${/product|Win now/.test(r.ranking)?'you':''}">${esc(r.ranking.replace('BASELINE ','Simple rule: '))}</td><td class="n">${r.picks}</td><td><span class="hbar ${/product|Win now/.test(r.ranking)?'me':''}" style="width:${Math.round(120*(r['hit %']||0)/max)}px"></span><span style="font-family:var(--mono)">${num(r['hit %'],0)}%</span></td><td class="n">${esc(r['range 90%']||'')}</td><td class="n">${r['unique players']}</td></tr>`).join(''), rowsT = rows(T), rowsT2 = rows(T2);
     const am = (B.after_move||[]).map(r=>`<tr><td>${esc(r.predictor)}</td><td class="n">${r.players}</td><td class="n">${num(r['correlation with first top-league season rating'])}</td><td class="n">${esc(r['range 90%'])}</td></tr>`).join('');
-    const br = (B.by_role||[]).map(r=>`<tr><td>${esc(({top:'Top',jng:'Jungle',mid:'Mid',bot:'ADC',sup:'Support'})[r.role]||r.role)}</td><td class="n">${num(r['Developmental score hit %'],0)}% <span class="rr">(${esc(r['range 90%'])})</span></td><td class="n">${num(r['win now rating'],0)}%</td><td class="n">${num(r['league + age + games'],0)}%</td><td class="n">${num(r['base rate'],0)}%</td></tr>`).join('');
+    const br = (B.by_role||[]).map(r=>`<tr><td>${esc(({top:'Top',jng:'Jungle',mid:'Mid',bot:'ADC',sup:'Support'})[r.role]||r.role)}</td><td class="n">${num(r['win now rating'],0)}%</td><td class="n">${num(r['league + age + games'],0)}%</td><td class="n">${num(r['base rate'],0)}%</td></tr>`).join('');
     const RL = {all:'All roles',top:'Top',jng:'Jungle',mid:'Mid',bot:'ADC',sup:'Support'};
-    const fr = (B.found_rate||[]).filter(r=>r['top N per year']===10).map(r=>`<tr><td class="${r.role==='all'?'you':''}">${esc(RL[r.role]||r.role)}</td><td class="n">${r['promoted prospect seasons']}</td><td class="n">${num(r['win now rating found %'],0)}% <span class="rr">(${esc(r['win now rating range 90%'])})</span></td><td class="n">${num(r['Developmental score found %'],0)}% <span class="rr">(${esc(r['Developmental score range 90%'])})</span></td><td class="n">${num(r['league + age + games found %'],0)}%</td><td class="n">${num(r['by luck %'],0)}%</td></tr>`).join('');
+    const fr = (B.found_rate||[]).filter(r=>r['top N per year']===10).map(r=>`<tr><td class="${r.role==='all'?'you':''}">${esc(RL[r.role]||r.role)}</td><td class="n">${r['promoted prospect seasons']}</td><td class="n">${num(r['win now rating found %'],0)}% <span class="rr">(${esc(r['win now rating range 90%'])})</span></td><td class="n">${num(r['league + age + games found %'],0)}%</td><td class="n">${num(r['by luck %'],0)}%</td></tr>`).join('');
     $('viewMethod').innerHTML = `
       <div><h2>What the numbers are, and how far to trust them</h2></div>
       <div class="statement"><h3>The one-paragraph version</h3><p>Flexpick compares players across leagues by building league strength into every rating. That works: it finds future top league players far better than league and age alone. Inside a single league the order of neighbouring players is mostly noise, which is why every list shows tiers and rank ranges. Use it to decide who to invite to tryouts, not who to sign.</p></div>
@@ -963,16 +1009,17 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
         <li><b>In-league rating.</b> Per role, a weighted mix of stats that were kept because they follow a player to a new team. Every stat is compared with the same champion that season, lane leads with the exact matchup.</li>
         <li><b>League level.</b> How strong each league is against the LEC, from how players' ratings change when they move leagues and from head-to-head Elo between leagues. It is the largest single source of error. Each level now carries a range (shown on the player card), taken from how far the two measurements disagree and from how few players moved: about a third of a point either way for LCK, LCS and the LFL, half a point to a full point for most other regional leagues. The range is a minimum: it does not cover errors both measurements share.</li>
         <li><b>Score</b> = in-league rating + league level. <b>Elo</b> = a career rating from every duel against the player across the map. <b>Combined</b> = half Elo, half Score, each on one scale.</li>
-        <li><b>Chance</b> = share of past prospects with a similar profile who played 10+ games in LCK, LPL, LEC or LCS within two seasons. <b>Expected value</b> = forecast rating next season in win-equivalents.</li>
+        <li><b>Chance of next step</b> = share of past prospects with a similar profile who played 10+ games at their next step (or higher) within two seasons; the next step is shown beside it. <b>Chance of top league</b> = the same for LCK, LPL, LEC or LCS. <b>Expected value</b> = forecast rating at the next step in win-equivalents. Developmental scores compare only inside one group (major or minor ERLs).</li>
         <li><b>Split rating, stat profile, playstyle and tags</b> on the player sheet describe form and style. They are not inputs to the lists. The stat profile keeps only stats that repeat inside a season and follow a player to a new team.</li>
         <li><b>Tiers and rank ranges</b> come from how far ratings really moved from one season to the next (about 0.45 on the Combined scale). Two players are only treated as different when the gap is larger than both players' usual movement combined. When two players are in different leagues, the uncertainty of the gap between their leagues is added, so ranges on the ERL list are wider than inside one league.</li>
       </ul></div>
       <div><h3>The retrospective check</h3>
-        <p>For every data year 2018 to 2024 the model picked its top 5 ERL prospects per role using only seasons before the outcome. The question: did the pick play 10+ games in a top league within two seasons? The formulas and settings were designed in 2026 with those years in view, so this is a simulation with hindsight, <b>not a live track record</b>. The first live lists were frozen on ${fmtDate(D.build_date)} and will be scored in October 2028.</p>
-        <div class="mbox"><table><thead><tr><th>How the 5 were picked</th><th class="n">Picks</th><th>Reached a top league</th><th class="n">Range (9 in 10)</th><th class="n">Different players</th></tr></thead><tbody>${rowsT}</tbody></table></div>
-        <p class="note">Ranges come from resampling players, because the same player is often picked in several years. ${me['hit %']!=null?`Read it as: the Developmental score (${num(me['hit %'],0)}%) and the plain win now rating (${num(wn['hit %'],0)}%) cannot be told apart; both are clearly ahead of league, age and games alone (${num(base['hit %'],0)}%), and ${num(all['hit %'],0)}% of all eligible prospects made it.`:''}</p></div>
-      ${br?`<div><h3>By role</h3><div class="mbox"><table><thead><tr><th>Role</th><th class="n">Developmental score</th><th class="n">Win now rating</th><th class="n">League, age, games</th><th class="n">All prospects</th></tr></thead><tbody>${br}</tbody></table></div><p class="note">35 picks per role, so the ranges are wide, and a role that promotes few players (ADC, support) cannot score high whatever the ranking does. The found rate below is the fairer comparison between roles.</p></div>`:''}
-      ${fr?`<div><h3>Found rate</h3><p>The other way round: of the regional-league prospects who did reach a top league within two seasons, how many did the ranking have in its top 10 of the role the year before? This number does not depend on how many players a role promotes, so roles can be compared.</p><div class="mbox"><table><thead><tr><th>Role</th><th class="n">Promoted prospect seasons</th><th class="n">Win now rating</th><th class="n">Developmental score</th><th class="n">League, age, games</th><th class="n">By luck</th></tr></thead><tbody>${fr}</tbody></table></div><p class="note">Top 10 per role per year, data years 2018 to 2024. Ranges in brackets (9 in 10). Per role the samples are small (18 to 28 different players), so read the roles as roughly equal rather than ranked.</p></div>`:''}
+        <p>For every data year 2018 to 2024 the model picked its top 5 ERL prospects per role using only seasons before the outcome, in two groups judged on their own next step: major ERL picks (LFL, Prime League, TCL, LES) on 10+ games in a top league within two seasons, minor ERL picks (every other regional league) on 10+ games in a major ERL or a top league. The formulas and settings were designed in 2026 with those years in view, so this is a simulation with hindsight, <b>not a live track record</b>. The first live lists were frozen on 12 October 2026 and will be scored in October 2028.</p>
+        <h4 style="margin:12px 0 6px">Major ERL picks</h4><div class="mbox"><table><thead><tr><th>How the 5 were picked</th><th class="n">Picks</th><th>Reached a top league</th><th class="n">Range (9 in 10)</th><th class="n">Different players</th></tr></thead><tbody>${rowsT}</tbody></table></div>
+        <h4 style="margin:14px 0 6px">Minor ERL picks</h4><div class="mbox"><table><thead><tr><th>How the 5 were picked</th><th class="n">Picks</th><th>Reached a major ERL or top league</th><th class="n">Range (9 in 10)</th><th class="n">Different players</th></tr></thead><tbody>${rowsT2}</tbody></table></div>
+        <p class="note">Ranges come from resampling players, because the same player is often picked in several years. ${me['hit %']!=null?`Read it as: in each group the Developmental score (${num(me['hit %'],0)}% and ${num(me2['hit %'],0)}%) and the plain win now rating (${num(wn['hit %'],0)}% and ${num(wn2['hit %'],0)}%) cannot be told apart; both are clearly ahead of league, age and games alone (${num(base['hit %'],0)}% and ${num(base2['hit %'],0)}%), and ${num(all['hit %'],0)}% and ${num(all2['hit %'],0)}% of all eligible prospects made the step.`:''}</p></div>
+      ${br?`<div><h3>By role</h3><div class="mbox"><table><thead><tr><th>Role</th><th class="n">Win now rating</th><th class="n">League, age, games</th><th class="n">All prospects</th></tr></thead><tbody>${br}</tbody></table></div><p class="note">35 picks per role, so the ranges are wide, and a role that promotes few players (ADC, support) cannot score high whatever the ranking does. The found rate below is the fairer comparison between roles. These two tables still use every regional league together and the top-league target, so they show the win now rating and simple rules only; the developmental score now aims at each league's next step and is measured in the group tables above.</p></div>`:''}
+      ${fr?`<div><h3>Found rate</h3><p>The other way round: of the regional-league prospects who did reach a top league within two seasons, how many did the ranking have in its top 10 of the role the year before? This number does not depend on how many players a role promotes, so roles can be compared.</p><div class="mbox"><table><thead><tr><th>Role</th><th class="n">Promoted prospect seasons</th><th class="n">Win now rating</th><th class="n">League, age, games</th><th class="n">By luck</th></tr></thead><tbody>${fr}</tbody></table></div><p class="note">Top 10 per role per year, data years 2018 to 2024. Ranges in brackets (9 in 10). Per role the samples are small (18 to 28 different players), so read the roles as roughly equal rather than ranked.</p></div>`:''}
       ${am?`<div><h3>After the move</h3><p>For prospects who were promoted: how well does the number before the move predict the rating inside the top league in the first season? 0 means no information, 1 means perfect.</p><div class="mbox"><table><thead><tr><th>Number before the move</th><th class="n">Players</th><th class="n">Link</th><th class="n">Range</th></tr></thead><tbody>${am}</tbody></table></div><p class="note">A link near 0.3 is real but weak. The model is better at saying who gets promoted than at saying how good he will be once there.</p></div>`:''}
       <div><h3>What it cannot tell you</h3><ul>
         <li>Communication, attitude, champion pool depth under draft pressure, and how he plays in scrims.</li>
@@ -996,7 +1043,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     $('homeSample').innerHTML = `<div class="hd"><h3>${esc(R.label)} shortlist, ${esc(g.name)}, ${dev?'developmental':'win now'}</h3><span class="meta">${(dev?g.dev:g.win).length} players · min ${D.min_games} games · patches ${esc(D.patches)} · data to ${fmtDate(D.data_cutoff)}</span></div>`
       + list.map(p=>`<div class="srow${M?'':' go'}"${M?'':` data-hi="${(dev?g.dev:g.win).indexOf(p)}" tabindex="0" role="button" aria-label="Open ${esc(p.p||'')}"`}><span class="i">${String(p.rk).padStart(2,'0')}</span><span class="nm">${esc(p.p||'Name hidden')}<small>${M ? (p.nm ? esc(p.l)+' · named sample' : esc(p.l || p.c || (p.ab ? 'age '+p.ab : '') || p.st || p.tg || '')) : esc(p.l)+' · '+p.g+' games'+(p.a!=null?' · age '+p.a:' · age unknown')}</small></span><span class="tr"><i style="width:${Math.max(4,Math.round(100*(val(p)-mn)/(mx-mn)))}%"></i></span><span class="val">${(M&&p.nm)?'·<small>numbers hidden</small>':`${M?'tier '+p.ti:(dev?num(p.ds,0):num(p.cb))}<small>${dev?((M?'':'tier '+p.ti+' · ')+(p.bd?esc(p.bd).toLowerCase():'')):((M?'':'tier '+p.ti+' · ')+p.lo+' to '+p.hi)}</small>`}</span></div>`).join('')
       + `<div class="dots" role="group" aria-label="Choose a sample list">${SL.map((x,i)=>`<button type="button" data-i="${i}" aria-pressed="${i===homeI}" title="${esc(x.R.label)} ${x.kind==='dev'?'developmental':'win now'}"></button>`).join('')}</div>`
-      + `<p class="note">${M?'The real top five of this list. Names are hidden; where a name is shown, his numbers are hidden. ':'Live from the current build. '}${M?'':dev?'The right column is the Developmental score, the tier and the Chance band.':'The right column is the Combined rating, the tier, and where he could sit on this list next season.'} ${M?'Open the shortlists to filter every role and region.':'Open the shortlists for every role, region and player profile.'}</p>`;
+      + `<p class="note">${M?'The real top five of this list. Names are hidden; where a name is shown, his numbers are hidden. ':'Live from the current build. '}${M?'':dev?'The right column is the Developmental score, the tier and the Chance of next step band.':'The right column is the Combined rating, the tier, and where he could sit on this list next season.'} ${M?'Open the shortlists to filter every role and region.':'Open the shortlists for every role, region and player profile.'}</p>`;
   }
   function homeAuto(on){ clearInterval(homeT); homeT = null; if(on && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) homeT = setInterval(() => { if(S.page==='home' && !document.hidden){ homeI++; homeDraw(); } }, 6000); }
   const homeOpen = el => { const x = homeSlides()[homeI]; if(!x || M) return; S.year = LIVE; if($('fYear')) $('fYear').value = LIVE; S.role = x.rk; S.view = x.kind; S.region = x.g.name; S.sort = null; fill(); render(); homeAuto(false); openCard(+el.dataset.hi); };
@@ -1005,12 +1052,12 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   $('homeSample').addEventListener('mouseenter', () => homeAuto(false)); $('homeSample').addEventListener('mouseleave', () => homeAuto(true));
   function home(){
     homeDraw(); homeAuto(true);
-    const T = ((D.benchmark||{}).erl_top5_A)||[], get = n => T.find(r=>r.ranking.indexOf(n)===0) || {}, me = get('Developmental score'), wn = get('Win now rating'), base = get('BASELINE league + age'), all = get('All eligible');
+    const T = ((D.benchmark||{}).erl_major_top5_A)||[], T2 = ((D.benchmark||{}).erl_minor_top5_L)||[], get = (t,n) => t.find(r=>r.ranking.indexOf(n)===0) || {}, me = get(T,'Developmental score'), wn = get(T,'Win now rating'), base = get(T,'BASELINE league + age'), all = get(T,'All eligible'), me2 = get(T2,'Developmental score'), wn2 = get(T2,'Win now rating'), base2 = get(T2,'BASELINE league + age'), all2 = get(T2,'All eligible');
     if(me['hit %']==null){ $('homeEvi').parentNode.hidden = true; return; }
     const f10 = ((D.benchmark||{}).found_rate||[]).find(r=>r.role==='all' && r['top N per year']===10);
-    $('eviLead').textContent = 'Each year from 2018 to 2024 the model picked its five best prospects per role in the European regional leagues, using only what was known then. How many played 10 or more games in a top league within two seasons?';
-    $('homeEvi').innerHTML = `<div class="me"><b>${num(me['hit %'],0)}%</b><span>of Flexpick's top 5 picks</span><small>range ${esc(me['range 90%'])} · ${me.picks} picks · ${me['unique players']} players</small></div><div><b>${num(base['hit %'],0)}%</b><span>when picking by league, age and games alone</span><small>range ${esc(base['range 90%'])}</small></div><div><b>${num(all['hit %'],0)}%</b><span>of all eligible prospects</span><small>${all.picks.toLocaleString('en-GB')} prospect seasons</small></div>`;
-    $('eviNote').innerHTML = `A simulation with hindsight, built in ${D.season}, <b>not a live track record</b>. The plain win now rating scores ${num(wn['hit %'],0)}% on the same test, so the two Flexpick rankings cannot be told apart; both are clearly ahead of the simple rule. The first live lists are frozen and will be scored in October 2028. Details under Method and evidence.` + (f10 ? ` Seen the other way: of the prospects who did reach a top league, ${num(f10['win now rating found %'],0)}% were in Flexpick's top 10 of their role the year before (${num(f10['by luck %'],0)}% by luck).` : '');
+    $('eviLead').textContent = 'Each year from 2018 to 2024 the model picked its five best prospects per role in the European regional leagues, using only what was known then, in two groups. How many made their next step (10 or more games there) within two seasons?';
+    $('homeEvi').innerHTML = `<div class="me"><b>${num(me['hit %'],0)}%</b><span>of Flexpick's top 5 major ERL picks reached a top league</span><small>range ${esc(me['range 90%'])} · ${me.picks} picks · league, age and games alone ${num(base['hit %'],0)}% · all prospects ${num(all['hit %'],0)}%</small></div><div class="me"><b>${num(me2['hit %'],0)}%</b><span>of Flexpick's top 5 minor ERL picks reached a major ERL or a top league</span><small>range ${esc(me2['range 90%'])} · ${me2.picks} picks · league, age and games alone ${num(base2['hit %'],0)}% · all prospects ${num(all2['hit %'],0)}%</small></div>`;
+    $('eviNote').innerHTML = `A simulation with hindsight, built in ${D.season}, <b>not a live track record</b>. The plain win now rating scores ${num(wn['hit %'],0)}% and ${num(wn2['hit %'],0)}% on the same two tests, so the two Flexpick rankings cannot be told apart; both are clearly ahead of the simple rule. The first live lists are frozen and will be scored in October 2028. Details under Method and evidence.` + (f10 ? ` Seen the other way: of the regional-league prospects who did reach a top league, ${num(f10['win now rating found %'],0)}% were in the win now rating's top 10 of their role the year before (${num(f10['by luck %'],0)}% by luck).` : '');
   }
   // ---------- Ask the data: three lookup functions over the lists (used by the no-AI question reader below) ----------
   const ROLEKEY = {top:'top', jungle:'jng', jng:'jng', mid:'mid', adc:'bot', bot:'bot', support:'sup', sup:'sup'};
@@ -1018,7 +1065,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
     if(dev){ o.list = 'developmental'; if(p.bd) o.chance_band = p.bd; if(p.ds!=null) o.developmental_score = p.ds; } else { o.list = 'win now'; o.rank_range = p.lo+' to '+p.hi; o.combined = p.cb; if(p.n) o.not_a_prospect_because = NOTE[p.n]||p.n; }
     o.in_league_rating = p.wi; o.league_level_vs_LEC = p.lv; if(c.style||p.cls||p.st) o.playstyle = c.style||p.cls||p.st; if(c.tag||p.tg) o.tag = c.tag||p.tg; if(p.ss) o.small_sample = true; return o; };
   const qTools = [
-    {name:'list_players', description:'Players on one Flexpick list, best first. role: top, jungle, mid, adc or support. region: ERL (all European regional leagues), LEC, LCK, LCS, LCK CL, NACL, CBLOL or LCP. kind: "win" (best player today) or "dev" (prospects only). Optional filters: league (code inside the region, for example LFL, PRM, LES, TCL), nationality (country name in English), residency (EMEA, Korea, North America and so on), max_age, min_games, playstyle_or_tag (text contained in the playstyle or tag), limit (default 12, max 30).',
+    {name:'list_players', description:'Players on one Flexpick list, best first. role: top, jungle, mid, adc or support. region: ERL (all European regional leagues), LEC, LCK, LCS, LCK CL, NACL, CBLOL, LCP, VCS, CBLOL circuit or LJL. kind: "win" (best player today) or "dev" (prospects only). Optional filters: league (code inside the region, for example LFL, PRM, LES, TCL), nationality (country name in English), residency (EMEA, Korea, North America and so on), max_age, min_games, playstyle_or_tag (text contained in the playstyle or tag), limit (default 12, max 30).',
      inputSchema:{type:'object', properties:{role:{type:'string'}, region:{type:'string'}, kind:{type:'string', enum:['win','dev']}, league:{type:'string'}, nationality:{type:'string'}, residency:{type:'string'}, max_age:{type:'number'}, min_games:{type:'number'}, playstyle_or_tag:{type:'string'}, limit:{type:'number'}}, required:['role','region','kind']},
      execute: a => { const role = ROLEKEY[String(a.role||'').toLowerCase()]; if(!role) throw new Error('unknown role'); const R = D.roles[role], g = R.regions.find(r => r.name.toLowerCase()===String(a.region||'').toLowerCase()); if(!g) throw new Error('unknown region; use one of '+R.regions.map(r=>r.name).join(', '));
        const dev = a.kind==='dev', lim = Math.min(30, Math.max(1, a.limit||12)), lc = v => String(v||'').toLowerCase(); $('askSt').textContent = 'Reading the '+R.label.toLowerCase()+' '+g.name+' list…';
@@ -1035,7 +1082,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
        return {matches:out, under_minimum:under.slice(0,6)}; }},
     {name:'about_the_data', description:'What the numbers mean, what the data covers and the evidence table. Call this for questions about the method, accuracy or coverage.',
      execute: () => ({data_to:D.data_cutoff, patches:D.patches, roster_year:D.roster_year, minimum_games:D.min_games, roles:Object.keys(D.roles).map(k=>D.roles[k].label), regions:D.roles[Object.keys(D.roles)[0]].regions.map(r=>r.name),
-       meaning:{win_now:'Combined = half career head-to-head Elo, half stat score with league strength built in. Shown as a tier and a rank range; players in one tier cannot be separated by the data.', developmental:'Prospects only (not over 25, not established in a top league). Ranked by the Developmental score: half chance of reaching a top league within two seasons, half expected value there. Chance is shown as a band.', in_league_rating:'How far above the average player of his own league, in standard deviations.', league_level_vs_LEC:'Strength of his league against LEC = 0, in the same units.', not_covered:'LPL is not rated. No salary, contract or buyout data. No solo queue.'},
+       meaning:{win_now:'Combined = half career head-to-head Elo, half stat score with league strength built in. Shown as a tier and a rank range; players in one tier cannot be separated by the data.', developmental:'Prospects only (not over 25, not established in a top league). Ranked by the Developmental score: half chance of the next step within two seasons (major ERL for minor ERL players, a top league for major ERL players, CBLOL, LCP, LCK or LCS for their feeders), half expected value there. Scores compare only inside one group. Chance of next step is shown as a band; chance of top league is shown beside it.', in_league_rating:'How far above the average player of his own league, in standard deviations.', league_level_vs_LEC:'Strength of his league against LEC = 0, in the same units.', not_covered:'LPL is not rated. No salary, contract or buyout data. No solo queue.'},
        evidence_note:'Retrospective simulation on past seasons, not a live track record.', found_rate:(D.benchmark && D.benchmark.found_rate || []).filter(r => r.role==='all')}) }
   ];
   const QRULES_UNUSED = `You answer questions for a League of Legends scout inside Flexpick, a private player-rating page. Rules:
@@ -1048,7 +1095,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   // ---------- Ask the data, no AI: the question is read as filters and answered from the three page functions above ----------
   const DEMONYM = {french:'France',german:'Germany',spanish:'Spain',korean:'South Korea',polish:'Poland',danish:'Denmark',swedish:'Sweden',turkish:'Turkey',italian:'Italy',portuguese:'Portugal',dutch:'Netherlands',belgian:'Belgium',greek:'Greece',czech:'Czech Republic',british:'United Kingdom',english:'United Kingdom',american:'United States',canadian:'Canada',brazilian:'Brazil',chinese:'China',japanese:'Japan',vietnamese:'Vietnam',taiwanese:'Taiwan',norwegian:'Norway',finnish:'Finland',romanian:'Romania',bulgarian:'Bulgaria',serbian:'Serbia',croatian:'Croatia',slovenian:'Slovenia',slovak:'Slovakia',hungarian:'Hungary',ukrainian:'Ukraine',lithuanian:'Lithuania',latvian:'Latvia',estonian:'Estonia',austrian:'Austria',swiss:'Switzerland',irish:'Ireland',australian:'Australia',argentinian:'Argentina',mexican:'Mexico',chilean:'Chile',peruvian:'Peru',russian:'Russia',israeli:'Israel',moroccan:'Morocco',egyptian:'Egypt',icelandic:'Iceland'};
   const LGNAME = [['lfl division 2','LFL2'],['prime league 2','PRM2'],['french league','LFL'],['prime league','PRM'],['german league','PRM'],['superliga','LES'],['spanish league','LES'],['turkish league','TCL'],['arabian league','AL'],['northern league','NLC'],['greek league','HLL'],['balkan league','EBL'],['polish league','RL'],['rift legends','RL'],['hitpoint','HM'],['italian league','LIT'],['portuguese league','LPLOL']];
-  const REGNAME = [['lck challengers','LCK CL'],['lck cl','LCK CL'],['lckc','LCK CL'],['na challengers','NACL'],['nacl','NACL'],['cblol','CBLOL'],['lcp','LCP'],['lec','LEC'],['lck','LCK'],['lcs','LCS'],['european regional','ERL'],['regional league','ERL'],['regional','ERL'],['erls','ERL'],['erl','ERL']];
+  const REGNAME = [['lck challengers','LCK CL'],['lck cl','LCK CL'],['lckc','LCK CL'],['na challengers','NACL'],['nacl','NACL'],['cblol circuit','CBLOL circuit'],['circuito desafiante','CBLOL circuit'],['circuito','CBLOL circuit'],['cblol academy','CBLOL circuit'],['brazil academy','CBLOL circuit'],['vcs','VCS'],['vietnam','VCS'],['japanese league','LJL'],['ljl','LJL'],['japan','LJL'],['cblol','CBLOL'],['lcp','LCP'],['lec','LEC'],['lck','LCK'],['lcs','LCS'],['european regional','ERL'],['regional league','ERL'],['regional','ERL'],['erls','ERL'],['erl','ERL']];
   const ROLEWORD = [[/\b(ad ?carr(y|ies)|adcs?|marksm[ae]n|bot ?laners?|bot)\b/,'bot'],[/\b(supports?|sups?)\b/,'sup'],[/\b(junglers?|jungle|jng)\b/,'jng'],[/\b(mid ?laners?|mids?)\b/,'mid'],[/\b(top ?laners?|tops?)\b/,'top']];
   const STYLEWORD = ['split pusher','group heavy','farm first','gank heavy','vision control','control mage','mage picks','marksman pool','assassin','enchanter','engage','mixed pool','weakside','tank','strongside','tempo','utility','roam','skirmish','scaling','lane dominant','lane focused','late game','balanced'];
   const NUMWORD = {two:2,three:3,four:4,five:5,six:6,eight:8,ten:10};
@@ -1109,14 +1156,80 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   })();
 
   function show(){
-    const pg = S.page, m = pg==='method', h = pg==='home', l = pg==='lists';
+    const pg = S.page, m = pg==='method', h = pg==='home', l = pg==='lists', tm = pg==='teams';
     $('viewHome').hidden = !h; $('viewHome').style.display = h ? '' : 'none';
     $('viewLists').hidden = !l; $('viewLists').style.display = l ? 'contents' : 'none'; $('viewMethod').hidden = !m; $('viewMethod').style.display = m ? '' : 'none'; $('stamp').style.display = h ? 'none' : '';
-    [['navHome',h],['navLists',l],['navMethod',m]].forEach(([id,on]) => { if(on) $(id).setAttribute('aria-current','page'); else $(id).removeAttribute('aria-current'); });
+    $('viewTeams').hidden = !tm; $('viewTeams').style.display = tm ? '' : 'none'; if(tm) teamsDraw();
+    [['navHome',h],['navLists',l],['navMethod',m],['navTeams',tm]].forEach(([id,on]) => { if(on) $(id).setAttribute('aria-current','page'); else $(id).removeAttribute('aria-current'); });
     writeHash();
   }
   if(M){ const sb = $('fSearch').closest('.f'); if(sb) sb.querySelector('label').textContent = 'Sample player or team'; const nb = $('fCountry').closest('.f'); if(nb) nb.style.display = 'none'; document.querySelectorAll('footer span')[1].textContent = 'Public preview. A few sample players are named without numbers; every number belongs to a hidden player. Ratings are opinions derived from public match statistics; they are a shortlist aid, not a recommendation to sign anyone.'; }
-  home(); method(); fill(); render(); show();
+
+  // ---- Back navigation (Can, 21 Oct 2026): every page change, list change, player sheet and team step can be undone with Back or the browser's back button
+  function snap(){ const dc = ($('dlg').open && CUR) ? CUR : (LASTCARD && Date.now() - LASTCARD.t < 400 ? LASTCARD.c : null);
+    return {page:S.page, role:S.role, region:S.region, view:S.view, year:S.year, watch:!!S.watch, card: dc ? {id:dc.id, y:dc.y} : null, team:TS.team, tsp:TS.sp, y:window.scrollY}; }
+  const sameSnap = (a, b) => { const k = o => JSON.stringify(Object.assign({}, o, {y:0})); return k(a)===k(b); };
+  function navPush(){ if(NAVLOCK || M) return; const s = snap(), t = NAV[NAV.length-1]; if(t && sameSnap(t, s)) return; NAV.push(s); if(NAV.length > 80) NAV.shift(); try{ history.pushState({fp:NAV.length}, '', location.href); }catch(e){} backUI(); }
+  function backUI(){ const on = NAV.length > 0; $('navBack').hidden = !on; $('dlgBack').hidden = !on; }
+  function restore(s){
+    NAVLOCK = true;
+    try{
+      if($('dlg').open) $('dlg').close();
+      TS.team = s.team; TS.sp = s.tsp; S.role = s.role; S.region = s.region; S.view = s.view; S.watch = s.watch; S.sort = null; S.page = s.page;
+      if(s.year !== S.year) setYear(s.year);
+      show(); if(S.page==='lists'){ fill(); render(); }
+      if(s.card) openById(s.card.id, s.card.y); else setTimeout(() => window.scrollTo(0, s.y || 0), 0);
+    } finally { NAVLOCK = false; LASTCARD = null; backUI(); writeHash(); }
+  }
+  function navBack(){ const cur = snap(); let s = NAV.pop(); while(s && NAV.length && sameSnap(s, cur)) s = NAV.pop(); if(!s){ backUI(); return; } restore(s); }
+  const doBack = () => { if(history.state && history.state.fp) history.back(); else navBack(); };
+  window.addEventListener('popstate', () => { if(NAV.length) navBack(); });
+  $('navBack').addEventListener('click', doBack); $('dlgBack').addEventListener('click', doBack);
+  $('navTeams').addEventListener('click', go('teams'));
+
+  // ---- Teams view (Can, 21 Oct 2026): pick a team and a split, see the roster, walk through the team's history split by split (app/teams.js, tools/export_teams.py)
+  const RLAB = {top:'Top', jng:'Jungle', mid:'Mid', bot:'ADC', sup:'Support'};
+  const fmtR = v => v==null ? '·' : (v > 0 ? '+' : '') + v.toFixed(2);
+  function teamsLoad(cb){ if(window.FLEXPICK_TEAMS){ TEAMS = window.FLEXPICK_TEAMS; return cb(); }
+    $('viewTeams').innerHTML = '<p class="teamsnote">Loading team histories...</p>'; const sc = document.createElement('script'); sc.src = 'teams.js';
+    sc.onload = () => { TEAMS = window.FLEXPICK_TEAMS; cb(); }; sc.onerror = () => { $('viewTeams').innerHTML = '<p class="teamsnote">The team file could not be loaded. Reload the page and try again.</p>'; }; document.head.appendChild(sc); }
+  function teamStep(fn){ navPush(); fn(); teamsDraw(); writeHash(); window.scrollTo(0, 0); }
+  function teamsDraw(){
+    if(M){ $('viewTeams').innerHTML = '<p class="teamsnote">Team histories are in the private preview.</p>'; return; }
+    if(!TEAMS) return teamsLoad(teamsDraw);
+    const TM = new Map(TEAMS.t), team = TS.team && TM.has(TS.team) ? TS.team : null, splits = team ? TM.get(team) : [];
+    if(team && (!TS.sp || !splits.some(x => x[0]===TS.sp))) TS.sp = splits[0][0];
+    const si = team ? splits.findIndex(x => x[0]===TS.sp) : -1;
+    let h = `<h2 class="h">Teams</h2><p class="sub">Pick a team and a split to see its roster, then walk through its history split by split. Click a player to open his sheet; Back brings you here again.</p>
+      <div class="tbar"><div class="f"><label for="tmQ" class="lab">Team</label><input id="tmQ" list="tmList" placeholder="Type a team name" value="${esc(team || '')}" autocomplete="off"><datalist id="tmList">${TEAMS.t.map(x => `<option value="${esc(x[0])}">`).join('')}</datalist></div>`;
+    if(team) h += `<div class="f"><label for="tmSp" class="lab">Split</label><select id="tmSp">${splits.map(x => `<option value="${esc(x[0])}" ${x[0]===TS.sp ? 'selected' : ''}>${esc(x[1])} · ${esc(x[2].join(', '))}</option>`).join('')}</select></div>
+      <div class="f"><span class="lab">&nbsp;</span><span><button type="button" class="btn" id="tmOlder" ${si >= splits.length - 1 ? 'disabled' : ''}>← Earlier split</button> <button type="button" class="btn" id="tmNewer" ${si <= 0 ? 'disabled' : ''}>Later split →</button></span></div>`;
+    h += '</div>';
+    if(!team) h += TS.team ? `<p class="teamsnote">No team called "${esc(TS.team)}" in the data. Pick one from the list.</p>` : `<p class="teamsnote">${TEAMS.t.length} teams with at least one rated split since 2019. LPL not rated.</p>`;
+    else {
+      const cur = splits[si], rows = TEAMS.r[team + '|' + cur[0]] || [], lg = LOGO[team];
+      const pl = (r, k) => `<button type="button" class="pl" data-o="${esc(r[0] + '|' + r[1])}" data-s="${esc(k)}" data-l="${esc(r[3])}">${esc(r[2])}</button>`;
+      h += `<h2 class="tn">${lg ? `<img class="tlogo" src="${lg}" alt="" width="26" height="26">` : ''}${esc(team)}</h2><p class="sub">${esc(cur[1])} · ${esc(cur[2].join(', '))} · ${rows.length} player${rows.length===1 ? '' : 's'} with 8+ games</p>`;
+      h += `<div class="tmtl"><table><thead><tr><th>Role</th><th>Player</th><th>League</th><th class="n">Games</th><th class="n">Split rating</th><th>In his league</th><th>World, role</th></tr></thead><tbody>${rows.map(r => `<tr><td>${RLAB[r[0]] || r[0]}</td><td>${pl(r, cur[0])}</td><td>${esc(r[3])}</td><td class="n">${r[4]}</td><td class="n">${fmtR(r[5])}</td><td>${r[6] ? '#' + r[6] + ' of ' + r[7] : '·'}</td><td>${r[8] ? '#' + r[8] + ' of ' + r[9] : '·'}</td></tr>`).join('')}</tbody></table></div>`;
+      h += `<h3 class="h" style="margin-top:18px">Team history</h3><p class="sub">Every split this team played since 2019, newest first. Click a split to open it, a name to open the player.</p>
+        <div class="tmtl"><table><thead><tr><th>Role</th>${splits.map(x => `<th class="${x[0]===cur[0] ? 'cur' : ''}"><button type="button" class="sp" data-sp="${esc(x[0])}">${esc(x[1])}</button><br><span class="no">${esc(x[2].join(', '))}</span></th>`).join('')}</tr></thead><tbody>${['top','jng','mid','bot','sup'].map(rl => `<tr><td>${RLAB[rl]}</td>${splits.map(x => { const rs = (TEAMS.r[team + '|' + x[0]] || []).filter(r => r[0]===rl); return `<td class="${x[0]===cur[0] ? 'cur' : ''}">${rs.length ? rs.map(r => pl(r, x[0]) + `<span class="rt ${r[5] >= 1 ? 'hi' : ''}">${fmtR(r[5])}</span>`).join('<br>') : '<span class="no">·</span>'}</td>`; }).join('')}</tr>`).join('')}</tbody></table></div>`;
+      h += `<p class="teamsnote">${esc(TEAMS.note || '')}</p><p class="teamsnote" id="tmMsg"></p>`;
+    }
+    $('viewTeams').innerHTML = h;
+    const q = $('tmQ'); q.addEventListener('change', () => { const v = q.value.trim(); if(!v || v===TS.team) return; const m = TEAMS.t.find(x => x[0].toLowerCase()===v.toLowerCase()); teamStep(() => { TS.team = m ? m[0] : v; TS.sp = null; }); });
+    if(!team) return;
+    $('tmSp').onchange = e => teamStep(() => { TS.sp = e.target.value; });
+    $('tmOlder').onclick = () => teamStep(() => { TS.sp = splits[si + 1][0]; });
+    $('tmNewer').onclick = () => teamStep(() => { TS.sp = splits[si - 1][0]; });
+    $('viewTeams').querySelectorAll('button.sp').forEach(b => b.onclick = () => { if(b.dataset.sp !== TS.sp) teamStep(() => { TS.sp = b.dataset.sp; }); });
+    $('viewTeams').querySelectorAll('button.pl').forEach(b => b.onclick = () => teamOpen(b.dataset.o, b.dataset.s, b.textContent, b.dataset.l));
+  }
+  function teamOpen(id, spk, name, lg){
+    const season = +spk.split('_')[0], ys = [season + 1, LIVE].filter((y, i, a) => y <= LIVE && a.indexOf(y)===i);
+    ensureHistory(() => { for(const y of ys){ if(findP(id, y)){ WANT = {sp: spk, lg: lg || '', id}; openById(id, y); WANT = null; return; } }
+      const m = $('tmMsg'); if(m){ m.textContent = name + ' is not on a Flexpick list for roster year ' + ys.join(' or ') + ' (too few games in his main league that season), so there is no player sheet to open.'; m.scrollIntoView({block:'nearest'}); } });
+  }
+  home(); method(); fill(); render(); show(); backUI();
   if(HQ && !M){ const y = +HQ.get('y'), pp = HQ.get('p'), cc = HQ.get('c');
     if(cc){ CMP = cc.split('~').slice(0,3).map(z => { const [id, yy] = z.split('@'); return {id, y:+yy || LIVE, nm:id.split('|').slice(1).join('|')}; }); saveCmp(); openCompare(); }
     else if(pp){ const [id, yy] = pp.split('@'); if(openById(id, +yy || LIVE)===false && y && y!==LIVE) setYear(y); }

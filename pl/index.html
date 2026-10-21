@@ -87,7 +87,6 @@ nav a{text-decoration:none;color:var(--dim)} nav a:hover{color:var(--ink)}
 .btn{font:700 15px var(--body);border-radius:10px;padding:12px 18px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;display:inline-block}
 .btn.go{background:var(--lime);border-color:var(--lime);color:var(--lime-ink)}
 nav .btn{padding:8px 14px;font-size:14px;color:var(--lime-ink)}
-nav .btn.login{color:var(--ink);background:transparent}
 .eyebrow{font:500 12px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--lime);margin:0 0 14px}
 h1{font:800 clamp(36px,6.4vw,70px)/1.02 var(--display);font-stretch:122%;letter-spacing:-.015em;margin:0;max-width:15ch;text-wrap:balance}
 .lead{color:var(--dim);font-size:clamp(16px,1.7vw,19px);max-width:56ch;margin:18px 0 0}
@@ -136,13 +135,16 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
 .langs a:hover{color:var(--ink);background:var(--raise)}
 .langs a[aria-current]{color:var(--lime)}
 @media (max-width:560px){header{position:relative}.langs{position:static}.langs div{left:0!important;right:0!important;top:100%;min-width:0}}
+nav .btn.login{color:var(--ink);background:transparent}
+.xlink{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid var(--line);border-radius:8px;color:var(--dim);text-decoration:none}
+.xlink:hover{color:var(--ink);border-color:var(--lime)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <a class="brand" href="#top" id="top"><span class="mark" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 16 16"><path d="M3 2h10v3.2H6.4v1.7H12l-1.2 3.1H6.4V14H3z" fill="#0d0e12"/></svg></span>flexpick</a>
-    <nav aria-label="Sekcje"><a href="#product">Produkt</a><a href="#tour">Przegląd</a><a href="#method">Metoda</a><a href="#players">Dla graczy</a><a href="#contact">Kontakt</a><a class="btn login" href="/login/">Zaloguj się</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Poproś o dostęp</a><details class="langs"><summary aria-label="Language">Polski</summary><div><a href="/" lang="en" hreflang="en">English</a><a href="/ko/" lang="ko" hreflang="ko">한국어</a><a href="/de/" lang="de" hreflang="de">Deutsch</a><a href="/pl/" lang="pl" hreflang="pl" aria-current="page">Polski</a><a href="/tr/" lang="tr" hreflang="tr">Türkçe</a><a href="/fr/" lang="fr" hreflang="fr">Français</a><a href="/cs/" lang="cs" hreflang="cs">Čeština</a><a href="/pt/" lang="pt" hreflang="pt">Português</a><a href="/es/" lang="es" hreflang="es">Español</a><a href="/ar/" lang="ar" hreflang="ar">العربية</a><a href="/el/" lang="el" hreflang="el">Ελληνικά</a><a href="/it/" lang="it" hreflang="it">Italiano</a><a href="/da/" lang="da" hreflang="da">Dansk</a><a href="/nl/" lang="nl" hreflang="nl">Nederlands</a><a href="/vi/" lang="vi" hreflang="vi">Tiếng Việt</a><a href="/sr/" lang="sr-Latn" hreflang="sr-Latn">Srpski</a><a href="/sv/" lang="sv" hreflang="sv">Svenska</a><a href="/zh/" lang="zh-Hant" hreflang="zh-Hant">繁體中文</a><a href="/ro/" lang="ro" hreflang="ro">Română</a><a href="/sk/" lang="sk" hreflang="sk">Slovenčina</a></div></details></nav>
+    <nav aria-label="Sekcje"><a href="#product">Produkt</a><a href="#tour">Przegląd</a><a href="#method">Metoda</a><a href="#players">Dla graczy</a><a href="#contact">Kontakt</a><a class="xlink" href="https://x.com/flexpickgg" target="_blank" rel="noopener" aria-label="Flexpick na X" title="Flexpick on X"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor"/></svg></a><a class="btn login" href="/login/">Zaloguj się</a><a class="btn go" href="mailto:can@flexpick.gg?subject=Flexpick%20access">Poproś o dostęp</a><details class="langs"><summary aria-label="Language">Polski</summary><div><a href="/" lang="en" hreflang="en">English</a><a href="/ko/" lang="ko" hreflang="ko">한국어</a><a href="/de/" lang="de" hreflang="de">Deutsch</a><a href="/pl/" lang="pl" hreflang="pl" aria-current="page">Polski</a><a href="/tr/" lang="tr" hreflang="tr">Türkçe</a><a href="/fr/" lang="fr" hreflang="fr">Français</a><a href="/cs/" lang="cs" hreflang="cs">Čeština</a><a href="/pt/" lang="pt" hreflang="pt">Português</a><a href="/es/" lang="es" hreflang="es">Español</a><a href="/ar/" lang="ar" hreflang="ar">العربية</a><a href="/el/" lang="el" hreflang="el">Ελληνικά</a><a href="/it/" lang="it" hreflang="it">Italiano</a><a href="/da/" lang="da" hreflang="da">Dansk</a><a href="/nl/" lang="nl" hreflang="nl">Nederlands</a><a href="/vi/" lang="vi" hreflang="vi">Tiếng Việt</a><a href="/sr/" lang="sr-Latn" hreflang="sr-Latn">Srpski</a><a href="/sv/" lang="sv" hreflang="sv">Svenska</a><a href="/zh/" lang="zh-Hant" hreflang="zh-Hant">繁體中文</a><a href="/ro/" lang="ro" hreflang="ro">Română</a><a href="/sk/" lang="sk" hreflang="sk">Slovenčina</a></div></details></nav>
   </header>
 
   <section>
@@ -153,7 +155,7 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
   </section>
 
   <section class="sample" aria-label="Przykładowy układ shortlisty">
-    <div class="hd"><h3>Shortlista na top lane, ligi regionalne</h3><span class="meta">min. 15 gier na gracza · dane do 10 października 2026 · patche 15.13 do 16.20</span></div>
+    <div class="hd"><h3>Shortlista na top lane, ligi regionalne</h3><span class="meta">min. 15 gier na gracza · dane do 20 października 2026 · patche 15.13 do 16.20</span></div>
     <div class="srow"><span class="i">01</span><span class="nm">Gracz A<small>Liga 1 · 120 gier</small></span><span class="tr"><i style="width:92%"></i></span><span class="val">tier 1<small>między 1 a 7</small></span></div>
     <div class="srow"><span class="i">02</span><span class="nm">Gracz B<small>Liga 1 · 134 gry</small></span><span class="tr"><i style="width:80%"></i></span><span class="val">tier 2<small>między 1 a 16</small></span></div>
     <div class="srow"><span class="i">03</span><span class="nm">Gracz C<small>Liga 2 · 131 gier</small></span><span class="tr"><i style="width:75%"></i></span><span class="val">tier 2<small>między 1 a 16</small></span></div>
@@ -250,7 +252,7 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
     <div class="two">
       <div><ul class="plain">
         <li><b>Działa:</b> pięć ról, osiem regionów, listy „wygraj teraz” i rozwojowe, karta każdego gracza, siła lig z marginesami błędu, pytania zwykłym językiem.</li>
-        <li><b>Dane:</b> publiczne mecze zawodowe od 2018 do 10 października 2026.</li>
+        <li><b>Dane:</b> publiczne mecze zawodowe od 2018 do 20 października 2026.</li>
         <li><b>Etap:</b> prywatny podgląd, bezpłatny dla drużyn i agencji w offseasonie 2027. Na razie nic nie jest na sprzedaż.</li>
       </ul></div>
       <div><ul class="plain">
@@ -271,6 +273,7 @@ footer{font:12px/1.6 var(--mono);color:var(--dim);border-top:1px solid var(--lin
     <h2>Poproś o dostęp</h2>
     <p class="dim">Flexpick jest w prywatnym podglądzie dla drużyn zawodowych i agencji graczy w offseasonie 2027. Napisz, żeby poprosić o prezentację albo shortlistę dla twojego składu.</p>
     <a class="mail" href="mailto:can@flexpick.gg?subject=Flexpick%20access">can@flexpick.gg</a>
+    <p class="dim" style="margin-top:14px">Obserwuj Flexpick na X: <a class="xlink" style="vertical-align:middle;margin-left:6px" href="https://x.com/flexpickgg" target="_blank" rel="noopener" aria-label="Flexpick na X" title="Flexpick on X"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor"/></svg></a></p>
   </section>
 
   <footer>
