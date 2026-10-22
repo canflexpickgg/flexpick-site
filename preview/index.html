@@ -267,6 +267,8 @@ nav #navBack{color:var(--ink);border-color:var(--lime)}
 .xlink:hover{color:var(--ink);border-color:var(--lime)}
 nav .xlink{margin-left:6px}
 nav{align-items:center}
+nav a.btn,nav button{white-space:nowrap}
+@media (max-width:700px){header{flex-wrap:wrap;gap:8px}nav{flex-wrap:wrap;row-gap:6px}}
 </style>
 
 <div class="wrap">
@@ -279,6 +281,7 @@ nav{align-items:center}
       <button type="button" id="navTeams">Teams</button>
       <button type="button" id="navMethod">Method and evidence</button>
       <a class="xlink" href="https://x.com/flexpickgg" target="_blank" rel="noopener" aria-label="Flexpick on X" title="Flexpick on X"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor"/></svg></a>
+      <a class="btn" id="navLogin" href="/login/" hidden style="padding:7px 14px;font-size:14px;margin-left:6px">Log in</a>
       <a class="btn go" id="navAccess" style="padding:7px 14px;font-size:14px;margin-left:6px" href="#">Request access</a>
     </nav>
   </header>
@@ -399,7 +402,8 @@ nav{align-items:center}
   if($('fYear')) $('fYear').addEventListener('change', e => { navPush(); setYear(e.target.value); if(S.page !== 'lists'){ S.page = 'lists'; show(); } });
   $('footStamp').textContent = `Games up to ${D.data_cutoff} · season ${D.season} patches ${D.patches} · ${D.games_in_data.toLocaleString('en-GB')} games in the data, ${D.season_games.toLocaleString('en-GB')} this season`;
   $('fGames').value = D.min_games; $('fGames').min = D.min_games;
-  if(M) $('navTeams').hidden = true;      // public file: no team histories (teams.js is private)
+  if(M) $('navTeams').hidden = true;
+  if(M) $('navLogin').hidden = false;      // public preview: the way into the private site (flexpick.gg/login/ redirects to the sign-in)      // public file: no team histories (teams.js is private)
   if(M) $('fAgeKnown').closest('.f').hidden = true;      // public file: ages of hidden players are not published
 
   $('tabs').innerHTML = '<button type="button" role="tab" data-r="all">All roles</button>' + Object.keys(D.roles).map(k => `<button type="button" role="tab" data-r="${esc(k)}">${esc(D.roles[k].label)}${D.roles[k].beta?'<span class="beta">beta</span>':''}</button>`).join('');
