@@ -247,6 +247,14 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   @page{size:A4;margin:14mm}
 }
 
+/* real PDF download (23 Oct 2026): html2pdf.js renders the sheet in light colours, without buttons */
+.rep .m small.hint{color:var(--dim);font-size:11px;cursor:help}
+#pdfWrap{position:absolute;left:0;top:0;width:1000px;overflow:hidden;height:0} #pdfSheet{width:1000px;--bg:#fff;--panel:#fff;--raise:#f1f2ec;--line:#cfd2c6;--ink:#0d0e12;--dim:#4f555f;--accent-text:#3d5200;--up:#1c7a4a;--down:#b3402f;background:#fff;color:#0d0e12;padding:0}
+#pdfSheet button:not([aria-pressed="true"]),#pdfSheet .x,#pdfSheet .cardact,#pdfSheet #repBtn,#pdfSheet .years button[id],#pdfSheet .rep .jump,#pdfSheet .rep .seas,#pdfSheet .note-in textarea:placeholder-shown{display:none!important}
+#pdfSheet .printhead{display:block;font:11px var(--mono);border-bottom:2px solid #0d0e12;padding-bottom:6px}
+#pdfSheet .tb{overflow:visible}
+
+[hidden]{display:none!important}      /* 23 Oct 2026: .btn set display and showed hidden buttons (the private page showed the Log in button) */
 /* Teams view and Back navigation (21 Oct 2026) */
 nav #navBack{color:var(--ink);border-color:var(--lime)}
 .dback{display:inline-block;margin:0 0 10px;font:600 13px inherit;background:var(--raise);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
@@ -319,6 +327,7 @@ nav a.btn,nav button{white-space:nowrap}
       </div>
       <div class="f"><label for="fRegion">Region</label><select id="fRegion"></select></div>
       <div class="f" id="fTierBox"><label for="fTier">League group</label><select id="fTier"><option value="">All leagues</option><option value="major">Major ERLs</option><option value="minor">Minor ERLs</option></select></div>
+      <div class="f" id="fChanceBox" hidden><label for="fChance">Rank by chance of</label><select id="fChance"><option value="">Auto: LEC when major and minor ERLs are mixed</option><option value="next">Next step (major ERL for minor ERL players)</option><option value="lec">LEC or another top league</option></select></div>
       <div class="f" id="fLeagueBox"><span class="lab" id="lblLg">League</span><div class="msel" id="fLeague"><button type="button" class="mselb" id="fLeagueBtn" aria-haspopup="true" aria-expanded="false" aria-labelledby="lblLg fLeagueBtn">All leagues</button><div class="mselp" id="fLeaguePop" role="group" aria-label="Pick one or more leagues" hidden></div></div></div>
       <div class="f"><label for="fCountry">Nationality</label><select id="fCountry"></select></div>
       <div class="f"><label for="fAge">Max age</label><input id="fAge" type="number" min="16" max="40" placeholder="any"></div>
@@ -425,12 +434,18 @@ nav a.btn,nav button{white-space:nowrap}
   $('fLeaguePop').addEventListener('click', e => { e.stopPropagation(); const b = e.target.closest('button[data-lq]'); if(!b) return; const q = b.dataset.lq;
     $('fTier').value = q==='clear' ? '' : q; LSEL.clear(); lgLabel(); lgPop(); S.sort=null; render(); });
   $('fLeaguePop').addEventListener('change', e => { const c = e.target; if(c.type!=='checkbox') return; if(c.checked) LSEL.add(c.value); else LSEL.delete(c.value); lgLabel(); render(); });
+  $('fChance').addEventListener('change', () => { S.sort = null; render(); });
+  // chance mode (Can, 23 Oct 2026): one developmental table holding major and minor ERL players ranks everyone on the chance of LEC or another top league;
+  // a table of one group ranks on the chance of the next step. The filter forces either. Only the ERL list has two groups.
+  function devTwoGroups(){ const g = reg(); return S.view==='dev' && g && g.name==='ERL' && g.devKind!=='war' && (g.dev||[]).some(p => p.dst!=null); }
+  function chanceMode(){ if(!devTwoGroups()) return 'next'; const v = $('fChance').value; if(v) return v; const ls = [...LSEL]; return (ls.length ? (ls.some(l => MAJOR_ERL.has(l)) && ls.some(l => !MAJOR_ERL.has(l))) : !$('fTier').value) ? 'lec' : 'next'; }
+  const bandOf = v => v==null ? null : v>=50 ? 'Strong' : v>=20 ? 'Realistic' : v>=5 ? 'Possible' : 'Long shot';
   $('fTier').addEventListener('change', () => { [...LSEL].forEach(l => { if(!inTier(l)) LSEL.delete(l); }); lgLabel(); lgPop(); render(); });
   document.addEventListener('click', e => { if(!e.target.closest('#fLeague')){ $('fLeaguePop').hidden = true; $('fLeagueBtn').setAttribute('aria-expanded','false'); } });
   document.addEventListener('keydown', e => { if(e.key==='Escape' && !$('fLeaguePop').hidden){ $('fLeaguePop').hidden = true; $('fLeagueBtn').setAttribute('aria-expanded','false'); $('fLeagueBtn').focus(); } });
   $('fCol').addEventListener('change', () => { S.sort=null; render(); });
   $('fAgeKnown').addEventListener('change', () => { try{ localStorage.setItem('fp_age_known', $('fAgeKnown').value); }catch(e){} render(); });
-  function resetFilters(){ $('fTier').value=''; setLeagues([]); $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fShow').value=''; $('fCol').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
+  function resetFilters(){ $('fTier').value=''; $('fChance').value=''; setLeagues([]); $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fShow').value=''; $('fCol').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
   // the ask box moves the table to another role, region or list; Reset filters and Clear take it back to where it was before the question
   let ASKPREV = null;
   function clearAsk(){ const A = $('askA'); A.hidden = true; A.textContent = ''; $('askQ').value = ''; $('askClr').hidden = true;
@@ -500,9 +515,10 @@ nav a.btn,nav button{white-space:nowrap}
   }
 
   function cols(){
-    const R = RL(), g = reg(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all' || S.watch;
+    const R = RL(), g = reg(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all' || S.watch, LEC = chanceMode()==='lec', GRP = dev && g && g.name==='ERL' && $('fTier').value;
+    const DS = {k:'ds',l:LEC?'Dev score (LEC)':'Dev score',n:1,get:p=>LEC && p.dst!=null ? p.dst : p.ds,d:0,key:1}, CH = LEC ? {k:'cl',l:'Chance of LEC',n:1,get:p=>p.cl,band:1,lec:1} : {k:'ch',l:'Chance of next step',n:1,get:p=>p.ch,band:1};
     const base = [
-      {k:'rk',l:ALL?'# in role':(S.view==='dev' && reg() && reg().name==='ERL' && $('fTier').value ? '# in group' : '#'),n:1,get:p=>(S.view==='dev' && reg() && reg().name==='ERL' && $('fTier').value && p.gk) ? p.gk : p.rk,d:0,asc:1},
+      {k:'rk',l:ALL?'# in role':(GRP ? '# in group' : '#'),n:1,get:p=>LEC && p.rt ? (GRP ? p.gt : p.rt) : (GRP && p.gk) ? p.gk : p.rk,d:0,asc:1},
       {k:'p',l:'Player',get:p=>p.p||'Name hidden',cls:'pl'},
       ...(ALL ? [{k:'role',l:'Role',get:p=>D.roles[p._r].label}] : []),
       {k:'c',l:'Nat',get:p=>p.c,flag:1},
@@ -516,7 +532,7 @@ nav a.btn,nav button{white-space:nowrap}
     ];
     const key = !dev ? [{k:'cb',l:'Combined',n:1,get:p=>p.cb,key:1},{k:'rr',l:'Rank range',n:1,get:p=>p.lo,range:1,asc:1}]
       : war ? [{k:'xw',l:'Expected value',n:1,get:p=>p.xw,d:1,key:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}]
-      : [{k:'ds',l:'Dev score',n:1,get:p=>p.ds,d:0,key:1},{k:'ch',l:'Chance of next step',n:1,get:p=>p.ch,band:1},{k:'cht',l:'Chance of top league',n:1,get:p=>p.cht,d:0},{k:'xw',l:'Expected value',n:1,get:p=>p.xw,d:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}];
+      : [DS, CH, ...(LEC ? [{k:'ch',l:'Chance of next step',n:1,get:p=>p.ch,band:1}] : [{k:'cht',l:'Chance of top league',n:1,get:p=>p.cht,d:0}]),{k:'xw',l:'Expected value',n:1,get:p=>p.xw,d:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}];
     const rest = [
       {k:'e',l:'Elo',n:1,get:p=>p.e,sign:1},
       {k:'s',l:'Score',n:1,get:p=>p.s,sign:1},
@@ -528,7 +544,7 @@ nav a.btn,nav button{white-space:nowrap}
       const out2 = {k:'nx',l:'Next season',get:p=>p.nl ? p.nl+(p.nt?' · '+p.nt:'') : null}, r2 = {k:'ys',l:'Top league',get:p=>p.ys,yr:1,asc:1};
       const bk = k => base.find(c=>c.k===k);
       return [bk('rk'), bk('p'), ...(ALL ? [bk('role')] : []), bk('c'), ...(g.name==='ERL' ? [bk('l')] : []), {k:'t',l:'Team',get:p=>p.t}, bk('a'), bk('g'),
-        ...(dev ? [{k:'ds',l:'Dev score',n:1,get:p=>p.ds,d:0,key:1},{k:'ch',l:'Chance of next step',n:1,get:p=>p.ch,band:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}] : [{k:'cb',l:'Combined',n:1,get:p=>p.cb,key:1}]), out2, r2];
+        ...(dev ? [DS, CH, ...(LEC ? [{k:'ch',l:'Chance of next step',n:1,get:p=>p.ch,band:1}] : []), {k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}] : [{k:'cb',l:'Combined',n:1,get:p=>p.cb,key:1}]), out2, r2];
     }
     if(M) return [...base.filter(c=>c.k!=='r'), ...(!dev ? [{k:'rr',l:'Rank range',n:1,get:p=>p.lo,range:1,asc:1,key:1}] : war ? [] : [{k:'ch',l:'Chance of next step',n:1,get:p=>p.ch,band:1,key:1}])];
     return [...base,...key,...rest];
@@ -564,8 +580,7 @@ nav a.btn,nav button{white-space:nowrap}
     { const g0 = reg(), noDev = isPast() && !((g0 && g0.dev) || []).length, db = document.querySelector('#view button[data-v="dev"]');
       if(db){ db.disabled = noDev; db.title = noDev ? 'Past developmental lists cover regional leagues, LCK CL and NACL only' : ''; }
       if(noDev && S.view==='dev'){ S.view = 'win'; S.sort = null; } }
-    { const g1 = reg(), ao = $('fTier').querySelector('option[value=""]'), need = S.view==='dev' && g1 && g1.name==='ERL' && !S.watch && !isPast();
-      if(ao) ao.disabled = need; if(need && !$('fTier').value){ $('fTier').value = 'major'; [...LSEL].forEach(l => { if(!inTier(l)) LSEL.delete(l); }); lgLabel(); } }
+    $('fChanceBox').hidden = M || !devTwoGroups();      // the 'All leagues' group is open again on the live list (23 Oct 2026): a mixed table now ranks on the chance of LEC
     const R = RL(), g = reg(), C = cols(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all' || S.watch;
     document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected', !S.watch && b.dataset.r===S.role));
     document.querySelectorAll('#view button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.v===S.view));
@@ -573,25 +588,26 @@ nav a.btn,nav button{white-space:nowrap}
     $('question').innerHTML = !dev
       ? '<b>Win now</b> asks who is the best player today. Ranked by Combined: half career head-to-head Elo, half stat Score with league strength built in. <b>Rank range</b> shows where he could sit on this list given how far ratings usually move in a season. Players in the same tier cannot be separated by the data.'
       : war ? '<b>Developmental</b>, for players already in a top league: ranked by expected value next season, a forecast of the rating expressed in win-equivalents per 100 games. A scale for comparing players, not a measured contribution to wins.'
-      : '<b>Developmental</b> asks who has the profile of a player who makes his <b>next step</b> within two seasons: a major regional league (LFL, Prime League, TCL, LES) for minor regional-league players, LEC or another top league for major regional-league players, CBLOL for the Circuito Desafiante, LCP for VCS and LJL, LCK for LCK CL, LCS for NACL. Ranked by the Developmental score: half Chance of next step, half expected value at that step, so <b>scores only compare inside one group</b>: the regional-league list is shown as major or minor ERLs. <b>Chance of top league</b> is kept beside it. Chance is a band, not a personal probability, and it does not know contracts, buyouts or residency. Players over 25 or already established in a top league are not listed.';
+      : '<b>Developmental</b> asks who has the profile of a player who makes his <b>next step</b> within two seasons: a major regional league (LFL, Prime League, TCL, LES) for minor regional-league players, LEC or another top league for major regional-league players, CBLOL for the Circuito Desafiante, LCP for VCS and LJL, LCK for LCK CL, LCS for NACL. Ranked by the Developmental score: half Chance of next step, half expected value at that step, so on a table of one group (major or minor ERLs) the score compares players inside that group. <b>When one table holds both groups</b>, everyone is ranked on <b>Chance of LEC</b> instead (for minor ERL players, their chance of a top league), so a likely LEC player is never ranked below a likely Prime League player. The <b>Rank by chance of</b> filter picks either view. Chance is a band, not a personal probability, and it does not know contracts, buyouts or residency. Players over 25 or already established in a top league are not listed.';
     if(isPast()) $('question').innerHTML = `<div class="pastnote"><b>Roster year ${S.year}, backtest.</b> The ${dev?'developmental':'win now'} list as it would have looked going into ${S.year}, built in 2026 with today's formulas and only the matches played up to the end of ${S.year-1}. Next season and Top league show what happened afterwards: Top league is the first season he played 10+ games in LCK, LPL, LEC or LCS, however many seasons later (the benchmark itself counts only the first two). A simulation with hindsight, not a live track record. No rank ranges for past years.${S.year===2019 ? ' <b>2019 lists are short</b>: the 2018 match data covers fewer regional leagues and games than later years, so fewer players reach the 15-game minimum.' : ''}${dev && !g.dev.length ? ' Past developmental lists exist for ERL, LCK CL and NACL.' : ''}</div>` + $('question').innerHTML;
     $('betaNote').hidden = !R.beta;
     if(R.beta) $('betaNote').innerHTML = `<b>${esc(R.label)} is a beta list.</b> This role's formula is a first version and has not yet beaten simple baselines in the retrospective check. Use it to build a long list, not to rank finalists.`;
     const {list, out, hiddenUnknown, shownUnknown} = rows();
     const sc = C.find(c=>c.k===S.sort) || (ALL ? (C.find(c=>c.key) || C[0]) : C[0]); const dir = S.sort ? S.dir : (ALL ? -1 : 1); const natural = !ALL && sc.k==='rk' && dir===1;
-    out.sort((a,b)=>{ const x=sc.get(a), y=sc.get(b); if(x==null && y==null) return a.rk-b.rk; if(x==null) return 1; if(y==null) return -1; const c = (typeof x==='string'||typeof y==='string') ? String(x).localeCompare(String(y)) : x-y; return c*dir || a.rk-b.rk; });
+    const LECM = chanceMode()==='lec', rko = p => LECM && p.rt ? p.rt : p.rk, tio = p => LECM && p.tt ? p.tt : p.ti;
+    out.sort((a,b)=>{ const x=sc.get(a), y=sc.get(b); if(x==null && y==null) return rko(a)-rko(b); if(x==null) return 1; if(y==null) return -1; const c = (typeof x==='string'||typeof y==='string') ? String(x).localeCompare(String(y)) : x-y; return c*dir || rko(a)-rko(b); });
     $('tbl').querySelector('thead').innerHTML = '<tr>'+C.map(c=>`<th scope="col" class="${c.n?'n':''}" ${c.k===sc.k?`aria-sort="${dir>0?'ascending':'descending'}"`:''}><button type="button" data-k="${esc(c.k)}" ${GL[c.l]?`title="${esc(GL[c.l])}"`:''}>${esc(c.l)}</button></th>`).join('')+'</tr>';
     LAST = {out, C, list}; tools(C, sc, dir, out, list);
     let html = '', lastTier = null;
     out.forEach(p => {
       if(natural && M && p.nm){ if(lastTier!=='nm'){ lastTier = 'nm'; html += `<tr class="tier"><td colspan="${C.length}"><b>Named sample players</b> · by league and name, their numbers are hidden</td></tr>`; } }
-      else if(natural && p.ti!==lastTier){ lastTier = p.ti; html += `<tr class="tier"><td colspan="${C.length}"><b>Tier ${p.ti}</b> · the data cannot separate players inside a tier</td></tr>`; }
+      else if(natural && tio(p)!==lastTier){ lastTier = tio(p); html += `<tr class="tier"><td colspan="${C.length}"><b>Tier ${tio(p)}</b> · the data cannot separate players inside a tier</td></tr>`; }
       html += `<tr class="row" tabindex="0" data-id="${list.indexOf(p)}">` + C.map(c => {
         const v = c.get(p); let cls=(c.n?'n ':'')+(c.cls||'')+(c.key?' key':''); let t;
         if(M && p.nm && (c.k==='rk' || c.range || c.band)) t = '·';
         else if(c.yr) t = v ? `<span class="yes" title="First season with 10+ games in LCK, LPL, LEC or LCS">after ${v} season${v>1?'s':''}</span>` : p.in ? '<span class="no">already there</span>' : '<span class="no">not yet</span>';
         else if(c.range) t = (p.lo!=null) ? `<span class="rr">${p.lo} to ${p.hi}</span>` : '·';
-        else if(c.band) t = v==null ? '·' : `<span class="band b${v>=50?3:v>=20?2:v>=5?1:0}">${esc(p.bd)}${M?'':' · '+num(v,0)}</span>${!M && p.ns ? ` <small class="ns">→ ${esc(p.ns)}</small>` : ''}`;
+        else if(c.band) t = v==null ? '·' : `<span class="band b${v>=50?3:v>=20?2:v>=5?1:0}">${esc(c.lec ? bandOf(v) : (p.bd || bandOf(v)))}${M?'':' · '+num(v,0)}</span>${!M && !c.lec && p.ns ? ` <small class="ns">→ ${esc(p.ns)}</small>` : ''}`;
         else if(c.age && p.a==null && p.ab) t = esc(p.ab);
         else if(c.games && p.gr) t = 'about ' + p.g;
         else if(c.n){ if(c.sign && typeof v==='number') cls += v<0?' neg':' pos'; t = (c.sign && typeof v==='number' && v>0 ? '+' : '') + num(v, c.d==null?2:c.d); }
@@ -760,26 +776,30 @@ nav a.btn,nav button{white-space:nowrap}
   function renderReport(box, role, p, d, ss, y){
     const s = ss.find(x => x.y===y) || ss[ss.length-1], L = D.roles[role].label, f = (v,dd=0) => v==null ? '·' : (typeof v==='number' ? v.toFixed(dd) : v), sg = v => v==null ? '·' : (v>0?'+':'')+v.toFixed(0);
     const wl = r => r && r[0] ? `${r[1]}-${r[0]-r[1]} (${Math.round(100*r[1]/r[0])}%)` : '·';
-    const PCTL = {golddiffat10:'Gold lead @10', golddiffat15:'Gold lead @15', xpdiffat15:'XP lead @15', csdiffat15:'CS lead @15', golddiffat20:'Gold lead @20', golddiffat25:'Gold lead @25', ahead15:'Games ahead at 15', dead15:'Deathless by 15', fbi:'First blood involvement', kills:'Kills', deaths:'Deaths (fewer is better)', assists:'Assists', kp:'Kill participation', kp_early:'Kill participation by 15 min', kp_late:'Kill participation after 15 min', ks:'Kill share', dsh:'Death share (fewer is better)', dpm:'Damage / min', damageshare:'Damage share', damagetakenperminute:'Damage taken / min', cspm:'CS / min', egpm:'Gold / min', earnedgoldshare:'Gold share', vspm:'Vision score / min', wcpm:'Wards cleared / min'};
-    const m = (label, val, key) => { const pc = s.pct && s.pct[key]; return `<div class="m"><span>${esc(label)}</span><span class="v">${val}</span><div class="pb">${pc!=null?`<i style="width:${pc}%"></i>`:''}</div><span class="pc">${pc!=null?pc:''}</span></div>`; };
-    const career = `<div class="tb"><table><thead><tr><th>Season</th><th>League</th><th>Team</th><th class="n">Games</th><th class="n">Record</th><th class="n">Combined</th><th class="n">Gold @15</th><th class="n">KDA</th><th class="n">DPM</th><th class="n">CS/min</th><th class="n">Vision/min</th><th class="n">Champions</th></tr></thead><tbody>${ss.map(x => `<tr class="${x.y===s.y?'focus':''}"><td>${x.y}</td><td>${esc(x.lg)}</td><td>${esc(x.t)}</td><td class="n">${x.rec[0]}</td><td class="n">${wl(x.rec)}</td><td class="n">${x.cb==null?'·':(x.cb>0?'+':'')+x.cb.toFixed(2)}</td><td class="n">${sg(x.lane.gd15)}</td><td class="n">${f(x.fight.kda,2)}</td><td class="n">${f(x.fight.dpm)}</td><td class="n">${f(x.econ.cspm,1)}</td><td class="n">${f(x.vision.vspm,2)}</td><td class="n">${x.nch}</td></tr>`).join('')}</tbody></table></div>`;
+    // role-specific layout (23 Oct 2026): rows, champion, class, opponent and career columns come from _meta in reports_<role>.js (tools/export_reports.py LAYOUT)
+    const MT = (window['FLEXPICK_REPORTS_'+role] || {})._meta, V = s.v || {};
+    const fv = (k, v) => { if(v==null) return '·'; if(typeof v==='string') return esc(v); const mm = MT.m[k] || ['',0,'',0]; return (mm[3] && v>0 ? '+' : '') + v.toFixed(mm[1]) + mm[2]; };
+    const pk = k => k==='kpe' ? 'kp_early' : k==='kpl' ? 'kp_late' : (k==='kda' || k==='kdaline') ? null : (MT.pa && MT.pa[k]) || 'm_'+k;
+    const m = (label, val, key, hint) => { const pc = key && s.pct && s.pct[key]; return `<div class="m"${hint?` title="${esc(hint)}"`:''}><span>${esc(label)}${hint?' <small class="hint">ⓘ</small>':''}</span><span class="v">${val}</span><div class="pb">${pc!=null?`<i style="width:${pc}%"></i>`:''}</div><span class="pc">${pc!=null?pc:''}</span></div>`; };
+    const rows = list => list.map(([k, label, hint]) => k==='kpx' ? (V.kpe!=null ? m('Kill participation by 15 min', fv('kpe', V.kpe), 'kp_early') + m('Kill participation after 15 min', fv('kpl', V.kpl), 'kp_late') : m('Kill participation', fv('kp', V.kp), 'kp')) : m(label, fv(k, V[k]), pk(k), hint)).join('');
+    const ch = k => esc(MT.m[k] ? MT.m[k][0] : k);
+    const career = `<div class="tb"><table><thead><tr><th>Season</th><th>League</th><th>Team</th><th class="n">Games</th><th class="n">Record</th><th class="n">Combined</th>${MT.career.map(k => `<th class="n">${ch(k)}</th>`).join('')}<th class="n">Champions</th></tr></thead><tbody>${ss.map(x => `<tr class="${x.y===s.y?'focus':''}"><td>${x.y}</td><td>${esc(x.lg)}</td><td>${esc(x.t)}</td><td class="n">${x.rec[0]}</td><td class="n">${wl(x.rec)}</td><td class="n">${x.cb==null?'·':(x.cb>0?'+':'')+x.cb.toFixed(2)}</td>${MT.career.map(k => `<td class="n">${fv(k, (x.v||{})[k])}</td>`).join('')}<td class="n">${x.nch}</td></tr>`).join('')}</tbody></table></div>`;
     const rec = `<dl class="kv"><dt>Record</dt><dd>${wl(s.rec)} in ${esc(s.lg)}${s.other.length?' · also '+s.other.map(o=>`${esc(o[0])} ${o[2]}-${o[1]-o[2]}`).join(', '):''}</dd><dt>Blue / red side</dt><dd>${wl(s.side.blue)} / ${wl(s.side.red)}</dd><dt>Playoffs</dt><dd>${s.po[0]?wl(s.po):'no playoff games'}</dd><dt>Short games (under 28 min)</dt><dd>${s.len.short[0]?wl(s.len.short):'none'}</dd><dt>Long games (35 min and over)</dt><dd>${s.len.long[0]?wl(s.len.long):'none'}</dd><dt>Average game length</dt><dd>${f(s.mins,1)} min</dd><dt>Draft position</dt><dd>${s.draft.pick==null?'not in the data for this league':`pick ${f(s.draft.pick,1)} of 10 on average · ${f(s.draft.first3)}% in the first three picks · ${f(s.draft.last2)}% in the last two (counter-pick)`}</dd></dl>`;
-    const lane = m('Gold lead @10', sg(s.lane.gd10), 'golddiffat10') + m('XP lead @10', sg(s.lane.xd10), null) + m('CS lead @10', f(s.lane.cd10,1), null) + m('Gold lead @15', sg(s.lane.gd15), 'golddiffat15') + m('XP lead @15', sg(s.lane.xd15), 'xpdiffat15') + m('CS lead @15', f(s.lane.cd15,1), 'csdiffat15') + m('Gold lead @20', sg(s.lane.gd20), 'golddiffat20') + m('Gold lead @25', sg(s.lane.gd25), 'golddiffat25')
-      + m('Ahead in gold at 15', f(s.lane.ahead15)+'%', 'ahead15') + m('Lead of 500+ at 15', f(s.lane.big15)+'%', null) + m('Behind by 500+ at 15', f(s.lane.bad15)+'%', null) + m('Kills / deaths / assists by 15', `${f(s.lane.k15,2)} / ${f(s.lane.d15,2)} / ${f(s.lane.a15,2)}`, null) + m('Deathless by 15', f(s.lane.dead15)+'%', 'dead15') + m('First blood involvement', f(s.lane.fbi)+'%', 'fbi') + m('First blood victim', f(s.lane.fbv)+'%', null);
-    const fight = m('Kills / deaths / assists', `${f(s.fight.k,1)} / ${f(s.fight.d,1)} / ${f(s.fight.a,1)}`, null) + m('KDA', f(s.fight.kda,2), null) + (s.fight.kpe!=null ? m('Kill participation by 15 min', f(s.fight.kpe)+'%', 'kp_early') + m('Kill participation after 15 min', f(s.fight.kpl)+'%', 'kp_late') : m('Kill participation', f(s.fight.kp)+'%', 'kp')) + m('Kill share', f(s.fight.ks)+'%', 'ks') + m('Death share', f(s.fight.dsh)+'%', 'dsh') + m('Damage / min', f(s.fight.dpm), 'dpm') + m('Damage share', f(s.fight.dmgsh,1)+'%', 'damageshare') + m('Damage taken / min', f(s.fight.dtpm), 'damagetakenperminute') + m('Damage mitigated / min', f(s.fight.dmit), null) + m('Double kills per game', f(s.fight.dbl,2), null)
-      + m('CS / min', f(s.econ.cspm,2), 'cspm') + m('Gold / min (earned)', f(s.econ.gpm), 'egpm') + m('Gold share', f(s.econ.gsh,1)+'%', 'earnedgoldshare') + m('Vision score / min', f(s.vision.vspm,2), 'vspm') + m('Wards placed / min', f(s.vision.wpm,2), null) + m('Wards cleared / min', f(s.vision.wcpm,2), 'wcpm') + m('Control wards per game', f(s.vision.cw,1), null);
-    const champs = `<div class="tb"><table><thead><tr><th>Champion</th><th>Class</th><th class="n">Games</th><th class="n">Record</th><th class="n">KDA</th><th class="n">Gold @15</th><th class="n">DPM</th><th class="n">KP</th></tr></thead><tbody>${s.champs.map(c => `<tr><td>${esc(c[0])}</td><td>${esc(c[7])}</td><td class="n">${c[1]}</td><td class="n">${wl([c[1],c[2]])}</td><td class="n">${f(c[3],1)}</td><td class="n">${sg(c[4])}</td><td class="n">${f(c[5])}</td><td class="n">${f(c[6])}%</td></tr>`).join('')}</tbody></table></div><p class="note">${s.nch} different champions in ${s.rec[0]} games${s.champs.length<s.nch?'; the '+s.champs.length+' most played are shown':''}.</p>`;
-    const cls = s.cls.length>1 ? `<div class="tb"><table><thead><tr><th>Champion class</th><th class="n">Games</th><th class="n">Record</th><th class="n">Gold @15</th><th class="n">DPM</th><th class="n">KDA</th></tr></thead><tbody>${s.cls.map(c => `<tr><td>${esc(c[0])}</td><td class="n">${c[1]}</td><td class="n">${wl([c[1],c[2]])}</td><td class="n">${sg(c[3])}</td><td class="n">${f(c[4])}</td><td class="n">${f(c[5],1)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="note">One champion class only this season.</p>';
-    const opp = s.opp.length ? `<div class="tb"><table><thead><tr><th>Opponent (same role)</th><th class="n">Games</th><th class="n">Record</th><th class="n">Gold @15 vs him</th></tr></thead><tbody>${s.opp.map(o => `<tr><td>${esc(o[0])}</td><td class="n">${o[1]}</td><td class="n">${wl([o[1],o[2]])}</td><td class="n">${sg(o[3])}</td></tr>`).join('')}</tbody></table></div>` : '<p class="note">No opponent faced twice.</p>';
+    const lane = rows(MT.sec[0][1]), fight = rows(MT.sec[1][1]);
+    const solo = ['top','mid'].includes(role), nx = V.nx || 0;
+    const defs = `<p class="note">Solo death = killed by one enemy with no assist.${solo ? ' Side-lane death = death in the top or bottom lane after 14 minutes; caught alone = one of those with no assist on the kill.' : ''} ${nx ? `Solo${solo?' and side-lane':''} numbers come from the ${nx} of ${s.rec[0]} games with full timeline data.` : 'Solo'+(solo?' and side-lane':'')+' numbers need timeline data, which starts in 2022: none for this season.'} Hover a line marked ⓘ for its definition.</p>`;
+    const champs = `<div class="tb"><table><thead><tr><th>Champion</th><th>Class</th><th class="n">Games</th><th class="n">Record</th>${MT.champ.map(k => `<th class="n">${ch(k)}</th>`).join('')}</tr></thead><tbody>${s.champs.map(c => `<tr><td>${esc(c[0])}</td><td>${esc(c[3])}</td><td class="n">${c[1]}</td><td class="n">${wl([c[1],c[2]])}</td>${MT.champ.map((k,i) => `<td class="n">${fv(k, c[4+i])}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p class="note">${s.nch} different champions in ${s.rec[0]} games${s.champs.length<s.nch?'; the '+s.champs.length+' most played are shown':''}.</p>`;
+    const cls = s.cls.length>1 ? `<div class="tb"><table><thead><tr><th>Champion class</th><th class="n">Games</th><th class="n">Record</th>${MT.champ.map(k => `<th class="n">${ch(k)}</th>`).join('')}</tr></thead><tbody>${s.cls.map(c => `<tr><td>${esc(c[0])}</td><td class="n">${c[1]}</td><td class="n">${wl([c[1],c[2]])}</td>${MT.champ.map((k,i) => `<td class="n">${fv(k, c[3+i])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : '<p class="note">One champion class only this season.</p>';
+    const opp = s.opp.length ? `<div class="tb"><table><thead><tr><th>Opponent (same role)</th><th class="n">Games</th><th class="n">Record</th>${MT.opp.map(k => `<th class="n">${ch(k)} vs him</th>`).join('')}</tr></thead><tbody>${s.opp.map(o => `<tr><td>${esc(o[0])}</td><td class="n">${o[1]}</td><td class="n">${wl([o[1],o[2]])}</td>${MT.opp.map((k,i) => `<td class="n">${fv(k, o[3+i])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : '<p class="note">No opponent faced twice.</p>';
     $('dlg').classList.add('wide');
     box.innerHTML = `<div class="rep">
-      <div><h3 class="sec">Scouting report · ${esc(p.p)} · ${esc(L)}</h3><p class="note">Raw per-game numbers from league games in his main league each season (cups and other leagues left out), not champion adjusted. The bar and small number on a line is his percentile among ${esc(L.toLowerCase())} players of the same league and season with 8+ games (100 = best; for deaths and death share, lowest). This is the material behind the rating, not the rating: the lists and the profile above stay the reference.</p></div>
+      <div><h3 class="sec">Scouting report · ${esc(p.p)} · ${esc(L)}</h3><p class="note">Raw per-game numbers from league games in his main league each season (cups and other leagues left out), not champion adjusted. The bar and small number on a line is his percentile among ${esc(L.toLowerCase())} players of the same league and season with 8+ games (100 = best; for deaths of any kind, death share and first blood victim, lowest). This is the material behind the rating, not the rating: the lists and the profile above stay the reference.</p></div>
       <div><h3 class="sec">Career</h3>${career}</div>
       <div class="seas"><span>Season in detail:</span>${ss.map(x => `<button type="button" data-y="${x.y}" aria-pressed="${x.y===s.y}">${x.y} ${esc(x.lg)}</button>`).join('')}</div>
-      ${repSummary(s, L)}
-      <div class="jump"><span>Jump to:</span><button type="button" data-j="rLane">Laning</button><button type="button" data-j="rFight">Fighting</button><button type="button" data-j="rChamp">Champion pool</button><button type="button" data-j="rOpp">Opponents</button></div>
+      ${repSummary(s, L, MT)}
+      <div class="jump"><span>Jump to:</span><button type="button" data-j="rLane">${esc(MT.sec[0][0])}</button><button type="button" data-j="rFight">${esc(MT.sec[1][0])}</button><button type="button" data-j="rChamp">Champion pool</button><button type="button" data-j="rOpp">Opponents</button></div>
       <div><h3 class="sec">${s.y} · ${esc(s.lg)} · ${esc(s.t)}</h3>${rec}<p class="note">Percentiles below are against ${s.npl} ${esc(L.toLowerCase())} players of ${esc(s.lg)} in ${s.y}.</p></div>
-      <div class="cols"><div id="rLane"><h3 class="sec">Laning</h3>${lane}</div><div id="rFight"><h3 class="sec">Fighting, economy, vision</h3>${fight}</div></div>
+      <div class="cols"><div id="rLane"><h3 class="sec">${esc(MT.sec[0][0])}</h3>${lane}</div><div id="rFight"><h3 class="sec">${esc(MT.sec[1][0])}</h3>${fight}</div></div>${defs}
       <div id="rChamp"><h3 class="sec">Champion pool</h3>${champs}</div>
       <div class="cols"><div><h3 class="sec">By champion class</h3>${cls}</div><div id="rOpp"><h3 class="sec">Opponents faced most</h3>${opp}</div></div>
     </div>`;
@@ -819,7 +839,7 @@ nav a.btn,nav button{white-space:nowrap}
     return prev ? {prev, pcut:(st && st.cut !== D.data_cutoff) ? st.cut : (st && st.pcut)} : null; })();
   function chgOf(p, gname){ if(!CHG || isPast()) return null; const k = pid(p) + '@' + gname, was = CHG.prev[k]; if(was==null) return 'new'; if(S.view==='dev') return null; if(p.ti < was) return 'up'; if(p.ti > was) return 'down'; return null; }
   // ---- glossary
-  const GL = {'Free agents':'Players Leaguepedia lists with no current team and not retired, as of the date of its player table (shown on the player sheet). Leaguepedia lags real moves by days to weeks and most ERL contracts run to mid-November, so in the offseason read it as "nothing announced yet".', 'Rookies':'19 or under, or fewer than 4 splits played and none in a major ERL (PRM, LFL, TCL, LES) or a top league. Second divisions count as minor. A split = a ranked split in his history (8+ games).', 'Combined':'The win now rating: half career head-to-head Elo, half stat Score. One scale across leagues; LEC average is about 0.', 'Rank range':'Where he could sit on this list given how far ratings usually move in a season (8 in 10).', 'Tier':'Players in the same tier cannot be separated by the data.', 'Elo':'Career head-to-head result against the players he actually faced in his role.', 'Score':'In-league rating plus league level.', 'In league':'How far above the average player of his own league, in standard deviations, from matchup-adjusted stats.', 'Lg level':'Strength of his league against LEC = 0, in the same units.', 'Dev score':'Developmental score: half Chance, half Expected value. Prospects only.', 'Chance':'A band, not a personal probability: how often similar past prospects played 10+ top league games within two seasons.', 'Expected value':'Forecast rating next season in win-equivalents per 100 games above a real second-choice player. A scale, not a measured contribution.', 'Res':'Residency as recorded on Leaguepedia; nationality is not residency.', 'Style':'Playstyle class from his habits, compared with his league.', 'Tag':'Champion pool or habit tag.', 'Games':'Games in his main league this season. Under 20 games is a small sample.', 'Age':'Age in the middle of the roster year.', '# in role':'Order inside his role on this list. Read it with the tier.', 'Next season':'Where he played the season after (backtest only).', 'Top league':'First season with 10+ games in LCK, LPL, LEC or LCS (backtest only).'};
+  const GL = {'Chance of LEC':'Used when one developmental table holds both major and minor ERL players (23 Oct 2026). Major ERL players: their chance of the next step (LEC or another top league). Minor ERL players: their chance of a top league (LCK, LPL, LEC or LCS) within two seasons, instead of the chance of a major ERL. One scale, so a likely LEC player is not ranked below a likely Prime League player.', 'Dev score (LEC)':'The Developmental score with Chance of LEC in its chance half: half Chance of LEC, half expected value at the next step. Used on mixed major and minor ERL tables.', 'Free agents':'Players Leaguepedia lists with no current team and not retired, as of the date of its player table (shown on the player sheet). Leaguepedia lags real moves by days to weeks and most ERL contracts run to mid-November, so in the offseason read it as "nothing announced yet".', 'Rookies':'19 or under, or fewer than 4 splits played and none in a major ERL (PRM, LFL, TCL, LES) or a top league. Second divisions count as minor. A split = a ranked split in his history (8+ games).', 'Combined':'The win now rating: half career head-to-head Elo, half stat Score. One scale across leagues; LEC average is about 0.', 'Rank range':'Where he could sit on this list given how far ratings usually move in a season (8 in 10).', 'Tier':'Players in the same tier cannot be separated by the data.', 'Elo':'Career head-to-head result against the players he actually faced in his role.', 'Score':'In-league rating plus league level.', 'In league':'How far above the average player of his own league, in standard deviations, from matchup-adjusted stats.', 'Lg level':'Strength of his league against LEC = 0, in the same units.', 'Dev score':'Developmental score: half Chance, half Expected value. Prospects only.', 'Chance':'A band, not a personal probability: how often similar past prospects played 10+ top league games within two seasons.', 'Expected value':'Forecast rating next season in win-equivalents per 100 games above a real second-choice player. A scale, not a measured contribution.', 'Res':'Residency as recorded on Leaguepedia; nationality is not residency.', 'Style':'Playstyle class from his habits, compared with his league.', 'Tag':'Champion pool or habit tag.', 'Games':'Games in his main league this season. Under 20 games is a small sample.', 'Age':'Age in the middle of the roster year.', '# in role':'Order inside his role on this list. Read it with the tier.', 'Next season':'Where he played the season after (backtest only).', 'Top league':'First season with 10+ games in LCK, LPL, LEC or LCS (backtest only).'};
   function glossary(){ $('dlg').classList.remove('wide'); $('card').innerHTML = `<div class="top"><div><h2 id="cardName">Glossary</h2><p class="sub">What each number on this page means.</p></div><button type="button" class="x" id="closeCard">Close</button></div><dl class="kv gl">${Object.entries(GL).map(([a,b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl><p class="note">Every list shows tiers and rank ranges because neighbours on a list are rarely a real difference. LPL is not rated. No contract, salary or solo queue data.</p>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); }
   // ---- share links: the view, the open player and the compare set live in the address
   let CUR = null, CMPOPEN = false;
@@ -833,6 +853,23 @@ nav a.btn,nav button{white-space:nowrap}
   function copyLink(btn){ const u = location.href, done = () => { if(btn){ const t = btn.textContent; btn.textContent = 'Link copied'; setTimeout(() => btn.textContent = t, 1600); } };
     if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(done, () => fallbackCopy(u, done)); else fallbackCopy(u, done); }
   function fallbackCopy(u, done){ const i = document.createElement('input'); i.value = u; document.body.appendChild(i); i.select(); try{ document.execCommand('copy'); done(); }catch(e){} i.remove(); }
+  // Download PDF (23 Oct 2026, Can: Print only offered a printer): builds a real A4 PDF file in the browser with html2pdf.js, loaded on first use
+  function loadH2P(){ return window.html2pdf ? Promise.resolve() : new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); }); }
+  async function downloadPdf(btn, name){
+    const t = btn.textContent; btn.disabled = true; btn.textContent = 'Making the PDF...';
+    try{
+      await loadH2P();
+      const sh = document.createElement('div'); sh.id = 'pdfSheet'; sh.className = 'card'; sh.innerHTML = $('card').innerHTML;      // a copy at the top left of the page: html2canvas mis-places content inside the centred dialog
+      sh.querySelectorAll('textarea').forEach(t => { const d = document.createElement('p'); d.className = 'note'; d.textContent = t.value; if(t.value) t.replaceWith(d); else t.closest('.note-in') && t.closest('.note-in').remove(); });
+      const W = Math.ceil(Math.max($('card').getBoundingClientRect().width, 900)); sh.style.width = W + 'px';
+      const so = $('card').querySelectorAll('svg'), sc = sh.querySelectorAll('svg'); so.forEach((v, i) => { const r = v.getBoundingClientRect(); if(sc[i] && r.width){ sc[i].setAttribute('width', Math.round(r.width)); sc[i].setAttribute('height', Math.round(r.height)); sc[i].style.width = Math.round(r.width) + 'px'; sc[i].style.height = Math.round(r.height) + 'px'; } });      // html2canvas needs fixed chart sizes
+      const wr = document.createElement('div'); wr.id = 'pdfWrap'; wr.appendChild(sh); document.body.appendChild(wr); window.scrollTo(0, 0);
+      await window.html2pdf().set({margin:[20,20,24,20], filename:(name + ' ' + new Date().toISOString().slice(0,10)).replace(/[^A-Za-z0-9 _-]+/g,'').replace(/ +/g,'_') + '.pdf', image:{type:'jpeg', quality:.95},
+        html2canvas:{scale:2, backgroundColor:'#ffffff', useCORS:true, scrollX:0, scrollY:0, x:0, y:0, width:W, windowWidth:W}, jsPDF:{unit:'px', format:[W + 40, Math.round((W + 40) * 1.4142)], orientation:'portrait', hotfixes:['px_scaling']}, pagebreak:{mode:['css','legacy'], avoid:['tr','.m','.kv','h3','.sum','.top','svg']}}).from(sh).save();      // jsPDF page: A4 proportions at the sheet's own width, so nothing is cut
+      btn.textContent = t;
+    } catch(e){ btn.textContent = 'PDF failed: use Print'; console.log('[pdf]', e); }
+    finally{ const wr = $('pdfWrap'); if(wr) wr.remove(); btn.disabled = false; setTimeout(() => { btn.textContent = t; }, 4000); }
+  }
   function printSheet(){ document.body.classList.add('printing'); const off = () => { document.body.classList.remove('printing'); window.removeEventListener('afterprint', off); }; window.addEventListener('afterprint', off); window.print(); setTimeout(off, 4000); }
   // ---- compare tray (up to 3 players, any role, any season)
   let CMP = M ? [] : ST.get('fp_cmp', []).filter(x => x && x.id);
@@ -896,9 +933,9 @@ nav a.btn,nav button{white-space:nowrap}
       <div class="top"><div><h2 id="cardName">Compare ${E.length} players</h2><p class="sub">${sameRole ? esc(D.roles[E[0].role].label) : 'Different roles: each rating is against his own role'}. Best value per row in colour where one player leads.</p></div><button type="button" class="x" id="closeCard">Close</button></div>
       ${tk.length ? `<div><h3 class="sec">Take-aways</h3><ul class="tk">${tk.map(t => `<li>${t}</li>`).join('')}</ul></div>` : ''}
       ${tbl}${rad}${spl}
-      <div class="cardact"><button type="button" class="btn" id="cmpLink">Copy link</button><button type="button" class="btn" id="cmpPrint">Print or save as PDF</button>${E.map((e,i) => `<button type="button" class="btn" data-open="${i}">Open ${esc(e.p.p)}</button>`).join('')}</div>
+      <div class="cardact"><button type="button" class="btn" id="cmpLink">Copy link</button><button type="button" class="btn" id="cmpPdf">Download PDF</button><button type="button" class="btn" id="cmpPrint">Print</button>${E.map((e,i) => `<button type="button" class="btn" data-open="${i}">Open ${esc(e.p.p)}</button>`).join('')}</div>
       <div class="foot">Take-aways are plain rules on the numbers shown, not a verdict. Data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)}. Backtest seasons use only matches up to that season.</div>`;
-    $('closeCard').onclick = () => $('dlg').close(); $('cmpLink').onclick = e => copyLink(e.target); $('cmpPrint').onclick = printSheet;
+    $('closeCard').onclick = () => $('dlg').close(); $('cmpLink').onclick = e => copyLink(e.target); $('cmpPrint').onclick = printSheet; $('cmpPdf').onclick = e => downloadPdf(e.target, 'Flexpick comparison');
     $('card').querySelectorAll('button[data-open]').forEach(b => b.onclick = () => { const e = E[+b.dataset.open]; $('dlg').close(); openById(e.x.id, e.x.y); });
     if(!$('dlg').open) $('dlg').showModal();
   }
@@ -912,7 +949,7 @@ nav a.btn,nav button{white-space:nowrap}
   // ---- card extras: action row, private note, last season on the radar
   function cardExtras(p, role, Y){
     if(M) return ''; const id = pid(p, role), w = WATCH[id];
-    return `<div class="cardact"><button type="button" class="btn ${isW(id)?'on':''}" id="wBtn" aria-pressed="${isW(id)}">${isW(id)?'★ On watchlist':'☆ Add to watchlist'}</button><button type="button" class="btn" id="cBtn" ${inCmp(id,Y)?'disabled':''}>${inCmp(id,Y)?'In compare':'+ Compare'}</button><button type="button" class="btn" id="lBtn">Copy link</button><button type="button" class="btn" id="prBtn">Print or save as PDF</button>${p.t ? `<button type="button" class="btn" id="tBtn">Team history: ${esc(p.t)}</button>` : ''}</div>
+    return `<div class="cardact"><button type="button" class="btn ${isW(id)?'on':''}" id="wBtn" aria-pressed="${isW(id)}">${isW(id)?'★ On watchlist':'☆ Add to watchlist'}</button><button type="button" class="btn" id="cBtn" ${inCmp(id,Y)?'disabled':''}>${inCmp(id,Y)?'In compare':'+ Compare'}</button><button type="button" class="btn" id="lBtn">Copy link</button><button type="button" class="btn" id="pdfBtn">Download PDF</button><button type="button" class="btn" id="prBtn">Print</button>${p.t ? `<button type="button" class="btn" id="tBtn">Team history: ${esc(p.t)}</button>` : ''}</div>
       <div class="note-in"><label for="pNote" class="lab">Private note, kept in this browser only</label><textarea id="pNote" rows="2" placeholder="Tryout notes, contract info, who to call...">${esc(w && w.n || '')}</textarea></div>`;
   }
   function wireCard(p, role, Y){
@@ -922,6 +959,7 @@ nav a.btn,nav button{white-space:nowrap}
     const cb = $('cBtn'); if(cb) cb.onclick = () => { addCmp(id, Y, p.p); cb.disabled = true; cb.textContent = 'In compare'; };
     const lb = $('lBtn'); if(lb) lb.onclick = () => copyLink(lb);
     const pb = $('prBtn'); if(pb) pb.onclick = printSheet;
+    const db = $('pdfBtn'); if(db) db.onclick = () => downloadPdf(db, 'Flexpick ' + p.p + ' ' + role + ' ' + Y);
     const tb = $('tBtn'); if(tb) tb.onclick = () => { navPush(); NAVLOCK = true; $('dlg').close(); NAVLOCK = false; TS.team = p.t; TS.sp = null; S.page = 'teams'; show(); window.scrollTo(0, 0); };
     const nt = $('pNote'); let tm = null; if(nt) nt.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(() => { const v = nt.value.trim(); if(v){ if(!isW(id)) WATCH[id] = {nm:p.p, r:role, n:'', t:Date.now()}; WATCH[id].n = v; } else if(isW(id)) WATCH[id].n = ''; saveWatch(); if(wb){ wb.classList.toggle('on', isW(id)); wb.textContent = isW(id) ? '★ On watchlist' : '☆ Add to watchlist'; } }, 400); });
     const ls = $('lastSeason'); if(ls) ls.onclick = () => { ls.textContent = 'Loading last season...'; ensureHistory(() => { const list = S.view==='dev' ? reg().dev : reg().win; openCard(list.indexOf(p)); }); };
@@ -964,8 +1002,9 @@ nav a.btn,nav button{white-space:nowrap}
     box.querySelectorAll('circle.sp').forEach(c => c.addEventListener('click', () => openCard(+c.dataset.id)));
   }
   // ---- report summary: a few plain sentences from the season's percentiles, each naming its stat
-  function repSummary(s, L){
-    const lab = {golddiffat15:'gold lead at 15', xpdiffat15:'XP lead at 15', csdiffat15:'CS lead at 15', golddiffat10:'gold lead at 10', golddiffat20:'gold lead at 20', ahead15:'games ahead at 15', dead15:'deathless by 15', fbi:'first blood involvement', kp:'kill participation', ks:'kill share', dsh:'death share', dpm:'damage per minute', damageshare:'damage share', cspm:'CS per minute', egpm:'gold per minute', earnedgoldshare:'gold share', vspm:'vision score per minute', wcpm:'wards cleared'};
+  function repSummary(s, L, MT){
+    const lab = {kp_early:'kill participation by 15', kp_late:'kill participation after 15'};
+    if(MT) MT.sec.forEach(sec => sec[1].forEach(([k, label]) => { if(k!=='kpx' && label) lab[(MT.pa && MT.pa[k]) || 'm_'+k] = label.toLowerCase(); })); if(MT && !Object.keys(s.pct||{}).includes('kp_early')) lab.kp = 'kill participation';
     const pc = Object.entries(s.pct||{}).filter(([k,v]) => lab[k] && v!=null);
     const top = pc.filter(([k,v]) => v>=80).sort((a,b) => b[1]-a[1]).slice(0,3), low = pc.filter(([k,v]) => v<=20).sort((a,b) => a[1]-b[1]).slice(0,2);
     const out = [];
@@ -974,7 +1013,7 @@ nav a.btn,nav button{white-space:nowrap}
     if(!top.length && !low.length && pc.length) out.push(`No stat in the top or bottom fifth of ${s.lg} ${s.y}: an even profile.`);
     if(s.rec && s.rec[0]) out.push(`${s.rec[1]} wins in ${s.rec[0]} games; ${s.nch} champions${s.champs && s.champs[0] ? `, most played ${s.champs[0][0]} (${s.champs[0][1]} games)` : ''}.`);
     if(s.side && s.side.blue && s.side.red && s.side.blue[0]>=8 && s.side.red[0]>=8){ const b = s.side.blue[1]/s.side.blue[0], r = s.side.red[1]/s.side.red[0]; if(Math.abs(b-r) >= .2) out.push(`Win rate ${Math.round(100*b)}% on blue side against ${Math.round(100*r)}% on red.`); }
-    return out.length ? `<div class="sum"><h3 class="sec">Summary</h3><ul class="tk">${out.map(x => `<li>${esc(x)}</li>`).join('')}</ul><p class="note">Numbers in brackets are percentiles (100 = best; for death share, fewest). Built from the lines below by fixed rules, not written by AI.</p></div>` : '';
+    return out.length ? `<div class="sum"><h3 class="sec">Summary</h3><ul class="tk">${out.map(x => `<li>${esc(x)}</li>`).join('')}</ul><p class="note">Numbers in brackets are percentiles (100 = best; for deaths of any kind and death share, fewest). Built from the lines below by fixed rules, not written by AI.</p></div>` : '';
   }
 
   // ---- toolbar above the table
