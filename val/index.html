@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en" data-soon="1">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flexpick Valorant · Coming soon</title>
+<meta name="description" content="Flexpick for Valorant is in progress. Ask for early access.">
+<meta property="og:title" content="Flexpick Valorant · Coming soon">
+<meta property="og:description" content="Valorant player ratings with league strength built in. In progress; ask for early access.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://flexpick.gg/val/">
+<link rel="canonical" href="https://flexpick.gg/val/">
+<meta name="theme-color" content="#0d0f12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c6f135'/%3E%3Cpath d='M9 8h14v4.4h-9.4v2.2H22l-1.7 4.3h-6.7V24H9z' fill='%230d0f12'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Coming-soon version of flexpick.gg/val: no player data, no numbers. The full page (val_src.html) is switched on with tools/build_val_site.py --full. */
+:root{color-scheme:dark;--bg:#0d0f12;--panel:#171a20;--ink:#eef0ea;--soft:#c9cdd3;--dim:#98a0ab;--line:#5b6679;--line-soft:#2a2f38;--lime:#c6f135;
+  --display:"Archivo","Arial Black",Arial,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:16px/1.5 "Archivo",system-ui,sans-serif}
+a{color:var(--ink)}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+.in{max-width:1240px;width:100%;margin:0 auto;padding-inline:24px}
+@media (max-width:560px){.in{padding-inline:16px}}
+header{border-bottom:1px solid var(--line-soft)}
+header .in{padding-block:16px;display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font:800 24px/1 var(--display);font-stretch:112%;letter-spacing:-.035em}
+.games{display:flex;gap:2px;padding:3px;border:1px solid var(--line-soft);border-radius:10px;background:var(--panel)}
+.games a{display:inline-flex;align-items:center;min-height:34px;padding:0 12px;border-radius:7px;font:600 13px "Archivo",sans-serif;color:var(--dim);text-decoration:none}
+.games a[aria-current="page"]{background:var(--lime);color:var(--bg)}
+header nav.main{display:flex;flex-wrap:wrap;gap:10px;margin-inline-start:auto}
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:8px;text-decoration:none;font-weight:700;border:1px solid var(--line);color:var(--ink);background:transparent;cursor:pointer;font:700 15px "Archivo",sans-serif}
+.btn.go{background:var(--lime);border-color:var(--lime);color:var(--bg)}
+main{flex:1;padding-block:96px 80px}
+.k{display:inline-block;margin:0 0 22px;padding:6px 12px;border:1px solid var(--lime);border-radius:999px;font:500 13px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--lime)}
+h1{margin:0;font:800 clamp(48px,8vw,84px)/.95 var(--display);font-stretch:112%;letter-spacing:-.035em}
+.lead{margin:28px 0 0;font-size:20px;color:var(--soft);max-width:640px}
+.box{margin-top:56px;max-width:760px;padding:28px;border:1px solid var(--line-soft);border-radius:16px;background:var(--panel);display:grid;gap:16px}
+.box h2{margin:0;font:800 26px/1.1 var(--display);font-stretch:112%;letter-spacing:-.035em}
+.box p{margin:0;color:var(--soft)}
+form{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+label{display:grid;gap:6px;font:500 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);flex:1 1 260px}
+input{min-height:44px;padding:0 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:16px "Archivo",sans-serif}
+.box small{color:var(--dim);font-size:14px}
+footer .in{padding-block:28px;display:flex;flex-wrap:wrap;gap:12px 20px;color:var(--dim);font-size:14px;border-top:1px solid var(--line-soft)}
+footer .legal{flex-basis:100%;font-size:12.5px}
+</style>
+</head>
+<body>
+<header>
+  <div class="in">
+    <a class="brand" href="/" aria-label="Flexpick home">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" fill="#c6f135"/><path d="M10 7h15v5H15.5v4H23v5h-7.5" fill="#0d0f12"/><path d="M10 7h5.5v13H10z" fill="#0d0f12"/><path d="M11 23.5h8l-1.6 4H9.4z" fill="#0d0f12"/></svg>
+      flexpick
+    </a>
+    <nav class="games" aria-label="Game"><a href="/lol/">LoL</a><a href="/val/" aria-current="page">Valorant</a></nav>
+    <nav class="main" aria-label="Main"><a class="btn" href="/login/">Log in</a><a class="btn go" href="#access">Early access</a></nav>
+  </div>
+</header>
+<main class="in">
+  <p class="k">Coming soon</p>
+  <h1>Flexpick for Valorant<br>is in progress.</h1>
+  <p class="lead">Player ratings across VCT, Challengers and Game Changers, with league strength built in. Built for tier 2 and 3 teams looking for the next player before the market does.</p>
+  <section class="box" id="access" aria-labelledby="accessTitle">
+    <h2 id="accessTitle">Ask for early access</h2>
+    <p>Teams and player agencies can ask now. We will write when Valorant opens.</p>
+    <form id="accessForm" action="mailto:can@flexpick.gg" method="get">
+      <label for="team">Team or organisation<input type="text" id="team" name="team" autocomplete="organization" placeholder="Team name"></label>
+      <button class="btn go" type="submit">Request early access</button>
+    </form>
+    <small>Opens your mail app. Or write to <a href="mailto:can@flexpick.gg?subject=Flexpick%20early%20access%20(Valorant)">can@flexpick.gg</a>.</small>
+  </section>
+</main>
+<footer>
+  <div class="in">
+    <span>flexpick.gg</span><a href="mailto:can@flexpick.gg">can@flexpick.gg</a><a href="https://x.com/flexpickgg" target="_blank" rel="noopener">@flexpickgg</a><span>© 2026 Flexpick</span>
+    <span class="legal">Flexpick isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games, and all associated properties are trademarks or registered trademarks of Riot Games, Inc.</span>
+  </div>
+</footer>
+<script>
+document.getElementById('accessForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var t = document.getElementById('team').value.trim();
+  location.href = 'mailto:can@flexpick.gg?subject=' + encodeURIComponent('Flexpick early access (Valorant)') + (t ? '&body=' + encodeURIComponent('Team or organisation: ' + t) : '');
+});
+</script>
+</body>
+</html>
