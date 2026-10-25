@@ -387,7 +387,15 @@ nav a.btn,nav button{white-space:nowrap}
   const num = (v,d=2) => (typeof v==='number' && isFinite(v)) ? v.toFixed(d) : '·';
   const P = window.FLEXPICK_PROFILES || {};
   const LOGO = window.FLEXPICK_LOGOS || {};
-  const M = !!D.masked;      // public build: names, teams and exact ratings are not in the data file at all
+  const M = !!D.masked;
+  // 25 Oct 2026 (Can): an age is the CURRENT age on the day the page is viewed, whole years completed, never rounded up.
+  // 'bt' = birth date (private file only), 'a' = age on the build day (fallback), 'ae' = 1 when the age is an estimate (birth date unknown).
+  const TODAY = new Date();
+  const ageOn = bt => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(bt || ''); if(!m) return null; const mo = TODAY.getMonth() + 1, dd = TODAY.getDate(); return TODAY.getFullYear() - (+m[1]) - ((mo < +m[2] || (mo === +m[2] && dd < +m[3])) ? 1 : 0); };
+  (function fixAges(o){ if(Array.isArray(o)){ o.forEach(fixAges); return; } if(!o || typeof o !== 'object') return; if(typeof o.p === 'string' && o.bt){ const a = ageOn(o.bt); if(a != null) o.a = a; } for(const k in o){ const v = o[k]; if(v && typeof v === 'object') fixAges(v); } })(D.roles);
+  const AU = p => p.a == null || p.ae == 1;      // age unknown: no birth date (an estimate may still be shown)
+  const AEST = 'birth date unknown, average age of this role in his league group';
+  const ageCell = p => p.a == null ? null : (p.ae == 1 ? `<span title="${AEST}">${p.a} est.</span>` : String(p.a));      // public build: names, teams and exact ratings are not in the data file at all
   if(!M && window.FlexpickShell) FlexpickShell.mount({game: 'lol', el: document.getElementById('gameSwitch')});      // private app only: game switcher (app/shared/shell.js)
   if(M && $('finder')) $('finder').style.display = 'none';   // names are not in the public file, so a name search can never hit
   const S = {role:'all', view:'win', region:'ERL', sort:null, dir:1, page:'home', year:D.roster_year};
@@ -399,6 +407,8 @@ nav a.btn,nav button{white-space:nowrap}
   try{ const h = location.hash.slice(1); if(h==='method') S.page='method'; else if(has(D.roles,h) || h==='all'){ S.role = h; S.page='lists'; } }catch(e){}
   const HQ = (() => { try{ const h = location.hash.slice(1); return h.includes('=') ? new URLSearchParams(h) : null; }catch(e){ return null; } })();
   let HQLG = HQ && HQ.get('lg') ? HQ.get('lg').split(',') : null; if(HQ && ['major','minor'].includes(HQ.get('t'))) $('fTier').value = HQ.get('t');
+  else if(!HQ){ try{ const v = localStorage.getItem('fp_tier'); if(v==='major' || v==='minor') $('fTier').value = v; }catch(e){} }      // 25 Oct 2026: the last League group choice survives a reload without a link (the /lol/ move dropped the old links)
+  const saveTier = () => { try{ localStorage.setItem('fp_tier', $('fTier').value); }catch(e){} };
   if(HQ && HQ.get('team')){ S.page = 'teams'; TS.team = HQ.get('team'); TS.sp = HQ.get('sp') || null; } else if(HQ){ S.page = 'lists'; const r = HQ.get('r'); if(r && (r==='all' || has(D.roles, r))) S.role = r; if(HQ.get('g')) S.region = HQ.get('g'); if(HQ.get('v')==='dev') S.view = 'dev'; if(!M && HQ.get('w')) S.watch = true; if(!M && HQ.get('m')==='scatter') S.mode = 'scatter'; }
   try{ const v=localStorage.getItem('fp_age_known'); if(v==='hide'||v==='only') $('fAgeKnown').value = v; }catch(e){}
 
@@ -434,7 +444,7 @@ nav a.btn,nav button{white-space:nowrap}
   function setLeagues(arr){ LSEL.clear(); (arr||[]).forEach(l => { if(LCOUNT[l]) LSEL.add(l); }); lgLabel(); lgPop(); }
   $('fLeagueBtn').addEventListener('click', e => { e.stopPropagation(); const p = $('fLeaguePop'); p.hidden = !p.hidden; $('fLeagueBtn').setAttribute('aria-expanded', String(!p.hidden)); if(!p.hidden) lgPop(); });
   $('fLeaguePop').addEventListener('click', e => { e.stopPropagation(); const b = e.target.closest('button[data-lq]'); if(!b) return; const q = b.dataset.lq;
-    $('fTier').value = q==='clear' ? '' : q; LSEL.clear(); lgLabel(); lgPop(); S.sort=null; render(); });
+    $('fTier').value = q==='clear' ? '' : q; saveTier(); LSEL.clear(); lgLabel(); lgPop(); S.sort=null; render(); });
   $('fLeaguePop').addEventListener('change', e => { const c = e.target; if(c.type!=='checkbox') return; if(c.checked) LSEL.add(c.value); else LSEL.delete(c.value); lgLabel(); render(); });
   $('fChance').addEventListener('change', () => { S.sort = null; render(); });
   // chance mode (Can, 23 Oct 2026): one developmental table holding major and minor ERL players ranks everyone on the chance of LEC or another top league;
@@ -442,12 +452,12 @@ nav a.btn,nav button{white-space:nowrap}
   function devTwoGroups(){ const g = reg(); return S.view==='dev' && g && g.name==='ERL' && g.devKind!=='war' && (g.dev||[]).some(p => p.dst!=null); }
   function chanceMode(){ if(!devTwoGroups()) return 'next'; const v = $('fChance').value; if(v) return v; const ls = [...LSEL]; return (ls.length ? (ls.some(l => MAJOR_ERL.has(l)) && ls.some(l => !MAJOR_ERL.has(l))) : !$('fTier').value) ? 'lec' : 'next'; }
   const bandOf = v => v==null ? null : v>=50 ? 'Strong' : v>=20 ? 'Realistic' : v>=5 ? 'Possible' : 'Long shot';
-  $('fTier').addEventListener('change', () => { [...LSEL].forEach(l => { if(!inTier(l)) LSEL.delete(l); }); lgLabel(); lgPop(); render(); });
+  $('fTier').addEventListener('change', () => { saveTier(); [...LSEL].forEach(l => { if(!inTier(l)) LSEL.delete(l); }); lgLabel(); lgPop(); render(); });
   document.addEventListener('click', e => { if(!e.target.closest('#fLeague')){ $('fLeaguePop').hidden = true; $('fLeagueBtn').setAttribute('aria-expanded','false'); } });
   document.addEventListener('keydown', e => { if(e.key==='Escape' && !$('fLeaguePop').hidden){ $('fLeaguePop').hidden = true; $('fLeagueBtn').setAttribute('aria-expanded','false'); $('fLeagueBtn').focus(); } });
   $('fCol').addEventListener('change', () => { S.sort=null; render(); });
   $('fAgeKnown').addEventListener('change', () => { try{ localStorage.setItem('fp_age_known', $('fAgeKnown').value); }catch(e){} render(); });
-  function resetFilters(){ $('fTier').value=''; $('fChance').value=''; setLeagues([]); $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fShow').value=''; $('fCol').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
+  function resetFilters(){ $('fTier').value=''; saveTier(); $('fChance').value=''; setLeagues([]); $('fCountry').value=''; $('fAge').value=''; $('fGames').value=D.min_games; $('fSearch').value=''; $('fShow').value=''; $('fCol').value=''; $('fAgeKnown').value='all'; try{ localStorage.setItem('fp_age_known','all'); }catch(e){} S.sort=null; render(); }
   // the ask box moves the table to another role, region or list; Reset filters and Clear take it back to where it was before the question
   let ASKPREV = null;
   function clearAsk(){ const A = $('askA'); A.hidden = true; A.textContent = ''; $('askQ').value = ''; $('askClr').hidden = true;
@@ -534,7 +544,7 @@ nav a.btn,nav button{white-space:nowrap}
     ];
     const key = !dev ? [{k:'cb',l:'Combined',n:1,get:p=>p.cb,key:1},{k:'rr',l:'Rank range',n:1,get:p=>p.lo,range:1,asc:1}]
       : war ? [{k:'xw',l:'Expected value',n:1,get:p=>p.xw,d:1,key:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}]
-      : [DS, CH, ...(LEC ? [{k:'ch',l:'Chance of next step',n:1,get:p=>p.ch,band:1}] : [{k:'cht',l:'Chance of top league',n:1,get:p=>p.cht,d:0}]),{k:'xw',l:'Expected value',n:1,get:p=>p.xw,d:1},{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}];
+      : [DS, CH, ...(LEC ? [{k:'ch',l:'Chance of next step',n:1,get:p=>p.ch,band:1}] : [{k:'cht',l:'Chance of top league',n:1,get:p=>p.cht,d:0}]),(LEC ? {k:'xw',l:'Expected value in LEC',n:1,get:p=>p.xw,d:1} : {k:'xn',l:'Expected value at next step',n:1,get:p=>p.xn!=null?p.xn:p.xw,d:1}),{k:'cb',l:'Combined',n:1,get:p=>p.cb,sign:1}];      // 25 Oct 2026: expected value follows the ranking mode (LEC: xw; next step: xn, the major ERL for minor ERL players)
     const rest = [
       {k:'e',l:'Elo',n:1,get:p=>p.e,sign:1},
       {k:'s',l:'Score',n:1,get:p=>p.s,sign:1},
@@ -570,9 +580,9 @@ nav a.btn,nav button{white-space:nowrap}
       if(q && !(((p.p||'')+' '+(p.t||'')+' '+(p.lt||'')).toLowerCase().includes(q))) return false;
       if(sh==='rise'){ const f = prof(p); if(!(f && f.c && f.c.trend==='Improving')) return false; } else if(sh==='rookie' && !isRookie(p)) return false; else if(sh==='fa' && !p.fa) return false; else if(sh==='chg' && !chgOf(p, g.name)) return false;
       { const fc = $('fCol').value; if(fc==='yes' && !p.col) return false; if(fc==='no' && p.col) return false; }
-      if(ak==='only' && p.a!=null) return false;
+      if(ak==='only' && !AU(p)) return false;
       if(M && !p.nm) return ak!=='only' && (isNaN(maxAge) || (p.amax!=null && p.amax<=maxAge));      // public file: a hidden player shows one detail only, so most have no age band
-      if(p.a==null){ if(!unk && !q && nat!=='__unknown'){ hiddenUnknown++; return false; } shownUnknown++; return true; }      // asking for unknown nationality shows those players even though their age is unknown too
+      if(AU(p)){ if(!unk && !q && nat!=='__unknown'){ hiddenUnknown++; return false; } shownUnknown++; return true; }      // asking for unknown nationality shows those players even though their age is unknown too
       return isNaN(maxAge) || p.a<=maxAge;
     });
     return {list, out, hiddenUnknown, shownUnknown: (isNaN(maxAge) || ak==='only') ? 0 : shownUnknown};
@@ -611,13 +621,14 @@ nav a.btn,nav button{white-space:nowrap}
         else if(c.range) t = (p.lo!=null) ? `<span class="rr">${p.lo} to ${p.hi}</span>` : '·';
         else if(c.band) t = v==null ? '·' : `<span class="band b${v>=50?3:v>=20?2:v>=5?1:0}">${esc(c.lec ? bandOf(v) : (p.bd || bandOf(v)))}${M?'':' · '+num(v,0)}</span>${!M && !c.lec && p.ns ? ` <small class="ns">→ ${esc(p.ns)}</small>` : ''}`;
         else if(c.age && p.a==null && p.ab) t = esc(p.ab);
+        else if(c.age && p.a!=null) t = ageCell(p);
         else if(c.games && p.gr) t = 'about ' + p.g;
         else if(c.n){ if(c.sign && typeof v==='number') cls += v<0?' neg':' pos'; t = (c.sign && typeof v==='number' && v>0 ? '+' : '') + num(v, c.d==null?2:c.d); }
         else if(c.flag) t = v ? flag(v) : '·';
         else if(c.res) t = v ? `<span title="Residency on Leaguepedia: ${esc(v)}">${esc(RES[v]||v)}</span>` : '·';
         else if(c.team){ const lg = LOGO[p.t]; t = (lg ? `<img class="tlogo" src="${lg}" alt="" width="18" height="18" loading="lazy">` : '') + (p.tc ? `<span title="${esc(p.t||'')}">${esc(p.tc)}</span>` : esc(p.t==null?'·':p.t)); }
         else t = esc(v==null?'·':v);
-        if(c.k==='p'){ if(p.ss) t += '<span class="chip" title="Under 20 games this season: treat the rating as a first look">small sample</span>'; if(p.col && ['LCS','NACL'].includes(S.region)) t += `<span class="chip" title="College roster on Leaguepedia: ${esc(p.col)}">college</span>`; if(p.a==null && !p.ab && !(M && !p.nm)) t += '<span class="chip">age unknown</span>'; if(M && p.nm) t += '<span class="chip" title="One named sample player per role in each league">sample</span>'; if(p.n && !dev) t += `<span class="chip" title="Not listed as a developmental prospect">${esc(NOTE[p.n]||p.n)}</span>`; }
+        if(c.k==='p'){ if(p.ss) t += '<span class="chip" title="Under 20 games this season: treat the rating as a first look">small sample</span>'; if(p.col && ['LCS','NACL'].includes(S.region)) t += `<span class="chip" title="College roster on Leaguepedia: ${esc(p.col)}">college</span>`; if(AU(p) && !(p.a==null && p.ab) && !(M && !p.nm)) t += `<span class="chip" title="${p.ae==1 ? AEST : 'birth date unknown'}">age unknown</span>`; if(M && p.nm) t += '<span class="chip" title="One named sample player per role in each league">sample</span>'; if(p.n && !dev) t += `<span class="chip" title="Not listed as a developmental prospect">${esc(NOTE[p.n]||p.n)}</span>`; }
         if(c.k==='p' && !M){ const id = pid(p), ch = S.watch ? null : chgOf(p, g.name); t = `<button type="button" class="star${isW(id)?' on':''}" data-star="${list.indexOf(p)}" aria-pressed="${isW(id)}" aria-label="${isW(id)?'Remove from':'Add to'} watchlist" title="${isW(id)?'On your watchlist':'Add to watchlist'}">${isW(id)?'★':'☆'}</button>` + t + (ch==='new' ? '<span class="chg new" title="Not on this list at the previous data update you saw">new</span>' : ch==='up' ? '<span class="chg up" title="Tier went up since the previous data update you saw">tier ▴</span>' : ch==='down' ? '<span class="chg down" title="Tier went down since the previous data update you saw">tier ▾</span>' : '') + (S.watch && WATCH[id] && WATCH[id].n ? `<span class="chip" title="${esc(WATCH[id].n)}">note</span>` : ''); }
         return `<td class="${cls}" data-l="${esc(c.l)}">${t}</td>`; }).join('') + '</tr>';
     });
@@ -655,6 +666,7 @@ nav a.btn,nav button{white-space:nowrap}
   }
   function radar(rd, label, prev, canLoad, title, pool){
     if(!rd || !rd[3] || rd[3].length<3) return '';
+    if(rd[3].every(a => a[1]==null)) return `<div><h3 class="sec">${title || `Stat profile in ${esc(rd[1])}, season ${rd[0]} (${rd[2]} games)`}</h3><p class="note">No stat profile: fewer than 6 ${esc(label==='ADC' ? label : label.toLowerCase())} players had 20+ games in ${esc(rd[1])} in ${rd[0]}, too few to rank him against his league.</p></div>`;      // 25 Oct 2026: was an empty radar with every axis at the centre
     const ax=rd[3], n=ax.length, W=620, H=300, cx=W/2, cy=150, Rr=104;
     const pt=(i,f)=>{ const a=-Math.PI/2+i*2*Math.PI/n; return [cx+Math.cos(a)*Rr*f, cy+Math.sin(a)*Rr*f]; };
     const ring=f=>ax.map((_,i)=>pt(i,f).map(v=>v.toFixed(1)).join(',')).join(' ');
@@ -662,16 +674,16 @@ nav a.btn,nav button{white-space:nowrap}
     const pv = lab => { if(!prev || !prev[3]) return null; const z = prev[3].find(q => q[0]===lab); return z && z[1]!=null ? z[1] : null; }, nMatch = ax.filter(a => pv(a[0])!=null).length;
     const spokes=ax.map((a,i)=>{ const [x,y]=pt(i,1), [lx,ly]=pt(i,1.16); const anc=Math.abs(lx-cx)<12?'middle':lx>cx?'start':'end'; const w = pv(a[0]); return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"/><text x="${lx.toFixed(1)}" y="${(ly+3).toFixed(1)}" text-anchor="${anc}">${esc(a[0])} <tspan class="v">${a[1]==null?'·':a[1]}</tspan>${w!=null&&nMatch>=3?` <tspan>(${w})</tspan>`:''}</text>`; }).join('');
     const ppoly = nMatch>=3 ? `<polygon points="${ax.map((a,i)=>pt(i,(pv(a[0])==null?50:pv(a[0]))/100).map(v=>v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#4ea3ff" stroke-width="1.6" stroke-dasharray="5 4"/>` : '';
-    return `<div><h3 class="sec">${title || `Stat profile in ${esc(rd[1])}, season ${rd[0]} (${rd[2]} games)`}</h3><svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Percentile of ${n} stats against ${esc(label.toLowerCase())} players of his league">
+    return `<div><h3 class="sec">${title || `Stat profile in ${esc(rd[1])}, season ${rd[0]} (${rd[2]} games)`}</h3><svg class="viz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Percentile of ${n} stats against ${esc(label==='ADC' ? label : label.toLowerCase())} players of his league">
       <polygon points="${ring(1)}" fill="none" stroke="var(--line)"/><polygon points="${ring(.5)}" fill="none" stroke="var(--dim)" stroke-dasharray="3 4"/>${spokes}
       ${ppoly}<polygon points="${poly}" fill="var(--lime)" fill-opacity=".28" stroke="var(--accent-text)" stroke-width="2"/></svg>
       ${nMatch>=3 ? `<p class="note"><span class="dot" style="background:#4ea3ff"></span>Dashed blue line and numbers in brackets: ${esc(prev[1])} ${prev[0]} (${prev[2]} games), each against that season's league.</p>` : canLoad ? '<p class="note"><button type="button" class="btn" id="lastSeason" style="padding:4px 10px;font-size:12px">Show last season on this chart</button></p>' : ''}
-      <p class="note"><b>Pool:</b> ${pool || `${esc(rd[1])} ${esc(label.toLowerCase())} players with 20+ games in ${rd[0]}`}. Each number is his percentile among them (100 = best, dashed ring = league median). Stats are champion adjusted. Only stats that repeat between two halves of a season and follow a player to a new team are shown.</p></div>`;
+      <p class="note"><b>Pool:</b> ${pool || `${esc(rd[1])} ${esc(label==='ADC' ? label : label.toLowerCase())} players with 20+ games in ${rd[0]}`}. Each number is his percentile among them (100 = best, dashed ring = league median). Stats are champion adjusted. Only stats that repeat between two halves of a season and follow a player to a new team are shown.</p></div>`;
   }
   // Rookie (Can, 18 Oct 2026, after the Bulldog meeting): 19 or under, or fewer than 4 splits played and none of them in a major ERL (PRM, LFL, TCL, LES) or a top league. A split = a ranked split in his history (8+ games).
   const TOPLG = new Set(['LEC','LCS','LCK','LPL','LCP','CBLOL','LCKC','NACL','LTA','PCS','VCS','LJL','LLA','LCO']);
   function isRookie(p){
-    if(p.a!=null && p.a <= 19) return true;
+    if(!AU(p) && p.a <= 19) return true;
     const f = prof(p), ss = (f && f.s) || [], ys = (f && f.y) || [];
     if(!ss.length && !ys.length) return false;
     if(ss.some(x => MAJOR_ERL.has(x[2]) || TOPLG.has(x[2])) || ys.some(y => MAJOR_ERL.has(y[1]) || TOPLG.has(y[1]))) return false;
@@ -691,9 +703,9 @@ nav a.btn,nav button{white-space:nowrap}
     const x = (pf.s||[]).find(z => z[7]===key); if(!x){ box.innerHTML = ''; return; }
     const base = String(key).split('|')[0], sr = pf.sr && (pf.sr[key] || (pf.sr[base] && pf.sr[base][0]===x[2] ? pf.sr[base] : null));
     const wins = sr && sr[2]!=null ? `${sr[2]}-${sr[1]-sr[2]}` : '·';
-    const tiles = [[`${x[0]} ${x[1]}`, `${esc(x[2])}<small>league</small>`], ['Record', `${wins}<small>${x[3]} games in the split</small>`], ['Split rating', `${num(x[4])}<small>z across all leagues that split window (0 = average ranked player)</small>`], ['In '+esc(x[2]), x[5]!=null ? `#${x[5]} of ${x[6]}<small>${esc(label.toLowerCase())} players ranked in his league that split</small>` : '·<small>not ranked (under 8 games)</small>']];
+    const tiles = [[`${x[0]} ${x[1]}`, `${esc(x[2])}<small>league</small>`], ['Record', `${wins}<small>${x[3]} games in the split</small>`], ['Split rating', `${num(x[4])}<small>z across all leagues that split window (0 = average ranked player)</small>`], ['In '+esc(x[2]), x[5]!=null ? `#${x[5]} of ${x[6]}<small>${esc(label==='ADC' ? label : label.toLowerCase())} players ranked in his league that split</small>` : '·<small>not ranked (under 8 games)</small>']];
     box.innerHTML = `<dl class="big">${tiles.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>` +
-      (sr && sr[4] && sr[4].some(a => a[1]!=null) ? radar([x[0], sr[0], sr[1], sr[4]], label, null, false, `Stat profile in ${esc(sr[0])}, ${x[0]} ${esc(sr[3])} (${sr[1]} games)`, `${esc(sr[0])} ${esc(label.toLowerCase())} players with 8+ games in that split`) : (pf.sr ? '<p class="note">No stat profile for this split (under 6 ranked players in his league that split).</p>' : '<p class="note">Stat profiles by split are kept for the last two seasons only.</p>'));
+      (sr && sr[4] && sr[4].some(a => a[1]!=null) ? radar([x[0], sr[0], sr[1], sr[4]], label, null, false, `Stat profile in ${esc(sr[0])}, ${x[0]} ${esc(sr[3])} (${sr[1]} games)`, `${esc(sr[0])} ${esc(label==='ADC' ? label : label.toLowerCase())} players with 8+ games in that split`) : (pf.sr ? '<p class="note">No stat profile for this split (under 6 ranked players in his league that split).</p>' : '<p class="note">Stat profiles by split are kept for the last two seasons only.</p>'));
   }
   function similar(sm){
     if(!sm || !sm[1] || !sm[1].length) return '';
@@ -715,7 +727,7 @@ nav a.btn,nav button{white-space:nowrap}
     const past = isPast(), Y = past ? S.year : D.roster_year, SY = Y - 1;
     const other = (dev?g.win:g.dev).find(x=>x.p===p.p && x.t===p.t && x.l===p.l);
     const win = dev?other:p, dv = dev?p:other;
-    const kv = past ? [['Team, most games '+SY,p.t],['Age mid-'+Y,p.a==null?'Unknown: the age rule could not be checked':p.a],['Residency (today)',p.r||'Unknown'],['Country',p.c||'Unknown'],['Win rate '+SY,p.w==null?'·':p.w+'%']] : [['Team, most games',p.t],['Latest team',p.lt],['Current team (Leaguepedia, '+fmtDate(D.lp_players_date||D.data_cutoff)+')', p.ct || (p.fa ? 'None listed: free agent' : 'Unknown')],['Age mid-'+D.roster_year,p.a==null?'Unknown: the age rule could not be checked':p.a],['Residency',p.r||'Unknown'],['Country',p.c||'Unknown'],
+    const kv = past ? [['Team, most games '+SY,p.t],['Age in roster year '+Y,p.a==null?'Unknown: the age rule could not be checked':p.a],['Residency (today)',p.r||'Unknown'],['Country',p.c||'Unknown'],['Win rate '+SY,p.w==null?'·':p.w+'%']] : [['Team, most games',p.t],['Latest team',p.lt],['Current team (Leaguepedia, '+fmtDate(D.lp_players_date||D.data_cutoff)+')', p.ct || (p.fa ? 'None listed: free agent' : 'Unknown')],['Age today',p.a==null?'Unknown: the age rule could not be checked':(p.ae==1?p.a+' est. ('+AEST+')':p.a)],['Residency',p.r||'Unknown'],['Country',p.c||'Unknown'],
       ['Win rate',p.w==null?'·':p.w+'%'],['Other leagues '+D.season,p.o||'None'],...(p.col ? [['College (Leaguepedia rosters)',p.col]] : (!M && reg() && ['LCS','NACL'].includes(reg().name) ? [['College (Leaguepedia rosters)','None found. A roster listing is not proof of games played, and an empty line does not prove he never played college.']] : [])),...(p.cls?[['Playstyle',p.cls]]:[]),...(p.n?[['Prospect status','Not listed as a developmental prospect ('+(NOTE[p.n]||p.n)+'). A split is one league split with 3 or more games played, not a year.']]:[])];
     const pf = past ? pastProf(p, SY) : (p.k ? P[role+'|'+p.k] : null), pc = (pf && pf.c) || {};
     const chips = [['Playstyle',pc.style||p.cls],['Tag',pc.tag],['Confidence',pc.conf],['Trend',pc.trend]].filter(x=>x[1]).map(x=>`<span><b>${esc(x[0])}</b> ${esc(x[1])}</span>`).join('');
@@ -841,7 +853,7 @@ nav a.btn,nav button{white-space:nowrap}
     return prev ? {prev, pcut:(st && st.cut !== D.data_cutoff) ? st.cut : (st && st.pcut)} : null; })();
   function chgOf(p, gname){ if(!CHG || isPast()) return null; const k = pid(p) + '@' + gname, was = CHG.prev[k]; if(was==null) return 'new'; if(S.view==='dev') return null; if(p.ti < was) return 'up'; if(p.ti > was) return 'down'; return null; }
   // ---- glossary
-  const GL = {'Chance of LEC':'Used when one developmental table holds both major and minor ERL players (23 Oct 2026). Major ERL players: their chance of the next step (LEC or another top league). Minor ERL players: their chance of a top league (LCK, LPL, LEC or LCS) within two seasons, instead of the chance of a major ERL. One scale, so a likely LEC player is not ranked below a likely Prime League player.', 'Dev score (LEC)':'The Developmental score with Chance of LEC in its chance half: half Chance of LEC, half expected value at the next step. Used on mixed major and minor ERL tables.', 'Free agents':'Players Leaguepedia lists with no current team and not retired, as of the date of its player table (shown on the player sheet). Leaguepedia lags real moves by days to weeks and most ERL contracts run to mid-November, so in the offseason read it as "nothing announced yet".', 'Rookies':'19 or under, or fewer than 4 splits played and none in a major ERL (PRM, LFL, TCL, LES) or a top league. Second divisions count as minor. A split = a ranked split in his history (8+ games).', 'Combined':'The win now rating: half career head-to-head Elo, half stat Score. One scale across leagues; LEC average is about 0.', 'Rank range':'Where he could sit on this list given how far ratings usually move in a season (8 in 10).', 'Tier':'Players in the same tier cannot be separated by the data.', 'Elo':'Career head-to-head result against the players he actually faced in his role.', 'Score':'In-league rating plus league level.', 'In league':'How far above the average player of his own league, in standard deviations, from matchup-adjusted stats.', 'Lg level':'Strength of his league against LEC = 0, in the same units.', 'Dev score':'Developmental score: half Chance, half Expected value. Prospects only.', 'Chance':'A band, not a personal probability: how often similar past prospects played 10+ top league games within two seasons.', 'Expected value':'Forecast rating next season in win-equivalents per 100 games above a real second-choice player. A scale, not a measured contribution.', 'Res':'Residency as recorded on Leaguepedia; nationality is not residency.', 'Style':'Playstyle class from his habits, compared with his league.', 'Tag':'Champion pool or habit tag.', 'Games':'Games in his main league this season. Under 20 games is a small sample.', 'Age':'Age in the middle of the roster year.', '# in role':'Order inside his role on this list. Read it with the tier.', 'Next season':'Where he played the season after (backtest only).', 'Top league':'First season with 10+ games in LCK, LPL, LEC or LCS (backtest only).'};
+  const GL = {'Chance of LEC':'Used when one developmental table holds both major and minor ERL players (23 Oct 2026). Major ERL players: their chance of the next step (LEC or another top league). Minor ERL players: their chance of a top league (LCK, LPL, LEC or LCS) within two seasons, instead of the chance of a major ERL. One scale, so a likely LEC player is not ranked below a likely Prime League player.', 'Dev score (LEC)':'The Developmental score with Chance of LEC in its chance half: half Chance of LEC, half expected value at the next step. Used on mixed major and minor ERL tables.', 'Free agents':'Players Leaguepedia lists with no current team and not retired, as of the date of its player table (shown on the player sheet). Leaguepedia lags real moves by days to weeks and most ERL contracts run to mid-November, so in the offseason read it as "nothing announced yet".', 'Rookies':'19 or under, or fewer than 4 splits played and none in a major ERL (PRM, LFL, TCL, LES) or a top league. Second divisions count as minor. A split = a ranked split in his history (8+ games).', 'Combined':'The win now rating: half career head-to-head Elo, half stat Score. One scale across leagues; LEC average is about 0.', 'Rank range':'Where he could sit on this list given how far ratings usually move in a season (8 in 10).', 'Tier':'Players in the same tier cannot be separated by the data.', 'Elo':'Career head-to-head result against the players he actually faced in his role.', 'Score':'In-league rating plus league level.', 'In league':'How far above the average player of his own league, in standard deviations, from matchup-adjusted stats.', 'Lg level':'Strength of his league against LEC = 0, in the same units.', 'Dev score':'Developmental score: half Chance, half Expected value. Prospects only.', 'Chance':'A band, not a personal probability: how often similar past prospects played 10+ top league games within two seasons.', 'Expected value':'Forecast rating next season in win-equivalents per 100 games above a real second-choice player. A scale, not a measured contribution.', 'Expected value in LEC':'Forecast rating if he played in LEC next season, in win-equivalents per 100 games above a real second-choice player. A scale, not a measured contribution.', 'Expected value at next step':'Forecast rating at his next step (a major ERL for minor ERL players, LEC for major ERL players), in win-equivalents per 100 games above a real second-choice player. A scale, not a measured contribution.', 'Res':'Residency as recorded on Leaguepedia; nationality is not residency.', 'Style':'Playstyle class from his habits, compared with his league.', 'Tag':'Champion pool or habit tag.', 'Games':'Games in his main league this season. Under 20 games is a small sample.', 'Age':'Age today, in whole years from the birth date. "est." means the birth date is unknown and the age is the average of his role in his league group.', '# in role':'Order inside his role on this list. Read it with the tier.', 'Next season':'Where he played the season after (backtest only).', 'Top league':'First season with 10+ games in LCK, LPL, LEC or LCS (backtest only).'};
   function glossary(){ $('dlg').classList.remove('wide'); $('card').innerHTML = `<div class="top"><div><h2 id="cardName">Glossary</h2><p class="sub">What each number on this page means.</p></div><button type="button" class="x" id="closeCard">Close</button></div><dl class="kv gl">${Object.entries(GL).map(([a,b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl><p class="note">Every list shows tiers and rank ranges because neighbours on a list are rarely a real difference. LPL is not rated. No contract, salary or solo queue data.</p>`; $('closeCard').onclick = () => $('dlg').close(); $('dlg').showModal(); }
   // ---- share links: the view, the open player and the compare set live in the address
   let CUR = null, CMPOPEN = false;
@@ -894,7 +906,7 @@ nav a.btn,nav button{white-space:nowrap}
     const rowsDef = [
       ['Role · season', e => esc(D.roles[e.role].label) + ' · ' + (e.x.y===LIVE ? LIVE+' live' : e.x.y+' backtest')],
       ['League · team', e => esc(e.p.l) + ' · ' + esc(e.p.t||'')],
-      ['Age', e => e.p.a==null ? 'unknown' : e.p.a, e => e.p.a, 0],
+      ['Age', e => e.p.a==null ? 'unknown' : (e.p.ae==1 ? e.p.a+' est.' : e.p.a), e => e.p.ae==1 ? null : e.p.a, 0],
       ['Games', e => e.p.g + (e.p.g<20 ? ' <span class="chip">small sample</span>' : ''), e => e.p.g, 1],
       ['Win now tier', e => e.win ? 'tier '+e.win.ti : '·', e => e.win ? -e.win.ti : null, 1],
       ['Rank range', e => e.win && e.win.lo!=null ? `${e.win.lo} to ${e.win.hi} <small>in ${esc(e.g.name)}</small>` : '·'],
@@ -919,7 +931,7 @@ nav a.btn,nav button{white-space:nowrap}
     if(sameRole){ const ax = (E[0].pf && E[0].pf.rd) ? E[0].pf.rd[3].map(a => a[0]) : []; const gaps = [];
       ax.forEach(lab => { const v = E.map(e => { const a = e.pf && e.pf.rd && e.pf.rd[3].find(z => z[0]===lab); return a ? a[1] : null; }); if(v.every(z => z!=null)){ const mx = Math.max(...v), mn = Math.min(...v); if(mx - mn >= 30) gaps.push({lab, hi:E[v.indexOf(mx)], lo:E[v.indexOf(mn)], d:mx-mn}); } });
       gaps.sort((a,b) => b.d - a.d).slice(0,3).forEach(gp => tk.push(`${esc(gp.lab)}: ${esc(gp.hi.p.p)} is ${gp.d} percentile points above ${esc(gp.lo.p.p)} within their own leagues.`)); }
-    const ages = E.filter(e => e.p.a!=null); if(ages.length>=2){ const y = ages.reduce((a,b) => b.p.a<a.p.a ? b : a), o = ages.reduce((a,b) => b.p.a>a.p.a ? b : a); if(o.p.a - y.p.a >= 3) tk.push(`${esc(y.p.p)} is ${o.p.a - y.p.a} years younger than ${esc(o.p.p)}.`); }
+    const ages = E.filter(e => !AU(e.p)); if(ages.length>=2){ const y = ages.reduce((a,b) => b.p.a<a.p.a ? b : a), o = ages.reduce((a,b) => b.p.a>a.p.a ? b : a); if(o.p.a - y.p.a >= 3) tk.push(`${esc(y.p.p)} is ${o.p.a - y.p.a} years younger than ${esc(o.p.p)}.`); }
     // overlaid radar (same role only) and split history
     let rad = ''; if(sameRole && E.every(e => e.pf && e.pf.rd)){ const ax = E[0].pf.rd[3].map(a => a[0]).filter(lab => E.every(e => e.pf.rd[3].some(z => z[0]===lab))); if(ax.length>=3){ const n = ax.length, W = 620, H = 310, cx = W/2, cy = 155, Rr = 104, pt = (i,f) => { const a = -Math.PI/2 + i*2*Math.PI/n; return [cx + Math.cos(a)*Rr*f, cy + Math.sin(a)*Rr*f]; }, ring = f => ax.map((_,i) => pt(i,f).map(v => v.toFixed(1)).join(',')).join(' ');
       const spokes = ax.map((lab,i) => { const [x,y] = pt(i,1), [lx,ly] = pt(i,1.17); const anc = Math.abs(lx-cx)<12 ? 'middle' : lx>cx ? 'start' : 'end'; return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)"/><text x="${lx.toFixed(1)}" y="${(ly+3).toFixed(1)}" text-anchor="${anc}">${esc(lab)}</text>`; }).join('');
@@ -1086,7 +1098,7 @@ nav a.btn,nav button{white-space:nowrap}
     const SL = homeSlides(); if(!SL.length) return; homeI = ((homeI % SL.length) + SL.length) % SL.length; const {rk, R, g, kind} = SL[homeI], dev = kind==='dev';
     const list = (M && g.home) ? g.home[kind].map((p,i)=>Object.assign({rk:i+1}, p)) : (dev ? g.dev : g.win).filter(p=>!(M && p.nm)).slice(0,5), val = p => M ? 100 - (p.rk-1)*9 : (dev ? p.ds : p.cb), mx = Math.max(...list.map(val), 0.01), mn = (dev || M) ? 0 : Math.min(0, ...g.win.slice(0,60).map(p=>p.cb));
     $('homeSample').innerHTML = `<div class="hd"><h3>${esc(R.label)} shortlist, ${esc(g.name)}, ${dev?'developmental':'win now'}</h3><span class="meta">${(dev?g.dev:g.win).length} players · min ${D.min_games} games · patches ${esc(D.patches)} · data to ${fmtDate(D.data_cutoff)}</span></div>`
-      + list.map(p=>`<div class="srow${M?'':' go'}"${M?'':` data-hi="${(dev?g.dev:g.win).indexOf(p)}" tabindex="0" role="button" aria-label="Open ${esc(p.p||'')}"`}><span class="i">${String(p.rk).padStart(2,'0')}</span><span class="nm">${esc(p.p||'Name hidden')}<small>${M ? (p.nm ? esc(p.l)+' · named sample' : esc(p.l || p.c || (p.ab ? 'age '+p.ab : '') || p.st || p.tg || '')) : esc(p.l)+' · '+p.g+' games'+(p.a!=null?' · age '+p.a:' · age unknown')}</small></span><span class="tr"><i style="width:${Math.max(4,Math.round(100*(val(p)-mn)/(mx-mn)))}%"></i></span><span class="val">${(M&&p.nm)?'·<small>numbers hidden</small>':`${M?'tier '+p.ti:(dev?num(p.ds,0):num(p.cb))}<small>${dev?((M?'':'tier '+p.ti+' · ')+(p.bd?esc(p.bd).toLowerCase():'')):((M?'':'tier '+p.ti+' · ')+p.lo+' to '+p.hi)}</small>`}</span></div>`).join('')
+      + list.map(p=>`<div class="srow${M?'':' go'}"${M?'':` data-hi="${(dev?g.dev:g.win).indexOf(p)}" tabindex="0" role="button" aria-label="Open ${esc(p.p||'')}"`}><span class="i">${String(p.rk).padStart(2,'0')}</span><span class="nm">${esc(p.p||'Name hidden')}<small>${M ? (p.nm ? esc(p.l)+' · named sample' : esc(p.l || p.c || (p.ab ? 'age '+p.ab : '') || p.st || p.tg || '')) : esc(p.l)+' · '+p.g+' games'+(p.a!=null?' · age '+(p.ae==1?p.a+' est.':p.a):' · age unknown')}</small></span><span class="tr"><i style="width:${Math.max(4,Math.round(100*(val(p)-mn)/(mx-mn)))}%"></i></span><span class="val">${(M&&p.nm)?'·<small>numbers hidden</small>':`${M?'tier '+p.ti:(dev?num(p.ds,0):num(p.cb))}<small>${dev?((M?'':'tier '+p.ti+' · ')+(p.bd?esc(p.bd).toLowerCase():'')):((M?'':'tier '+p.ti+' · ')+p.lo+' to '+p.hi)}</small>`}</span></div>`).join('')
       + `<div class="dots" role="group" aria-label="Choose a sample list">${SL.map((x,i)=>`<button type="button" data-i="${i}" aria-pressed="${i===homeI}" title="${esc(x.R.label)} ${x.kind==='dev'?'developmental':'win now'}"></button>`).join('')}</div>`
       + `<p class="note">${M?'The real top five of this list. Names are hidden; where a name is shown, his numbers are hidden. ':'Live from the current build. '}${M?'':dev?'The right column is the Developmental score, the tier and the Chance of next step band.':'The right column is the Combined rating, the tier, and where he could sit on this list next season.'} ${M?'Open the shortlists to filter every role and region.':'Open the shortlists for every role, region and player profile.'}</p>`;
   }
@@ -1106,7 +1118,7 @@ nav a.btn,nav button{white-space:nowrap}
   }
   // ---------- Ask the data: three lookup functions over the lists (used by the no-AI question reader below) ----------
   const ROLEKEY = {top:'top', jungle:'jng', jng:'jng', mid:'mid', adc:'bot', bot:'bot', support:'sup', sup:'sup'};
-  const qRow = (role, g, p, dev) => { const f = (p.k && P[role+'|'+p.k]) || {}, c = f.c || {}; const o = {player:p.p, role:D.roles[role].label, league:p.l, team:p.t, age_in_roster_year:p.a==null?(p.ab||'unknown'):p.a, nationality:p.c||'unknown', residency:p.r||'unknown', games:p.g, tier:p.ti}; if(p.gr) o.games_rounded = true; if(p.nm) o.sample = true;
+  const qRow = (role, g, p, dev) => { const f = (p.k && P[role+'|'+p.k]) || {}, c = f.c || {}; const o = {player:p.p, role:D.roles[role].label, league:p.l, team:p.t, age:p.a==null?(p.ab||'unknown'):(p.ae==1?p.a+' est.':p.a), nationality:p.c||'unknown', residency:p.r||'unknown', games:p.g, tier:p.ti}; if(p.gr) o.games_rounded = true; if(p.nm) o.sample = true;
     if(dev){ o.list = 'developmental'; if(p.bd) o.chance_band = p.bd; if(p.ds!=null) o.developmental_score = p.ds; } else { o.list = 'win now'; o.rank_range = p.lo+' to '+p.hi; o.combined = p.cb; if(p.n) o.not_a_prospect_because = NOTE[p.n]||p.n; }
     o.in_league_rating = p.wi; o.league_level_vs_LEC = p.lv; if(c.style||p.cls||p.st) o.playstyle = c.style||p.cls||p.st; if(c.tag||p.tg) o.tag = c.tag||p.tg; if(p.ss) o.small_sample = true; return o; };
   const qTools = [
@@ -1134,7 +1146,7 @@ nav a.btn,nav button{white-space:nowrap}
 - Use only what the functions return. Never add stats, ranks, salaries, contracts or opinions from your own knowledge. If the functions do not hold the answer, say so in one sentence.
 - Never state an exact rank. Give the tier and the rank range (win now) or the tier and chance band (developmental). Always give games played. Mention "small sample" when it is flagged and "age unknown" when it is.
 - Players in the same tier cannot be separated by the data; say so when comparing two of them.
-- Roster year is ${D.roster_year}; ages are the age in that year. Data to ${D.data_cutoff}, patches ${D.patches}.
+- Roster year is ${D.roster_year}; ages are current ages on the day the page is viewed (whole years). Data to ${D.data_cutoff}, patches ${D.patches}.
 - The evidence is a retrospective simulation, not a live track record. There is no salary or budget data.
 - Answer in plain text, short: at most 8 lines or 8 players, one line per player. No markdown symbols, no long dashes.`;
   // ---------- Ask the data, no AI: the question is read as filters and answered from the three page functions above ----------
@@ -1168,7 +1180,7 @@ nav a.btn,nav button{white-space:nowrap}
     return out;
   }
   const hid = p => p.player || 'Name hidden';
-  const line = o => `${hid(o)}${(d => d ? ' ('+d+')' : '')([o.league, o.team||null, o.age_in_roster_year==='unknown'?(M && !o.player ? null : 'age unknown'):'age '+o.age_in_roster_year, o.nationality==='unknown'?null:o.nationality].filter(Boolean).join(', '))} · ${o.sample ? 'named sample, numbers hidden' : 'tier '+o.tier+(o.list==='win now' ? ' · rank range '+o.rank_range : (o.chance_band ? ' · chance band '+String(o.chance_band).toLowerCase() : ''))}${o.games!=null ? ' · '+(o.games_rounded?'about ':'')+o.games+' games' : ''}${o.playstyle?' · style '+o.playstyle:''}${o.tag?' · tag '+o.tag:''}${o.small_sample?' · small sample':''}`;
+  const line = o => `${hid(o)}${(d => d ? ' ('+d+')' : '')([o.league, o.team||null, o.age==='unknown'?(M && !o.player ? null : 'age unknown'):'age '+o.age, o.nationality==='unknown'?null:o.nationality].filter(Boolean).join(', '))} · ${o.sample ? 'named sample, numbers hidden' : 'tier '+o.tier+(o.list==='win now' ? ' · rank range '+o.rank_range : (o.chance_band ? ' · chance band '+String(o.chance_band).toLowerCase() : ''))}${o.games!=null ? ' · '+(o.games_rounded?'about ':'')+o.games+' games' : ''}${o.playstyle?' · style '+o.playstyle:''}${o.tag?' · tag '+o.tag:''}${o.small_sample?' · small sample':''}`;
   function answer(q){
     const f = readQuestion(q), lp = qTools[0].execute, fp = qTools[1].execute, ab = qTools[2].execute;
     const filtered = f.role || f.region || f.nationality || f.max_age!=null || f.min_games!=null || f.style || f.kind;
