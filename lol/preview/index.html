@@ -731,6 +731,7 @@ nav a.btn,nav button{white-space:nowrap}
       ['Win rate',p.w==null?'·':p.w+'%'],['Other leagues '+D.season,p.o||'None'],...(p.col ? [['College (Leaguepedia rosters)',p.col]] : (!M && reg() && ['LCS','NACL'].includes(reg().name) ? [['College (Leaguepedia rosters)','None found. A roster listing is not proof of games played, and an empty line does not prove he never played college.']] : [])),...(p.cls?[['Playstyle',p.cls]]:[]),...(p.n?[['Prospect status','Not listed as a developmental prospect ('+(NOTE[p.n]||p.n)+'). A split is one league split with 3 or more games played, not a year.']]:[])];
     const pf = past ? pastProf(p, SY) : (p.k ? P[role+'|'+p.k] : null), pc = (pf && pf.c) || {};
     const chips = [['Playstyle',pc.style||p.cls],['Tag',pc.tag],['Confidence',pc.conf],['Trend',pc.trend]].filter(x=>x[1]).map(x=>`<span><b>${esc(x[0])}</b> ${esc(x[1])}</span>`).join('');
+    if(!past && pf && pf.s){ const ls = pf.s.filter(x => x[0]===D.season).slice(-1)[0]; if(ls){ const ord = n => n + (([11,12,13].includes(n % 100)) ? 'th' : ({1:'st',2:'nd',3:'rd'})[n % 10] || 'th'); kv.push(['Last split', `${esc(String(ls[1]).replace(/ Split$/,''))} ${ls[0]}, ${esc(ls[2])}: ` + (ls[5]!=null ? `${ord(ls[5])} of ${ls[6]}` : 'not ranked (under 8 games)') + ` · ${ls[3]} games`]); } }      // 25 Oct 2026
     if(pc.next!=null) kv.push(['Expected next season', `Combined ${num(pc.next)} plus or minus ${num(pc.pm)}` + (pc.why ? ` (${pc.why})` : '')]);
     const tiles = [
       ['Win now', win ? (past ? `#${win.rk}<small>tier ${win.ti}</small>` : `#${win.rk}<small>could be ${win.lo} to ${win.hi} · tier ${win.ti}</small>`) : '·'],
@@ -742,7 +743,9 @@ nav a.btn,nav button{white-space:nowrap}
     // rank among players of his role in his league, and among players of his nationality (all regions), by Combined
     const rankIn = arr => { const v = arr.filter(x => typeof x.cb==='number'); return {r:1+v.filter(x => x.cb>p.cb).length, n:v.length}; };
     const lgR = rankIn(g.win.filter(x => x.l===p.l)), seenK = {}, allRole = []; roleRegs(role).forEach(rg => rg.win.forEach(x => { const id = x.k||(x.p+'|'+x.t); if(!seenK[id]){ seenK[id]=1; allRole.push(x); } }));
-    tiles.push(['In '+p.l, `#${lgR.r} of ${lgR.n}<small>${esc(R.label.toLowerCase())} players in his league</small>`]);
+    if(!past && p.lr!=null) tiles.push(['In '+p.l, `#${p.lr} of ${p.ln}<small>${esc(R.label==='ADC' ? 'ADC' : R.label.toLowerCase())} players with 15+ games there this season${p.lm ? `, ${p.lm} since moved` : ''}</small>`]);      // 25 Oct 2026: fair place, every player of the role with 15+ games in that league this season (export_demo lr/ln/lm)
+    else tiles.push(['In '+p.l, `#${lgR.r} of ${lgR.n}<small>${esc(R.label.toLowerCase())} players in his league</small>`]);
+    if(!past && p.wk!=null && p.wn) tiles.push(['World, '+R.label.toLowerCase(), `top ${Math.max(1, Math.round(100 * p.wk / p.wn))}%<small>of ${p.wn} listed ${esc(R.label==='ADC' ? 'ADC' : R.label.toLowerCase())} players, all regions</small>`]);
     if(p.c){ const nR = rankIn(allRole.filter(x => x.c===p.c)); tiles.push([p.c, `#${nR.r} of ${nR.n}<small>${esc(R.label.toLowerCase())} players of his nationality, all regions</small>`]); } else tiles.push(['Nationality', '·<small>unknown, no nation rank</small>']);
     $('card').innerHTML = `
       <div class="printhead">Flexpick player sheet · private, do not forward · data to ${fmtDate(D.data_cutoff)} · printed ${new Date().toLocaleDateString('en-GB')}</div>
@@ -794,7 +797,8 @@ nav a.btn,nav button{white-space:nowrap}
     const MT = (window['FLEXPICK_REPORTS_'+role] || {})._meta, V = s.v || {};
     const fv = (k, v) => { if(v==null) return '·'; if(typeof v==='string') return esc(v); const mm = MT.m[k] || ['',0,'',0]; return (mm[3] && v>0 ? '+' : '') + v.toFixed(mm[1]) + mm[2]; };
     const pk = k => k==='kpe' ? 'kp_early' : k==='kpl' ? 'kp_late' : (k==='kda' || k==='kdaline') ? null : (MT.pa && MT.pa[k]) || 'm_'+k;
-    const m = (label, val, key, hint) => { const pc = key && s.pct && s.pct[key]; return `<div class="m"${hint?` title="${esc(hint)}"`:''}><span>${esc(label)}${hint?' <small class="hint">ⓘ</small>':''}</span><span class="v">${val}</span><div class="pb">${pc!=null?`<i style="width:${pc}%"></i>`:''}</div><span class="pc">${pc!=null?pc:''}</span></div>`; };
+    const NEU = new Set(Object.entries(MT.m || {}).filter(([k, v]) => v[4]===0).map(([k]) => pk(k)).filter(Boolean));      // 25 Oct 2026: stats that are neither good nor bad (direction 0, e.g. damage taken / min) get a grey bar
+    const m = (label, val, key, hint) => { const pc = key && s.pct && s.pct[key]; const nu = key && NEU.has(key); if(nu) hint = (hint ? hint + ' ' : '') + 'Neither good nor bad: the percentile only says how much.'; return `<div class="m"${hint?` title="${esc(hint)}"`:''}><span>${esc(label)}${hint?' <small class="hint">ⓘ</small>':''}</span><span class="v">${val}</span><div class="pb">${pc!=null?`<i style="width:${pc}%${nu?';background:var(--dim)':''}"></i>`:''}</div><span class="pc">${pc!=null?pc:''}</span></div>`; };
     const rows = list => list.map(([k, label, hint]) => k==='kpx' ? (V.kpe!=null ? m('Kill participation by 15 min', fv('kpe', V.kpe), 'kp_early') + m('Kill participation after 15 min', fv('kpl', V.kpl), 'kp_late') : m('Kill participation', fv('kp', V.kp), 'kp')) : m(label, fv(k, V[k]), pk(k), hint)).join('');
     const ch = k => esc(MT.m[k] ? MT.m[k][0] : k);
     const career = `<div class="tb"><table><thead><tr><th>Season</th><th>League</th><th>Team</th><th class="n">Games</th><th class="n">Record</th><th class="n">Combined</th>${MT.career.map(k => `<th class="n">${ch(k)}</th>`).join('')}<th class="n">Champions</th></tr></thead><tbody>${ss.map(x => `<tr class="${x.y===s.y?'focus':''}"><td>${x.y}</td><td>${esc(x.lg)}</td><td>${esc(x.t)}</td><td class="n">${x.rec[0]}</td><td class="n">${wl(x.rec)}</td><td class="n">${x.cb==null?'·':(x.cb>0?'+':'')+x.cb.toFixed(2)}</td>${MT.career.map(k => `<td class="n">${fv(k, (x.v||{})[k])}</td>`).join('')}<td class="n">${x.nch}</td></tr>`).join('')}</tbody></table></div>`;
@@ -910,6 +914,8 @@ nav a.btn,nav button{white-space:nowrap}
       ['Games', e => e.p.g + (e.p.g<20 ? ' <span class="chip">small sample</span>' : ''), e => e.p.g, 1],
       ['Win now tier', e => e.win ? 'tier '+e.win.ti : '·', e => e.win ? -e.win.ti : null, 1],
       ['Rank range', e => e.win && e.win.lo!=null ? `${e.win.lo} to ${e.win.hi} <small>in ${esc(e.g.name)}</small>` : '·'],
+      ['Place in league', e => e.p.lr!=null && e.x.y===LIVE ? `#${e.p.lr} of ${e.p.ln} <small>in ${esc(e.p.l)}${e.p.lm ? ', '+e.p.lm+' since moved' : ''}</small>` : '·', e => e.p.lr!=null && e.x.y===LIVE ? -e.p.lr / e.p.ln : null, 1],
+      ['World, role', e => e.p.wk!=null && e.p.wn && e.x.y===LIVE ? `top ${Math.max(1, Math.round(100 * e.p.wk / e.p.wn))}% <small>of ${e.p.wn}</small>` : '·', e => e.p.wk!=null && e.p.wn && e.x.y===LIVE ? -e.p.wk / e.p.wn : null, 1],
       ['Combined', e => num(e.p.cb), e => e.p.cb, 1],
       ['Elo', e => num(e.p.e), e => e.p.e, 1],
       ['In-league rating', e => num(e.p.wi), e => e.p.wi, 1],
@@ -1019,12 +1025,21 @@ nav a.btn,nav button{white-space:nowrap}
   function repSummary(s, L, MT){
     const lab = {kp_early:'kill participation by 15', kp_late:'kill participation after 15'};
     if(MT) MT.sec.forEach(sec => sec[1].forEach(([k, label]) => { if(k!=='kpx' && label) lab[(MT.pa && MT.pa[k]) || 'm_'+k] = label.toLowerCase(); })); if(MT && !Object.keys(s.pct||{}).includes('kp_early')) lab.kp = 'kill participation';
-    const pc = Object.entries(s.pct||{}).filter(([k,v]) => lab[k] && v!=null);
-    const top = pc.filter(([k,v]) => v>=80).sort((a,b) => b[1]-a[1]).slice(0,3), low = pc.filter(([k,v]) => v<=20).sort((a,b) => a[1]-b[1]).slice(0,2);
+    const neu = new Set(MT ? Object.entries(MT.m || {}).filter(([k, v]) => v[4]===0).map(([k]) => (MT.pa && MT.pa[k]) || 'm_'+k) : []);      // neutral stats are never strongest or weakest
+    const pc = Object.entries(s.pct||{}).filter(([k,v]) => lab[k] && v!=null && !neu.has(k));
+    Object.keys(lab).forEach(k => { if(lab[k]==='death share') lab[k] = 'share of his team\'s deaths'; else if(lab[k]==='deaths') lab[k] = 'deaths per game'; });
+    let top = pc.filter(([k,v]) => v>=80).sort((a,b) => b[1]-a[1]).slice(0,3), low = pc.filter(([k,v]) => v<=20).sort((a,b) => a[1]-b[1]).slice(0,2);
+    // 25 Oct 2026 (same rule as tools/scouting_report.py): a topic is never a strength and a weakness at once; both signals become one "Mixed picture" line
+    const TOPIC = {deaths:'deaths', lane:'lane', vision:'vision', damage:'damage', kp:'kill participation'};
+    const topic = l => /death|dies|victim|caught alone/.test(l) ? 'deaths' : /lead|ahead/.test(l) ? 'lane' : /vision|ward/.test(l) ? 'vision' : /damage/.test(l) ? 'damage' : /kill participation/.test(l) ? 'kp' : 'x:' + l;
+    const both = [...new Set(top.map(([k]) => topic(lab[k])))].filter(t => low.some(([k]) => topic(lab[k])===t));
+    const mixed = both.map(t => `Mixed picture on ${TOPIC[t] || t}, read both: ${top.filter(([k]) => topic(lab[k])===t).map(([k,v]) => `${lab[k]} (${v})`).join(', ')} rank well, but ${low.filter(([k]) => topic(lab[k])===t).map(([k,v]) => `${lab[k]} (${v})`).join(', ')} ranks low.`);
+    top = top.filter(([k]) => !both.includes(topic(lab[k]))); low = low.filter(([k]) => !both.includes(topic(lab[k])));
     const out = [];
-    if(top.length) out.push(`Strongest against ${s.npl} ${L.toLowerCase()} players of ${s.lg} ${s.y}: ${top.map(([k,v]) => `${lab[k]} (${v})`).join(', ')}.`);
+    if(top.length) out.push(`Strongest against ${s.npl} ${L==='ADC' ? 'ADC' : L.toLowerCase()} players of ${s.lg} ${s.y}: ${top.map(([k,v]) => `${lab[k]} (${v})`).join(', ')}.`);
     if(low.length) out.push(`Weakest: ${low.map(([k,v]) => `${lab[k]} (${v})`).join(', ')}.`);
-    if(!top.length && !low.length && pc.length) out.push(`No stat in the top or bottom fifth of ${s.lg} ${s.y}: an even profile.`);
+    out.push(...mixed);
+    if(!top.length && !low.length && !mixed.length && pc.length) out.push(`No stat in the top or bottom fifth of ${s.lg} ${s.y}: an even profile.`);
     if(s.rec && s.rec[0]) out.push(`${s.rec[1]} wins in ${s.rec[0]} games; ${s.nch} champions${s.champs && s.champs[0] ? `, most played ${s.champs[0][0]} (${s.champs[0][1]} games)` : ''}.`);
     if(s.side && s.side.blue && s.side.red && s.side.blue[0]>=8 && s.side.red[0]>=8){ const b = s.side.blue[1]/s.side.blue[0], r = s.side.red[1]/s.side.red[0]; if(Math.abs(b-r) >= .2) out.push(`Win rate ${Math.round(100*b)}% on blue side against ${Math.round(100*r)}% on red.`); }
     return out.length ? `<div class="sum"><h3 class="sec">Summary</h3><ul class="tk">${out.map(x => `<li>${esc(x)}</li>`).join('')}</ul><p class="note">Numbers in brackets are percentiles (100 = best; for deaths of any kind and death share, fewest). Built from the lines below by fixed rules, not written by AI.</p></div>` : '';
@@ -1096,9 +1111,11 @@ nav a.btn,nav button{white-space:nowrap}
   }
   function homeDraw(){
     const SL = homeSlides(); if(!SL.length) return; homeI = ((homeI % SL.length) + SL.length) % SL.length; const {rk, R, g, kind} = SL[homeI], dev = kind==='dev';
-    const list = (M && g.home) ? g.home[kind].map((p,i)=>Object.assign({rk:i+1}, p)) : (dev ? g.dev : g.win).filter(p=>!(M && p.nm)).slice(0,5), val = p => M ? 100 - (p.rk-1)*9 : (dev ? p.ds : p.cb), mx = Math.max(...list.map(val), 0.01), mn = (dev || M) ? 0 : Math.min(0, ...g.win.slice(0,60).map(p=>p.cb));
+    const LECH = dev && g.name==='ERL' && g.dev.some(p => p.rt!=null);      // 25 Oct 2026 (Can): the ERL developmental slide mixes major and minor ERLs, so it shows the best five by chance of LEC (dst, rt, tt, cl), as the table does
+    const src = LECH ? g.dev.filter(p => p.rt!=null).slice().sort((a,b) => a.rt-b.rt).map(p => Object.assign({}, p, {rk:p.rt, ti:p.tt!=null?p.tt:p.ti, ds:p.dst!=null?p.dst:p.ds, bd:p.cl!=null?bandOf(p.cl):p.bd, _o:p})) : (dev ? g.dev : g.win);
+    const list = (M && g.home) ? g.home[kind].map((p,i)=>Object.assign({rk:i+1}, p)) : src.filter(p=>!(M && p.nm)).slice(0,5), val = p => M ? 100 - (p.rk-1)*9 : (dev ? p.ds : p.cb), mx = Math.max(...list.map(val), 0.01), mn = (dev || M) ? 0 : Math.min(0, ...g.win.slice(0,60).map(p=>p.cb));
     $('homeSample').innerHTML = `<div class="hd"><h3>${esc(R.label)} shortlist, ${esc(g.name)}, ${dev?'developmental':'win now'}</h3><span class="meta">${(dev?g.dev:g.win).length} players · min ${D.min_games} games · patches ${esc(D.patches)} · data to ${fmtDate(D.data_cutoff)}</span></div>`
-      + list.map(p=>`<div class="srow${M?'':' go'}"${M?'':` data-hi="${(dev?g.dev:g.win).indexOf(p)}" tabindex="0" role="button" aria-label="Open ${esc(p.p||'')}"`}><span class="i">${String(p.rk).padStart(2,'0')}</span><span class="nm">${esc(p.p||'Name hidden')}<small>${M ? (p.nm ? esc(p.l)+' · named sample' : esc(p.l || p.c || (p.ab ? 'age '+p.ab : '') || p.st || p.tg || '')) : esc(p.l)+' · '+p.g+' games'+(p.a!=null?' · age '+(p.ae==1?p.a+' est.':p.a):' · age unknown')}</small></span><span class="tr"><i style="width:${Math.max(4,Math.round(100*(val(p)-mn)/(mx-mn)))}%"></i></span><span class="val">${(M&&p.nm)?'·<small>numbers hidden</small>':`${M?'tier '+p.ti:(dev?num(p.ds,0):num(p.cb))}<small>${dev?((M?'':'tier '+p.ti+' · ')+(p.bd?esc(p.bd).toLowerCase():'')):((M?'':'tier '+p.ti+' · ')+p.lo+' to '+p.hi)}</small>`}</span></div>`).join('')
+      + list.map(p=>`<div class="srow${M?'':' go'}"${M?'':` data-hi="${(dev?g.dev:g.win).indexOf(p._o||p)}" tabindex="0" role="button" aria-label="Open ${esc(p.p||'')}"`}><span class="i">${String(p.rk).padStart(2,'0')}</span><span class="nm">${esc(p.p||'Name hidden')}<small>${M ? (p.nm ? esc(p.l)+' · named sample' : esc(p.l || p.c || (p.ab ? 'age '+p.ab : '') || p.st || p.tg || '')) : esc(p.l)+' · '+p.g+' games'+(p.a!=null?' · age '+(p.ae==1?p.a+' est.':p.a):' · age unknown')}</small></span><span class="tr"><i style="width:${Math.max(4,Math.round(100*(val(p)-mn)/(mx-mn)))}%"></i></span><span class="val">${(M&&p.nm)?'·<small>numbers hidden</small>':`${M?'tier '+p.ti:(dev?num(p.ds,0):num(p.cb))}<small>${dev?((M?'':'tier '+p.ti+' · ')+(p.bd?esc(p.bd).toLowerCase():'')):((M?'':'tier '+p.ti+' · ')+p.lo+' to '+p.hi)}</small>`}</span></div>`).join('')
       + `<div class="dots" role="group" aria-label="Choose a sample list">${SL.map((x,i)=>`<button type="button" data-i="${i}" aria-pressed="${i===homeI}" title="${esc(x.R.label)} ${x.kind==='dev'?'developmental':'win now'}"></button>`).join('')}</div>`
       + `<p class="note">${M?'The real top five of this list. Names are hidden; where a name is shown, his numbers are hidden. ':'Live from the current build. '}${M?'':dev?'The right column is the Developmental score, the tier and the Chance of next step band.':'The right column is the Combined rating, the tier, and where he could sit on this list next season.'} ${M?'Open the shortlists to filter every role and region.':'Open the shortlists for every role, region and player profile.'}</p>`;
   }
@@ -1118,7 +1135,7 @@ nav a.btn,nav button{white-space:nowrap}
   }
   // ---------- Ask the data: three lookup functions over the lists (used by the no-AI question reader below) ----------
   const ROLEKEY = {top:'top', jungle:'jng', jng:'jng', mid:'mid', adc:'bot', bot:'bot', support:'sup', sup:'sup'};
-  const qRow = (role, g, p, dev) => { const f = (p.k && P[role+'|'+p.k]) || {}, c = f.c || {}; const o = {player:p.p, role:D.roles[role].label, league:p.l, team:p.t, age:p.a==null?(p.ab||'unknown'):(p.ae==1?p.a+' est.':p.a), nationality:p.c||'unknown', residency:p.r||'unknown', games:p.g, tier:p.ti}; if(p.gr) o.games_rounded = true; if(p.nm) o.sample = true;
+  const qRow = (role, g, p, dev) => { const f = (p.k && P[role+'|'+p.k]) || {}, c = f.c || {}; const o = {player:p.p, role:D.roles[role].label, league:p.l, team:p.t, age:p.a==null?(p.ab||'unknown'):(p.ae==1?p.a+' est.':p.a), nationality:p.c||'unknown', residency:p.r||'unknown', games:p.g, tier:p.ti}; if(p.lr!=null) o.place_in_league = `#${p.lr} of ${p.ln} ${D.roles[role].label} players with 15+ games in ${p.l} this season${p.lm ? ', '+p.lm+' since moved' : ''}`; if(p.wk!=null && p.wn) o.world_share = `top ${Math.max(1, Math.round(100 * p.wk / p.wn))}% of ${p.wn} listed`; if(p.gr) o.games_rounded = true; if(p.nm) o.sample = true;
     if(dev){ o.list = 'developmental'; if(p.bd) o.chance_band = p.bd; if(p.ds!=null) o.developmental_score = p.ds; } else { o.list = 'win now'; o.rank_range = p.lo+' to '+p.hi; o.combined = p.cb; if(p.n) o.not_a_prospect_because = NOTE[p.n]||p.n; }
     o.in_league_rating = p.wi; o.league_level_vs_LEC = p.lv; if(c.style||p.cls||p.st) o.playstyle = c.style||p.cls||p.st; if(c.tag||p.tg) o.tag = c.tag||p.tg; if(p.ss) o.small_sample = true; return o; };
   const qTools = [
@@ -1180,7 +1197,7 @@ nav a.btn,nav button{white-space:nowrap}
     return out;
   }
   const hid = p => p.player || 'Name hidden';
-  const line = o => `${hid(o)}${(d => d ? ' ('+d+')' : '')([o.league, o.team||null, o.age==='unknown'?(M && !o.player ? null : 'age unknown'):'age '+o.age, o.nationality==='unknown'?null:o.nationality].filter(Boolean).join(', '))} · ${o.sample ? 'named sample, numbers hidden' : 'tier '+o.tier+(o.list==='win now' ? ' · rank range '+o.rank_range : (o.chance_band ? ' · chance band '+String(o.chance_band).toLowerCase() : ''))}${o.games!=null ? ' · '+(o.games_rounded?'about ':'')+o.games+' games' : ''}${o.playstyle?' · style '+o.playstyle:''}${o.tag?' · tag '+o.tag:''}${o.small_sample?' · small sample':''}`;
+  const line = o => `${hid(o)}${(d => d ? ' ('+d+')' : '')([o.league, o.team||null, o.age==='unknown'?(M && !o.player ? null : 'age unknown'):'age '+o.age, o.nationality==='unknown'?null:o.nationality].filter(Boolean).join(', '))} · ${o.sample ? 'named sample, numbers hidden' : 'tier '+o.tier+(o.list==='win now' ? ' · rank range '+o.rank_range : (o.chance_band ? ' · chance band '+String(o.chance_band).toLowerCase() : ''))}${o.games!=null ? ' · '+(o.games_rounded?'about ':'')+o.games+' games' : ''}${o.place_in_league && !o.sample ? ' · '+o.place_in_league.split(' players')[0]+' in '+o.league : ''}${o.playstyle?' · style '+o.playstyle:''}${o.tag?' · tag '+o.tag:''}${o.small_sample?' · small sample':''}`;
   function answer(q){
     const f = readQuestion(q), lp = qTools[0].execute, fp = qTools[1].execute, ab = qTools[2].execute;
     const filtered = f.role || f.region || f.nationality || f.max_age!=null || f.min_games!=null || f.style || f.kind;
