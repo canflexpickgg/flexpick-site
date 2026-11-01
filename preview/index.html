@@ -1003,7 +1003,7 @@ dialog#dlg.inline-player:not([open]){display:none}#dlg.inline-player .card{paddi
   if(!M && window.FlexpickShell) FlexpickShell.mount({game: 'lol', el: document.getElementById('gameSwitch')});      // private app only: game switcher (app/shared/shell.js)
   if(M) document.querySelector('.game-switch').hidden = true;
   if(M) document.querySelector('.workspace-context a').href = '/';
-  if(M) document.querySelector('.app-sidebar').append($('navLogin'));
+  if(M && !document.querySelector('.public-preview')) document.querySelector('.app-sidebar').append($('navLogin'));
   if(M && $('finder')) $('finder').style.display = 'none';   // names are not in the public file, so a name search can never hit
   const S = {role:'all', view:'win', region:'ERL', sort:null, dir:1, page:'home', year:D.roster_year};
   const TS = {team:null, sp:null}; const LS = {role:null, lg:null, se:null, sp:''}; let LEAGUES = null;      // LS: Leagues view state (27 Oct 2026)
