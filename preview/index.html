@@ -252,7 +252,7 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
   body.printing .wrap,body.printing .tray{display:none!important}
   body.printing dialog{position:static;display:block;border:0;width:auto!important;max-width:none;max-height:none;overflow:visible;box-shadow:none;margin:0}
   body.printing dialog::backdrop{display:none}
-  body.printing .x,body.printing .cardact,body.printing #repBtn,body.printing .years button[id],body.printing .rep .jump,body.printing .rep .seas,body.printing .drep{display:none!important}
+  body.printing .x,body.printing .cardact,body.printing .report-actions,body.printing .years button[id],body.printing .rep .jump,body.printing .rep .seas,body.printing .drep{display:none!important}
   body.printing .note-in textarea{border:0;padding:0;resize:none}
   body.printing .printhead{display:flex;align-items:center;gap:8px;font:11px var(--mono);border-bottom:2px solid #0d0e12;padding-bottom:6px}
   body.printing .slist li{grid-template-columns:1.25fr .5fr 1fr .7fr 1fr 1fr;gap:2mm;align-items:baseline}body.printing .slist .split-rank{grid-column:auto}body.printing button.lvlink{color:#3d5200;text-decoration:none}
@@ -261,10 +261,11 @@ dl.gl{grid-template-columns:minmax(0,140px) 1fr} dl.gl dt{color:var(--ink);font-
 }
 
 /* real PDF download (23 Oct 2026): html2pdf.js renders the sheet in light colours, without buttons */
+.report-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.report-actions .btn{min-height:44px}
 .drep{border-top:2px solid var(--lime);margin-top:14px;padding-top:10px} .drep .drbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px} .drep .drbar .note{flex:1 1 220px;margin:0} .drep iframe{display:block;width:100%;height:1400px;border:1px solid var(--line);border-radius:10px;background:#fff} #drRawBox:empty{display:none}
 .rep .m small.hint{color:var(--dim);font-size:11px;cursor:help}
 #pdfWrap{position:absolute;left:0;top:0;width:1000px;overflow:hidden;height:0} #pdfSheet{width:1000px;--bg:#fff;--panel:#fff;--raise:#f1f2ec;--line:#cfd2c6;--ink:#0d0e12;--dim:#4f555f;--accent-text:#3d5200;--up:#1c7a4a;--down:#b3402f;background:#fff;color:#0d0e12;padding:0}
-#pdfSheet button:not([aria-pressed="true"]),#pdfSheet .x,#pdfSheet .cardact,#pdfSheet #repBtn,#pdfSheet .years button[id],#pdfSheet .rep .jump,#pdfSheet .rep .seas,#pdfSheet .drep,#pdfSheet .note-in textarea:placeholder-shown{display:none!important}
+#pdfSheet button:not([aria-pressed="true"]),#pdfSheet .x,#pdfSheet .cardact,#pdfSheet .report-actions,#pdfSheet .years button[id],#pdfSheet .rep .jump,#pdfSheet .rep .seas,#pdfSheet .drep,#pdfSheet .note-in textarea:placeholder-shown{display:none!important}
 #pdfSheet .printhead{display:flex;align-items:center;gap:8px;font:11px var(--mono);border-bottom:2px solid #0d0e12;padding-bottom:6px}
 #pdfSheet button.lvlink{display:inline!important;color:#3d5200;text-decoration:none}
 .printhead .print-logo{width:20px;height:20px;flex:none}
@@ -305,6 +306,24 @@ nav .xlink{margin-left:6px}
 nav{align-items:center}
 nav a.btn,nav button{white-space:nowrap}
 @media (max-width:700px){header{flex-wrap:wrap;gap:8px}nav{flex-wrap:wrap;row-gap:6px}}
+
+/* Keep scouting decisions readable; detailed inputs remain one click away. */
+.table-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:14px 0 10px}
+.table-controls .table-view{display:flex;gap:4px;flex-wrap:wrap}.table-controls .btn{min-height:36px}
+.table-controls .btn[aria-pressed=true]{background:var(--lime);border-color:var(--lime);color:#0d0e12}
+.table-controls p{margin:0;flex:1 1 260px;font-size:12px;line-height:1.5;color:var(--dim)}
+.table-player-tag{display:block;color:var(--dim);font-size:11px;line-height:1.5;margin-top:3px}.table-scroll-actions{display:flex;gap:6px}.tablebox:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+@media(min-width:761px){
+ #tbl th button{padding:10px 8px;letter-spacing:.02em;font-size:11px;white-space:normal;min-height:40px}
+ #tbl td{padding:10px 8px}
+ #tbl [data-col="rk"]{width:38px;min-width:38px;max-width:48px}
+ #tbl td.pl{min-width:170px;max-width:230px;white-space:normal;overflow-wrap:break-word}
+ #tbl td.pl .chip{display:block;width:fit-content;max-width:24ch;margin:4px 0 0 26px;white-space:normal;font-size:10px;line-height:1.4}
+ #tbl [data-col="st"],#tbl [data-col="tg"]{min-width:100px;max-width:150px;white-space:normal}
+ #tbl td[data-col="ch"],#tbl td[data-col="cl"]{white-space:normal;min-width:120px}
+ #tbl .band{display:inline-block;white-space:nowrap}#tbl .ns{display:block;margin-top:3px}
+}
+body[data-workspace-mode=split] #tableControls{display:none!important}
 .public-preview .app-sidebar nav>a.btn{font:500 14px/1.5 var(--body);font-stretch:100%;min-height:40px}.public-preview .app-sidebar nav>:not(#navPublicHome):not(#navSubscriptions):not(#navLogin){display:none!important}</style>
 
 <style id="m1-redesign">
@@ -413,6 +432,10 @@ nav button[aria-current=page]{background:var(--raise);color:var(--ink);border-co
 .teams{padding-top:12px}
 .teams>.sub{font-size:14px;max-width:85ch;margin:16px 0 24px}
 .teams .tbar{gap:16px;margin:24px 0;align-items:end}
+#viewLeagues .league-filters{display:grid;grid-template-columns:minmax(90px,.7fr) minmax(170px,1.4fr) minmax(90px,.6fr) minmax(140px,1fr) minmax(140px,1fr);gap:16px;padding:20px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+#viewLeagues .league-filters .f{min-width:0;width:auto;gap:8px}
+@media(max-width:1000px){#viewLeagues .league-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){#viewLeagues .league-filters{grid-template-columns:1fr}}
 .teams .tbar input,.teams .tbar select{min-height:42px;font-size:14px;min-width:240px}
 .teams h2.tn{font-size:22px;font-weight:800;font-stretch:112%;margin-top:28px}
 .teams .tmtl{margin:20px 0 32px;background:var(--panel);border-radius:12px;border:1px solid var(--line);max-width:100%;overflow:auto}
@@ -710,7 +733,8 @@ dialog#dlg.inline-player:not([open]){display:none}#dlg.inline-player .card{paddi
  .tlogo-init{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:3px;background:#e4e7dd;color:#15171a;font:700 8px/1 'JetBrains Mono',monospace;vertical-align:middle;flex-shrink:0;margin-right:4px}
  .team-cell{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;word-break:normal;overflow-wrap:normal}
  .champ-cell{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;word-break:normal;overflow-wrap:normal}
- .champ-icon{width:18px;height:18px;border-radius:3px;flex-shrink:0;vertical-align:middle}
+ .champ-icon{width:24px;height:24px;object-fit:cover;border-radius:3px;flex-shrink:0;vertical-align:middle}
+ td:has(>.champ-cell){min-width:180px;vertical-align:middle}.champ-cell small{white-space:normal}.champ-cell>span{line-height:1.4}.champ-cell .champ-cell{flex-shrink:0}
  td.nowrap,th.nowrap{white-space:nowrap;word-break:normal;overflow-wrap:normal}
  .habit-table{min-width:440px}.habit-table th:first-child{width:42%}.habit-table th:last-child,.habit-table td:last-child{min-width:128px;white-space:normal;word-break:normal;overflow-wrap:normal}
  .rad-picker,.tourn-picker{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0 12px}
@@ -787,7 +811,7 @@ dialog#dlg.inline-player:not([open]){display:none}#dlg.inline-player .card{paddi
 <div class="wrap app-shell public-preview" data-workspace="integrated">
   <header class="app-sidebar">
     <h1 class="brand" id="brandHome" role="button" tabindex="0" style="cursor:pointer" title="Back to Product"><span class="mark" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#C6F135"/><path d="M17 13H49V25H29V51H17Z" fill="#0D0F12"/><rect x="29" y="31" width="18" height="11" fill="#0D0F12"/></svg></span>flexpick</h1>
-    <div id="gameSwitch" class="game-switch" aria-label="Game"><span aria-current="page">LoL</span><a href="https://flexpick-app.pages.dev/val/">Valorant</a></div>
+    <div id="gameSwitch" class="game-switch" aria-label="Game"><span aria-current="page">LoL</span><a href="/val/" title="Valorant — in development">Valorant</a></div>
     <nav aria-label="Views"><a class="btn" id="navPublicHome" href="/">← Back to home</a><a class="btn" id="navSubscriptions" href="/#subscriptions">Subscriptions</a>
       <button type="button" id="navBack" hidden title="Go back one step">← Back</button>
       <button type="button" id="navHome" aria-current="page">Product</button>
@@ -871,7 +895,8 @@ dialog#dlg.inline-player:not([open]){display:none}#dlg.inline-player .card{paddi
     <nav class="table-pager" id="tablePager" aria-label="Result pages" hidden><span id="pageStatus" aria-live="polite"></span><button type="button" class="btn" id="previousPage">Previous 100</button><button type="button" class="btn" id="nextPage">Next 100</button></nav>
     <div class="warn" id="smallNote" hidden></div>
     <div class="scat" id="scat" hidden></div>
-    <div class="tablebox" id="tblBox"><table id="tbl"><thead></thead><tbody></tbody></table><div class="empty" id="empty" hidden>No players match these filters. Lower the minimum games, clear the league or nationality, or set Unknown age to Show them.</div></div>
+    <div class="table-controls" id="tableControls"><div class="table-view" role="group" aria-label="Table columns"><button type="button" class="btn" id="tableOverview" aria-pressed="true">Overview</button><button type="button" class="btn" id="tableAllMetrics" aria-pressed="false">All metrics</button></div><p id="tableColumnsHint">Key scouting data. Choose All metrics for rating inputs and forecasts.</p><div class="table-scroll-actions" id="tableScrollActions" hidden><button type="button" class="btn" id="tableScrollLeft" aria-label="Scroll player table left">← Columns</button><button type="button" class="btn" id="tableScrollRight" aria-label="Scroll player table right">Columns →</button></div></div>
+    <div class="tablebox" id="tblBox" role="region" aria-label="Player rankings" aria-describedby="tableColumnsHint" tabindex="0"><table id="tbl"><thead></thead><tbody></tbody></table><div class="empty" id="empty" hidden>No players match these filters. Lower the minimum games, clear the league or nationality, or set Unknown age to Show them.</div></div>
     <section id="ws" aria-label="Player workspace">
       <aside id="wsCandidates" aria-label="Candidate list"><div class="ws-list-head"><h3>Candidates</h3><span id="wsCount"></span></div><div id="wsRows"></div></aside>
       <section id="wsSheet" aria-label="Selected player"><p id="wsEmpty">Select a candidate to read the evidence.</p></section>
@@ -932,6 +957,7 @@ dialog#dlg.inline-player:not([open]){display:none}#dlg.inline-player .card{paddi
 <dialog id="dlg" aria-labelledby="cardName"><button type="button" class="dback" id="dlgBack" hidden>← Back</button><div class="card" id="card"></div></dialog>
 <div class="tray" id="cmpTray" hidden aria-label="Compare tray"></div>
 
+<link rel="stylesheet" href="/shared/filter-controls.css"><script src="/shared/filter-controls.js"></script>
 
 <script src="data.js"></script>
 <script src="profiles.js"></script>
@@ -1006,7 +1032,7 @@ dialog#dlg.inline-player:not([open]){display:none}#dlg.inline-player .card{paddi
   if(M && !document.querySelector('.public-preview')) document.querySelector('.app-sidebar').append($('navLogin'));
   if(M && $('finder')) $('finder').style.display = 'none';   // names are not in the public file, so a name search can never hit
   const S = {role:'all', view:'win', region:'ERL', sort:null, dir:1, page:'home', year:D.roster_year};
-  const TS = {team:null, sp:null}; const LS = {role:null, lg:null, se:null, sp:''}; let LEAGUES = null;      // LS: Leagues view state (27 Oct 2026)
+  const TS = {team:null, sp:null}; const LS = {role:null, lg:null, se:null, sp:'', stage:'main'}; let LEAGUES = null;
   const NAV = []; let NAVLOCK = false, LASTCARD = null, TEAMS = null, WANT = null;      // team view state and the Back history (21 Oct 2026)
   const ROLES = Object.keys(D.roles), ALLR = {label:'All roles', beta:false, blocks:[], levels:{}, small:[].concat(...ROLES.map(k=>D.roles[k].small||[]))};
   const RL = r => ((r||S.role)==='all' || (!r && S.watch)) ? ALLR : D.roles[r||S.role];
@@ -1017,7 +1043,7 @@ dialog#dlg.inline-player:not([open]){display:none}#dlg.inline-player .card{paddi
   let HQLG = HQ && HQ.get('lg') ? HQ.get('lg').split(',') : null; if(HQ && ['major','minor'].includes(HQ.get('t'))) $('fTier').value = HQ.get('t');
   else if(!HQ){ try{ const v = localStorage.getItem('fp_tier'); if(v==='major' || v==='minor') $('fTier').value = v; }catch(e){} }      // 25 Oct 2026: the last League group choice survives a reload without a link (the /lol/ move dropped the old links)
   const saveTier = () => { try{ localStorage.setItem('fp_tier', $('fTier').value); }catch(e){} };
-  if(HQ && HQ.get('lv')){ S.page = 'leagues'; LS.role = HQ.get('lr'); LS.lg = HQ.get('lg'); LS.se = +HQ.get('ls') || null; LS.sp = HQ.get('lsp') || ''; } else if(HQ && HQ.get('team')){ S.page = 'teams'; TS.team = HQ.get('team'); TS.sp = HQ.get('sp') || null; } else if(HQ){ S.page = !M && HQ.get('w') ? 'shortlist' : 'lists'; const r = HQ.get('r'); if(r && (r==='all' || has(D.roles, r))) S.role = r; if(HQ.get('g')) S.region = HQ.get('g'); if(HQ.get('v')==='dev') S.view = 'dev'; if(!M && HQ.get('m')==='scatter') S.mode = 'scatter'; }
+  if(HQ && HQ.get('lv')){ S.page = 'leagues'; LS.role = HQ.get('lr'); LS.lg = HQ.get('lg'); LS.se = +HQ.get('ls') || null; LS.sp = HQ.get('lsp') || ''; LS.stage = HQ.get('lst') || 'main'; } else if(HQ && HQ.get('team')){ S.page = 'teams'; TS.team = HQ.get('team'); TS.sp = HQ.get('sp') || null; } else if(HQ){ S.page = !M && HQ.get('w') ? 'shortlist' : 'lists'; const r = HQ.get('r'); if(r && (r==='all' || has(D.roles, r))) S.role = r; if(HQ.get('g')) S.region = HQ.get('g'); if(HQ.get('v')==='dev') S.view = 'dev'; if(!M && HQ.get('m')==='scatter') S.mode = 'scatter'; }
   try{ const v=localStorage.getItem('fp_age_known'); if(v==='hide'||v==='only') $('fAgeKnown').value = v; }catch(e){}
 
   const stamp = `<span class="preview">${M?'Public preview · sample names only':'Private preview'}</span><span>Data to <b>${fmtDate(D.data_cutoff)}</b></span><span>Patches <b>${esc(D.patches)}</b></span><span>Min <b>${D.min_games}</b> games per player</span>${PAST.length ? `<span>Roster year <select id="fYear" aria-label="Roster year"><option value="${LIVE}">${LIVE} (live)</option>${PAST.map(y=>`<option value="${y}">${y} (backtest)</option>`).join('')}</select></span>` : `<span>Roster year <b>${D.roster_year}</b></span>`}`;
@@ -1216,6 +1242,27 @@ window.addEventListener('error', e => { if(/ResizeObserver loop/.test(e.message 
   let tablePage = Math.max(0, Math.floor(Number(HQ && HQ.get('pg')) || 1)-1), tableSignature = '';
   $('previousPage').onclick = () => { tablePage--; render(); };
   $('nextPage').onclick = () => { tablePage++; render(); };
+  let allTableMetrics = false;
+  function visibleTableColumns(columns, view, all){
+    if(all) return columns;
+    const extra = new Set(['c','tg','r','e','s','wi','lv','xw','xn','cht']);
+    return columns.filter(c => !extra.has(c.k) && !/^b\d+$/.test(c.k) && !(view==='dev' && (c.k==='cb' || (c.k==='ch' && columns.some(x=>x.k==='cl'))))).map(c=>c.k==='st'?{...c,l:'Playstyle / tag'}:c);
+  }
+  function updateTableScroll(){
+    const box=$('tblBox'), overflow=box.scrollWidth>box.clientWidth+2;
+    $('tableScrollActions').hidden=!overflow;
+    $('tableScrollLeft').disabled=box.scrollLeft<=1;
+    $('tableScrollRight').disabled=box.scrollLeft+box.clientWidth>=box.scrollWidth-2;
+  }
+  $('tblBox').addEventListener('scroll',updateTableScroll,{passive:true});
+  window.addEventListener('resize',updateTableScroll);
+  $('tableScrollLeft').onclick=()=> $('tblBox').scrollBy({left:-$('tblBox').clientWidth*.75,behavior:'smooth'});
+  $('tableScrollRight').onclick=()=> $('tblBox').scrollBy({left:$('tblBox').clientWidth*.75,behavior:'smooth'});
+  for(const [id,all] of [['tableOverview',false],['tableAllMetrics',true]]) $(id).onclick=()=>{
+    allTableMetrics=all;
+    if(!visibleTableColumns(cols(),S.view,all).some(c=>c.k===S.sort)){ S.sort=null; S.dir=-1; }
+    render(); $('tblBox').scrollLeft=0; updateTableScroll();
+  };
   function render(){
     syncFilterChoices();
     { const g0 = reg(), noDev = isPast() && !((g0 && g0.dev) || []).length, db = document.querySelector('#view button[data-v="dev"]');
@@ -1224,7 +1271,7 @@ window.addEventListener('error', e => { if(/ResizeObserver loop/.test(e.message 
     $('fChanceBox').hidden = M || !devTwoGroups();      // the 'All leagues' group is open again on the live list (23 Oct 2026): a mixed table now ranks on the chance of LEC
     const extraCount = [!$('fTierBox').hidden && !!$('fTier').value, !$('fChanceBox').hidden && !!$('fChance').value, !M && (NSEL.size>0 || !!$('fCountry').value), !!$('fAge').value, Number($('fGames').value)>D.min_games, !M && $('fAgeKnown').value!=='all', !$('fColBox').hidden && !!$('fCol').value, !!$('fShow').value].filter(Boolean).length;
     $('moreFilters').textContent = 'More filters' + (extraCount ? ' ('+extraCount+')' : '');
-    const R = RL(), g = reg(), C = cols(), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all' || S.watch;
+    const R = RL(), g = reg(), allColumns = cols(), C = visibleTableColumns(allColumns,S.view,allTableMetrics), dev = S.view==='dev', war = dev && g.devKind==='war', ALL = S.role==='all' || S.watch;
     document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected', !S.watch && b.dataset.r===S.role));
     document.querySelectorAll('#view button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.v===S.view));
     $('question').innerHTML = !dev
@@ -1238,8 +1285,8 @@ window.addEventListener('error', e => { if(/ResizeObserver loop/.test(e.message 
     const sc = C.find(c=>c.k===S.sort) || (ALL ? (C.find(c=>c.key) || C[0]) : C[0]); const dir = S.sort ? S.dir : (ALL ? -1 : 1); const natural = !ALL && sc.k==='rk' && dir===1;
     const LECM = chanceMode()==='lec', rko = p => LECM && p.rt ? p.rt : p.rk, tio = p => LECM && p.tt ? p.tt : p.ti;
     out.sort((a,b)=>{ const x=sc.get(a), y=sc.get(b); if(x==null && y==null) return rko(a)-rko(b); if(x==null) return 1; if(y==null) return -1; const c = (typeof x==='string'||typeof y==='string') ? String(x).localeCompare(String(y)) : x-y; return c*dir || rko(a)-rko(b); });
-    $('tbl').querySelector('thead').innerHTML = '<tr>'+C.map(c=>`<th scope="col" class="${c.n?'n':''}" ${c.k===sc.k?`aria-sort="${dir>0?'ascending':'descending'}"`:''}><button type="button" data-k="${esc(c.k)}" ${GL[c.l]?`title="${esc(GL[c.l])}"`:''}>${esc(c.l)}</button></th>`).join('')+'</tr>';
-    LAST = {out, C, list}; tools(C, sc, dir, out, list);
+    $('tbl').querySelector('thead').innerHTML = '<tr>'+C.map(c=>`<th scope="col" data-col="${esc(c.k)}" class="${c.n?'n':''}" ${c.k===sc.k?`aria-sort="${dir>0?'ascending':'descending'}"`:''}><button type="button" data-k="${esc(c.k)}" aria-label="${esc(c.l)}" ${GL[c.l]?`title="${esc(GL[c.l])}"`:''}>${esc(c.k==='rk'?'#':c.l)}</button></th>`).join('')+'</tr>';
+    LAST = {out, C:allColumns, list}; tools(C, sc, dir, out, list);
     let html = '', lastTier = null;
     const signature = [S.role,S.view,S.region,S.year,S.sort,S.dir,!!S.watch,out.map(p=>p.k||roleOf(p)+':'+p.rk+':'+(p.p||'')).join('|')].join('~');
     if(tableSignature && signature!==tableSignature) tablePage=0;
@@ -1268,12 +1315,18 @@ window.addEventListener('error', e => { if(/ResizeObserver loop/.test(e.message 
         else if(c.res) t = v ? `<span title="Residency on Leaguepedia: ${esc(v)}">${esc(RES[v]||v)}</span>` : '·';
         else if(c.team){ const tm = p.t; t = !tm ? '·' : `<span class="team-cell">${teamBadge(tm, 18)}${p.tc ? `<span title="${esc(tm)}">${esc(p.tc)}</span>` : `<span>${esc(tm)}</span>`}</span>`; }
         else t = esc(v==null?'·':v);
+        if(c.k==='st' && !allTableMetrics && tagOf(p)) t = `<span>${t}</span><small class="table-player-tag">${esc(tagOf(p))}</small>`;
         if(c.k==='cb' && p.cbl!=null) t = `<span title="In ${esc(p.l)} only: ${num(p.cbl)}">${t}</span>`;      // item 56: league-only rating for multi-league players
-        if(c.k==='p'){ if(p.ss) t += '<span class="chip" title="Under 20 games this season: treat the rating as a first look">small sample</span>'; if(p.col && ['LCS','NACL'].includes(S.region)) t += `<span class="chip" title="College roster on Leaguepedia: ${esc(p.col)}">college</span>`; if(AU(p) && !(p.a==null && p.ab) && !(M && !p.nm)) t += `<span class="chip" title="${p.ae==1 ? AEST : 'birth date unknown'}">age unknown</span>`; if(M && p.nm) t += '<span class="chip" title="One named sample player per role in each league">sample</span>'; if(p.n && !dev) t += `<span class="chip" title="Not listed as a developmental prospect">${esc(NOTE[p.n]||p.n)}</span>`; }
+        if(c.k==='p'){ if(p.ss) t += '<span class="chip" title="Under 20 games this season: treat the rating as a first look">small sample</span>'; if(p.col && ['LCS','NACL'].includes(S.region)) t += `<span class="chip" title="College roster on Leaguepedia: ${esc(p.col)}">college</span>`; if(AU(p) && !(p.a==null && p.ab) && !(M && !p.nm)) t += `<span class="chip" title="${p.ae==1 ? AEST : 'birth date unknown'}">age unknown</span>`; if(M && p.nm) t += '<span class="chip" title="One named sample player per role in each league">sample</span>'; if(p.n && !dev) t += `<span class="chip" title="Not listed as a developmental prospect: ${esc(NOTE[p.n]||p.n)}">${esc(String(NOTE[p.n]||p.n).startsWith('established:')?'Established':NOTE[p.n]||p.n)}</span>`; }
 if(c.k==='p' && !M){ const id = pid(p), ch = S.watch ? null : chgOf(p, g.name); t = `<button type="button" class="star${isW(id)?' on':''}" data-star="${list.indexOf(p)}" aria-pressed="${isW(id)}" aria-label="${isW(id)?'Remove from':'Add to'} My Shortlist" title="${isW(id)?'On My Shortlist':'Add to My Shortlist'}">${isW(id)?'★':'☆'}</button>` + t + (ch==='new' ? '<span class="chg new" title="Not on this list at the previous data update you saw">new</span>' : ch==='up' ? '<span class="chg up" title="Tier went up since the previous data update you saw">tier ▴</span>' : ch==='down' ? '<span class="chg down" title="Tier went down since the previous data update you saw">tier ▾</span>' : '') + (S.watch && WATCH[id] && WATCH[id].n ? `<span class="chip" title="${esc(WATCH[id].n)}">note</span>` : ''); + (isPast() ? '' : sqMark(p)); }
-        return `<td class="${cls}" data-l="${esc(c.l)}">${t}</td>`; }).join('') + '</tr>';
+        return `<td class="${cls}" data-col="${esc(c.k)}" data-l="${esc(c.l)}">${t}</td>`; }).join('') + '</tr>';
     });
     $('tbl').querySelector('tbody').innerHTML = html;
+    $('tableOverview').setAttribute('aria-pressed',String(!allTableMetrics));
+    $('tableAllMetrics').setAttribute('aria-pressed',String(allTableMetrics));
+    $('tableColumnsHint').textContent=allTableMetrics ? 'All metrics. Scroll across to explore every column; the player name stays visible.' : 'Rank (#) is within each role. All metrics adds nationality, rating inputs and forecasts.';
+    $('tableControls').hidden=S.mode==='scatter';
+    requestAnimationFrame(updateTableScroll);
     renderWorkspace(windowed.items, list, tio);
     $('empty').hidden = out.length>0; $('empty').textContent = S.watch ? (Object.keys(WATCH).length ? 'None of your watched players is on the lists of this season. Change the roster year, or reset the filters.' : 'Your watchlist is empty. Use the ☆ next to a name, or write a private note on a player sheet.') : 'No players match these filters. Lower the minimum games, clear the league or nationality, or set Unknown age to Show them.';
     const scm = S.mode==='scatter' && !M; $('scat').hidden = !scm; $('tblBox').hidden = scm; $('tblBox').style.display = scm ? 'none' : ''; if(scm) scatter(out, C);
@@ -1295,11 +1348,11 @@ if(c.k==='p' && !M){ const id = pid(p), ch = S.watch ? null : chgOf(p, g.name); 
     const w = Math.min(Math.abs(v),3.5)/3.5*50;
     return `<div class="rowbar"><span>${esc(label)}</span><div class="track"><i class="${v<0?'neg-b':''}" style="${v<0?`right:50%;width:${w}%`:`left:50%;width:${w}%`}"></i></div><span class="v">${v>0?'+':''}${v.toFixed(2)}</span></div>`;
   }
-  const CHAMP_DDRAGON = {'Wukong':'MonkeyKing','Renata Glasc':'Renata','Nunu & Willump':'Nunu','LeBlanc':'Leblanc'};
+  const CHAMP_DDRAGON = {"Bel'Veth": "Belveth", "Cho'Gath": "Chogath", "Kai'Sa": "Kaisa", "Kha'Zix": "Khazix", "LeBlanc": "Leblanc", "Wukong": "MonkeyKing", "Nunu & Willump": "Nunu", "Renata Glasc": "Renata", "Vel'Koz": "Velkoz"};
   function champIconUrl(name){
     if(!name) return '';
     const key = CHAMP_DDRAGON[name] || String(name).replace(/[^A-Za-z0-9]/g, '');
-    return ('https://ddragon.' + 'leagueoflegends.com/' + 'cdn/14.24.1/img/champion/' + key + '.png');
+    return ('https://ddragon.' + 'leagueoflegends.com/' + 'cdn/16.21.1/img/champion/' + key + '.png');
   }
   function champCell(name){
     const u = champIconUrl(name);
@@ -1329,7 +1382,10 @@ if(c.k==='p' && !M){ const id = pid(p), ch = S.watch ? null : chgOf(p, g.name); 
   }
   function teamBadge(tm, sz=18, cls='tlogo'){
     if(!tm || tm==='·') return '';
-    const lg = LOGO[tm];
+    const aliases = {'9Gaming Esports':'9Gaming','Team Solid':'Team Solid (Brazilian Team)'};
+    const name=String(tm).replace(/\s*\(\d\d [A-Z][a-z]{2}\)$/, '');
+    const key = LOGO[tm] ? tm : LOGO[name] ? name : aliases[name] || Object.keys(LOGO).find(k => k.toLowerCase() === name.toLowerCase());
+    const lg = LOGO[key];
     if(lg) return `<img class="${cls}" src="${esc(lg)}" alt="" width="${sz}" height="${sz}" loading="lazy" onerror="this.hidden=true">`;
     return `<span class="tlogo-init" aria-hidden="true">${esc(teamInit(tm))}</span>`;
   }
@@ -1423,7 +1479,7 @@ if(c.k==='p' && !M){ const id = pid(p), ch = S.watch ? null : chgOf(p, g.name); 
       const lw = label==='ADC' ? label : label.toLowerCase(), evl = ev==='Season' ? 'season' : esc(ev), ax = e[6] || [];
       box.innerHTML = `<p class="note" style="font-size:14px;color:var(--ink)"><b>#${e[4]} of ${e[5]}, ${e[2]} games, ${e[3]} wins</b> · EMEA Masters ${y}, ${evl} · ${teamCell(e[1])}</p>` +
         (ax.length >= 3 && ax.some(a => a[1]!=null) ? radar([+y, 'EMEA Masters', e[2], ax], label, null, false, `EMEA Masters ${y}, ${evl} (${e[2]} games)`, `the ${e[5]} ${esc(lw)} players at EMEA Masters ${y}${ev==='Season' ? '' : ', ' + esc(ev)}`, true) : '<p class="note">No EM stat profile for this event.</p>') +
-        `<p class="note">EMEA Masters games only, each player compared with the other EM players of his role in that event. Small samples are shown; read the games column. Display only, not part of the Flexpick rating. An empty axis: fewer than 3 EM players had that stat.</p><p class="note"><button type="button" class="lvlink" data-lv="EM|${y}|${esc(ev)}">All ${esc(lw)} players at EMEA Masters ${y}, ${evl}</button></p>`;
+        `<p class="note">EMEA Masters games only, each player compared with the other EM players of his role in that event. Small samples are shown; read the games column.${stageNote} Display only, not part of the Flexpick rating. An empty axis: fewer than 3 EM players had that stat.</p><p class="note"><button type="button" class="lvlink" data-lv="EM|${y}|${esc(ev)}">All ${esc(lw)} players at EMEA Masters ${y}, ${evl}</button></p>`;
       return; }
     if(String(key).startsWith('it|')){ const [, y, ev] = String(key).split('|'), e = (((pf.it || {})[y] || (pf.it || {})[String(y)]) || []).find(z => z[0]===ev); if(!e){ box.innerHTML = ''; return; }
       const lw = label==='ADC' ? label : label.toLowerCase(), tName = INTL_NAMES[ev] || ev, ax = e[6] || [];
@@ -1580,7 +1636,7 @@ if(c.k==='p' && !M){ const id = pid(p), ch = S.watch ? null : chgOf(p, g.name); 
       return `<div class="psec"><h3 class="sec">International tournaments (separated from ${esc(p.l)})</h3>
         <ul class="slist"><li class="slist-hd" aria-hidden="true"><span>Tournament</span><span>Code</span><span>Team</span><span class="n">Games</span><span class="n">Record</span><span>Place in event</span></li>
         ${rows.map(([y, ev, tm, gm, wn, pl, npl]) => `<li><span><b>${esc(INTL_NAMES[ev]||ev)} ${y}</b></span><span><button type="button" class="lvlink" data-lv="${esc(ev)}|${y}|Season">${esc(ev)}</button></span>${teamCell(tm)}<span class="n">${gm} games</span><span class="n"><b>${wn}-${gm-wn}</b> (${Math.round(100*wn/(gm||1))}%)</span><span class="split-rank">${pl!=null?`#${pl} of ${npl} ${esc(lw)} players`:'·'}</span></li>`).join('')}</ul>
-        <p class="note">International tournament games (First Stand, MSI, Worlds) are separated from regional league stats. Select a tournament chip under <b>By split &amp; tournament</b> above to view its stat radar, or open the Detailed scouting report for full tournament breakdowns.</p></div>`;
+        <p class="note">International tournament games (First Stand, MSI, Worlds) are separated from regional league stats. Select a tournament chip under <b>By split &amp; tournament</b> above to view its stat radar, or open the Scouting Report for full tournament breakdowns.</p></div>`;
     })();
     $('card').innerHTML = `
       <div class="printhead">${BRAND_ICON}<span>Flexpick player sheet · private, do not forward · data to ${fmtDate(D.data_cutoff)} · printed ${new Date().toLocaleDateString('en-GB')}</span></div>
@@ -1595,11 +1651,11 @@ if(c.k==='p' && !M){ const id = pid(p), ch = S.watch ? null : chgOf(p, g.name); 
       ${past ? '' : sqBlock(p, role)}
       ${pf ? spark(pf.s, p, pf) + splitPick(pf, R.label) + itBlock + radar(pf.rd, R.label, prevRd(p, role, pf.rd), !window.FLEXPICK_HISTORY && PAST.length && !!p.k) + similar(pf.sm) : ''}
       ${p.ch!=null ? `<p class="note"><b>Chance of next step${p.ns ? ' ('+esc(p.ns)+')' : ''}: ${esc(p.bd).toLowerCase()}</b> (model value ${num(p.ch,0)}${p.cht!=null ? '; chance of top league '+num(p.cht,0) : ''}). ${calText(g.name, p.ch, p)} The share swings from year to year with the number of seats that open. It does not know his contract, buyout or residency.</p>` : ''}
-      <div class="psec"><h3 class="sec">Player details</h3><dl class="kv">${kv.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl></div>
+      <div class="psec"><h3 class="sec">Player details</h3><dl class="kv">${kv.map(([a,b])=>`<dt>${esc(a)}</dt><dd>${/^(Team, most games|Latest team|Current team)/.test(a) && b && !/^None/.test(String(b)) ? teamCell(String(b)) : esc(b)}</dd>`).join('')}</dl></div>
       ${past ? `<div class="psec"><h3 class="sec">What happened next</h3><dl class="kv"><dt>Next season (${Y})</dt><dd>${esc(p.nl ? p.nl+(p.nt?' · '+p.nt:'') : 'No league games')}</dd><dt>Top league (10+ games)</dt><dd>${p.ys ? 'After '+p.ys+' season'+(p.ys>1?'s':'') : p.in ? 'Already in one' : 'Not yet'}</dd></dl></div>` : ''}
       <div class="foot">${past ? `Rating sample: ${p.g} games attributed to ${esc(p.l)}, season ${SY}. Backtest: built in 2026 with today's formulas and only the matches played up to the end of ${SY}; the split chart and stat profile stop there too. A simulation with hindsight, not a live track record.` : `Rating sample: ${p.g} games attributed to ${esc(p.l)}, season ${D.season} · data to ${fmtDate(D.data_cutoff)} · patches ${esc(D.patches)}`}</div>
       ${past && liveOf(p) ? `<div><button type="button" class="btn go" id="toLive">Open his ${LIVE} profile</button></div>` : ''}
-      ${p.k && !M ? `<div><button type="button" class="btn go" id="repBtn">Detailed scouting report</button></div><div id="repBox"></div>` : ''}`;
+      ${p.k && !M ? `<div class="report-actions" role="group" aria-label="Player statistics and scouting report"><button type="button" class="btn go" id="statsBtn" aria-controls="statsBox" aria-expanded="false">Show Detailed Stats</button><button type="button" class="btn go" id="repBtn" aria-controls="repBox" aria-expanded="false">Scouting Report</button></div><div id="statsBox" hidden></div><div id="repBox" hidden></div>` : ''}`;
     $('closeCard').onclick = () => $('dlg').close(); wireCard(p, role, Y);
     if($('splitPick')) $('splitPick').addEventListener('click', e => { const b = e.target.closest('button[data-sk]'); if(b) splitShow(pf, R.label, b.dataset.sk); });
     if(WANT){ const w = WANT, pick = $('splitPick'), bs = pick ? [...pick.querySelectorAll('button[data-base]')] : [], b = bs.find(z => z.dataset.base===w.sp && z.dataset.lg===w.lg) || bs.find(z => z.dataset.base===w.sp);
@@ -1607,7 +1663,18 @@ if(c.k==='p' && !M){ const id = pid(p), ch = S.watch ? null : chgOf(p, g.name); 
       else { const rs = TEAMS && Object.keys(TEAMS.r).filter(k => k.endsWith('|'+w.sp)).map(k => TEAMS.r[k].find(r => (r[0]+'|'+r[1])===w.id && r[3]===w.lg)).find(Boolean), big = $('card').querySelector('dl.big');
         if(rs && big){ big.insertAdjacentHTML('afterend', `<div id="wantBox"><h3 class="sec">The split you came from</h3><dl class="big"><div><dt>${esc(w.sp.split('_')[0])}</dt><dd>${esc(rs[3])}<small>league</small></dd></div><div><dt>Games</dt><dd>${rs[4]}</dd></div><div><dt>Split rating</dt><dd>${num(rs[5])}<small>z across all leagues that split window</small></dd></div><div><dt>In ${esc(rs[3])}</dt><dd>${rs[6]!=null ? '#'+rs[6]+' of '+rs[7] : '·'}</dd></div></dl></div>`); setTimeout(() => { if($('wantBox')) $('wantBox').scrollIntoView({block:'start'}); }, 30); } } }
     wireYearChips(p, role, Y);
-    if($('repBtn')) $('repBtn').onclick = () => openDetailed(role, p, past ? SY : null);
+    if($('statsBtn')) $('statsBtn').onclick = () => {
+      const box = $('statsBox'), btn = $('statsBtn');
+      box.hidden = box.dataset.loaded === 'true' ? !box.hidden : false;
+      btn.setAttribute('aria-expanded', String(!box.hidden));
+      if(box.dataset.loaded !== 'true') openReport(role, p, past ? SY : null, box, btn);
+    };
+    if($('repBtn')) $('repBtn').onclick = () => {
+      const box = $('repBox'), btn = $('repBtn');
+      box.hidden = box.dataset.loaded === 'true' ? !box.hidden : false;
+      btn.setAttribute('aria-expanded', String(!box.hidden));
+      if(box.dataset.loaded !== 'true') openDetailed(role, p, past ? SY : null);
+    };
     if(past && $('toLive')) $('toLive').onclick = () => { const lv = liveOf(p), r = D.roles[role].regions.find(r=>r.win.includes(lv)); S.role = role; S.region = r.name; S.view = 'win'; setYear(LIVE); openCard(r.win.indexOf(lv)); };
     showSheet();
   }
@@ -1646,6 +1713,12 @@ if(c.k==='p' && !M){ const id = pid(p), ch = S.watch ? null : chgOf(p, g.name); 
     return Array.from(String(key)).reduce((sum,ch)=>sum+ch.codePointAt(0),0)%8;
   }
   function detailedReportDocument(doc, theme){
+    // Stored reports keep their numbers; refresh presentation and obsolete icon URLs at read time.
+    doc = doc.replace(/(https:\/\/ddragon\.leagueoflegends\.com\/cdn\/)[^/]+(\/img\/champion\/)/g, (_, base, path) => base+'16.21.1'+path);
+    doc = doc.replace(/<td class="champ-cell">([\s\S]*?)<\/td>/g, '<td><span class="champ-cell">$1</span></td>');
+    const unescapeName = text => text.replace(/&amp;/g,'&').replace(/&#(?:x27|39);/g,"'").replace(/&quot;/g,'"');
+    doc = doc.replace(/<td class="nowrap"><b>([^<]+)<\/b> <small class="note">([^<]*)<\/small><\/td>/g, (cell, name, kind) => typeof champCell==='function' ? '<td><span class="champ-cell">'+champCell(unescapeName(name))+' <small class="note">'+kind+'</small></span></td>' : cell);
+    doc = doc.replace(/<span class="team-cell"><span class="tlogo-init"[^>]*>[^<]*<\/span><span>([^<]*)<\/span><\/span>/g, (cell, name) => typeof teamCell==='function' ? teamCell(unescapeName(name)) : cell);
     const styled = doc.replace(/<style data-flexpick-scouting-theme>[\s\S]*?<\/style>/gi,'').replace(/<html\b/i, '<html data-theme="'+(theme==='light'?'light':'dark')+'"').replace(/(<div class="brand"[^>]*>)(?:\s*<svg\b[\s\S]*?<\/svg>)?/i, '$1'+BRAND_ICON);
     return styled.replace(/<\/body>/i, '<style data-flexpick-scouting-theme>'+$('detailedReportTheme').textContent+'</style></body>');
   }
@@ -1841,8 +1914,9 @@ ${(MT && MT.sec || []).map(([title,list])=>`<section class="blk"><h2>${esc(title
     const box = $('repBox'), btn = $('repBtn'); if(!box) return; btn.disabled = true; btn.textContent = 'Loading the report...';
     const showFrame = doc => {
       if($('repBox')!==box || !box.isConnected) return;
-      if(btn) btn.remove(); $('dlg').classList.add('wide');
-      box.innerHTML = `<div class="drep"><div class="drbar"><span class="note">Detailed scouting report</span><button type="button" class="btn" id="drPrint">Print or save as PDF</button><button type="button" class="btn" id="drRaw">Raw numbers by season</button></div><iframe id="drFrame" title="Detailed scouting report for ${esc(p.p)}"></iframe><div id="drRawBox"></div></div>`;
+      if(btn){ btn.disabled=false; btn.textContent='Scouting Report'; btn.setAttribute('aria-expanded','true'); }
+      box.dataset.loaded='true'; box.hidden=false; $('dlg').classList.add('wide');
+      box.innerHTML = `<div class="drep"><div class="drbar"><span class="note">Scouting Report</span><button type="button" class="btn" id="drPrint">Print or save as PDF</button></div><iframe id="drFrame" title="Detailed scouting report for ${esc(p.p)}"></iframe></div>`;
       const fr = $('drFrame'), fit = () => { try { const d = fr.contentDocument; if(d && d.body) fr.style.height = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight) + 'px'; } catch(e){} };
       fr.onload = () => {
         fit(); setTimeout(fit, 150); setTimeout(fit, 600);
@@ -1871,17 +1945,16 @@ ${(MT && MT.sec || []).map(([title,list])=>`<section class="blk"><h2>${esc(title
       };
       fr.srcdoc = detailedReportDocument(doc, 'light');
       $('drPrint').onclick = () => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch(e){} };
-      $('drRaw').onclick = () => { $('drRaw').remove(); openReport(role, p, upto, $('drRawBox')); };
       box.scrollIntoView({block:'start', behavior:'smooth'});
     };
     const fallbackDynamic = () => {
-      if(typeof loadReportData !== 'function'){ openReport(role, p, upto); return; }
+      if(typeof loadReportData !== 'function'){ openReport(role, p, upto, box, btn); return; }
       loadReportData(role, p.k).then(() => {
         if($('repBox')!==box || !box.isConnected) return;
         const R = window['FLEXPICK_REPORTS_'+role] || {}, d = R[p.k];
-        if(!d || !Array.isArray(d.s) || !d.s.length){ if(btn) btn.disabled = false; openReport(role, p, upto); return; }
+        if(!d || !Array.isArray(d.s) || !d.s.length){ if(btn) btn.disabled = false; openReport(role, p, upto, box, btn); return; }
         showFrame(buildDynamicDetailed(role, p, upto, d, R._meta));
-      }).catch(() => { if($('repBox')!==box || !box.isConnected) return; if(btn) btn.disabled = false; openReport(role, p, upto); });
+      }).catch(() => { if($('repBox')!==box || !box.isConnected) return; if(btn) btn.disabled = false; openReport(role, p, upto, box, btn); });
     };
     if(upto) return fallbackDynamic();
     const k = String(p.k), sh = detailedReportBucket(k);      // repShard: same as tools/export_detailed_reports.py
@@ -1889,12 +1962,12 @@ ${(MT && MT.sec || []).map(([title,list])=>`<section class="blk"><h2>${esc(title
       showFrame(doc);
     }).catch(() => { if($('repBox')!==box || !box.isConnected) return; fallbackDynamic(); });
   }
-  function openReport(role, p, upto, box0){
+  function openReport(role, p, upto, box0, trigger){
     const box=box0 || $('repBox'); if(!box || !box.isConnected) return;
-    let btn=$('repBtn');
+    let btn=trigger || $('repBtn');
     if(!btn){btn=document.createElement('button');btn.type='button';btn.className='btn';box.append(btn);btn.onclick=()=>openReport(role,p,upto,box0);}
     btn.disabled=true;btn.textContent='Loading the report...';
-    const go = () => { if(!box.isConnected || (!box0 && $('repBox')!==box)) return; const R = window['FLEXPICK_REPORTS_'+role] || {}; const d = R[p.k]; btn.remove(); if(!d || !Array.isArray(d.s) || !d.s.length){ box.innerHTML = '<p class="note">No report data is available for this player.</p>'; return; } let ss = d.s.filter(x => !upto || x.y === upto); if(!ss.length){ box.innerHTML='<p class="note">No scouting statistics are available for this season.</p>'; return; } renderReport(box, role, p, d, ss, ss[ss.length-1].y); };
+    const go = () => { if(!box.isConnected || (!box0 && $('repBox')!==box)) return; const R = window['FLEXPICK_REPORTS_'+role] || {}; const d = R[p.k]; if(trigger){ btn.disabled=false; btn.textContent=trigger.id==='repBtn' ? 'Scouting Report' : 'Show Detailed Stats'; box.dataset.loaded='true'; } else btn.remove(); if(!d || !Array.isArray(d.s) || !d.s.length){ box.innerHTML = '<p class="note">No report data is available for this player.</p>'; return; } let ss = d.s.filter(x => !upto || x.y === upto); if(!ss.length){ box.innerHTML='<p class="note">No scouting statistics are available for this season.</p>'; return; } renderReport(box, role, p, d, ss, ss[ss.length-1].y); };
     if(typeof loadReportData === 'function') loadReportData(role, p.k).then(go).catch(() => { btn.disabled = false; btn.textContent = 'Report could not be loaded, try again'; });
     else {
       if(window['FLEXPICK_REPORTS_'+role]?.[p.k]) return go();
@@ -2118,7 +2191,7 @@ ${(MT && MT.sec || []).map(([title,list])=>`<section class="blk"><h2>${esc(title
   // ---- share links: the view, the open player and the compare set live in the address
   let CUR = null, CMPOPEN = false;
   function stateHash(){
-    if(S.page==='leagues'){ const q = new URLSearchParams(); q.set('lv', 1); if(LS.role) q.set('lr', LS.role); if(LS.lg) q.set('lg', LS.lg); if(LS.se) q.set('ls', LS.se); if(LS.sp) q.set('lsp', LS.sp); return '#' + q.toString(); }
+    if(S.page==='leagues'){ const q = new URLSearchParams(); q.set('lv', 1); if(LS.role) q.set('lr', LS.role); if(LS.lg) q.set('lg', LS.lg); if(LS.se) q.set('ls', LS.se); if(LS.sp) q.set('lsp', LS.sp); if(LS.stage) q.set('lst', LS.stage); return '#' + q.toString(); }
     if(S.page==='teams'){ const q = new URLSearchParams(); if(TS.team) q.set('team', TS.team); if(TS.sp) q.set('sp', TS.sp); return '#' + q.toString(); }
     if(S.page==='method') return '#method'; if(S.page==='shortlist') return '#my-shortlist'; if(S.page==='home') return ''; if(M) return '#' + S.role;
     const q = new URLSearchParams(); q.set('r', S.role); q.set('g', S.region); q.set('v', S.view); if(S.year!==LIVE) q.set('y', S.year); if(S.watch) q.set('w', 1); if(S.mode==='scatter') q.set('m', 'scatter'); if($('fTier').value) q.set('t', $('fTier').value); if(LSEL.size) q.set('lg', [...LSEL].join(','));
@@ -2874,6 +2947,18 @@ ${(MT && MT.sec || []).map(([title,list])=>`<section class="blk"><h2>${esc(title
     ensureHistory(() => { for(const y of ys){ if(findP(id, y)){ WANT = want ? {sp: want, lg: lg || '', id} : null; openById(id, y); WANT = null; return; } }
       const m = $('lvMsg'); if(m){ m.textContent = name + ' is not on a Flexpick list for roster year ' + ys.join(' or ') + ' (too few games in his main league that season), so there is no player sheet to open.'; m.scrollIntoView({block:'nearest'}); } });
   }
+  function leagueEvents(records){
+    return (records || []).flatMap(x=>{
+      if(!Array.isArray(x))return [];
+      const appended=Array.isArray(x[2]), rows=appended?x[2]:x[3], count=appended?x[1]:x[2];
+      if(!Array.isArray(rows))return [];
+      const raw=String((appended?x[3]:x[1]) || 'all').trim(), key=raw.toLowerCase().replace(/[\s_-]+/g,'');
+      const stage=['all','allstages','season','overall'].includes(key)?'all':['main','mainstage','mainevent'].includes(key)?'main':['playin','playins'].includes(key)?'playin':key==='lcq'?'lcq':raw;
+      return [{event:String(x[0]),stage,count,rows}];
+    });
+  }
+  function leagueOptions(options){return [...new Map(options.map(x=>[String(x[0]),[String(x[0]),x[1]]])).values()];}
+  function mountLeagueChoices(){ window.FlexpickFilters?.mount($('viewLeagues')); }
   function leaguesDraw(){
     const V = $('viewLeagues');
     if(M){ V.innerHTML = '<p class="teamsnote">League views are in the private preview.</p>'; return; }
@@ -2888,32 +2973,41 @@ ${(MT && MT.sec || []).map(([title,list])=>`<section class="blk"><h2>${esc(title
     const intlSeasons = isINTL ? Object.entries(INTLV[role] || {}).filter(([, arr]) => (arr || []).some(x => x[0]===LS.lg)).map(([y]) => Number(y)) : [];
     const seasons = (isEM ? Object.keys(EMV[role] || {}).map(Number) : isINTL ? intlSeasons : [...new Set(ents.map(x => x[0]))]).sort((a, b) => b - a);
     if(!seasons.includes(+LS.se)) LS.se = seasons[0]; const se = +LS.se;
-    const sps = isEM ? ((EMV[role] || {})[se] || []).map(x => [x[0], x[0]==='Season' ? 'Season (all events)' : x[0]])
+    const tournamentEvents=leagueEvents(isEM ? ((EMV[role] || {})[se] || []) : isINTL ? ((INTLV[role] || {})[se] || []).filter(x=>x[0]===LS.lg) : []);
+    const sps = leagueOptions(!seasons.length ? [] : isEM ? tournamentEvents.map(x => [x.event, x.event==='Season' ? 'Season (all events)' : x.event])
       : isINTL ? [['Season', INTL_NAMES[LS.lg] + ' ' + se]]
-      : [['', 'Whole season'], ...ents.filter(x => x[0]===se).map(x => [String(x[1]), x[2]])];
+      : [['', 'Whole season'], ...ents.filter(x => x[0]===se).map(x => [String(x[1]), x[2]])]);
     if(!sps.some(x => x[0]===String(LS.sp))) LS.sp = sps.length ? sps[0][0] : ''; const sp = String(LS.sp);
+    const stageLabels={all:'All stages',main:'Main stage',playin:'Play-in',lcq:'Last chance qualifier'};
+    const stages=leagueOptions(tournamentEvents.filter(x=>isINTL||x.event===sp).map(x=>[x.stage,stageLabels[x.stage]||x.stage]));
+    const hasStage=stages.some(x=>x[0]!=='all');
+    if(!stages.some(x=>x[0]===LS.stage))LS.stage=stages.some(x=>x[0]==='main')?'main':stages.some(x=>x[0]==='all')?'all':stages[0]?.[0]||'all';
+    const stageNote=!hasStage ? '' : LS.stage==='all' ? ' Both stages pooled: play-in teams usually come from weaker leagues, so this view can flatter play-in players. Pick Main stage or Play-in to compare like with like.' : LS.stage==='playin' ? ' Play-in games only (including the LCQ at EMEA Masters): each player is compared with the other play-in players.' : ' Main stage games only: play-in games are left out, each player is compared with the other main stage players.';
     let h = `<h2 class="h">Leagues &amp; Tournaments</h2><p class="sub">Any regional league, season and split for one role, plus international tournaments (First Stand, MSI, Worlds) and EMEA Masters on their own. Click a player to open his sheet; Back brings you here again.</p>
-      <div class="tbar"><div class="f"><label for="lvRole" class="lab">Role</label><select id="lvRole">${['top','jng','mid','bot','sup'].map(r => `<option value="${r}" ${r===role ? 'selected' : ''}>${RLAB[r]}</option>`).join('')}</select></div>
+      <div class="tbar league-filters"><div class="f"><label for="lvRole" class="lab">Role</label><select id="lvRole">${['top','jng','mid','bot','sup'].map(r => `<option value="${r}" ${r===role ? 'selected' : ''}>${RLAB[r]}</option>`).join('')}</select></div>
       <div class="f"><label for="lvLg" class="lab">League or Tournament</label><select id="lvLg"><optgroup label="Tournaments"><option value="EM" ${isEM ? 'selected' : ''}>EMEA Masters</option><option value="FST" ${LS.lg==='FST' ? 'selected' : ''}>First Stand</option><option value="MSI" ${LS.lg==='MSI' ? 'selected' : ''}>MSI (Mid-Season Invitational)</option><option value="WLDs" ${LS.lg==='WLDs' ? 'selected' : ''}>Worlds (World Championship)</option></optgroup><optgroup label="Regional Leagues">${lgs.map(l => `<option value="${esc(l)}" ${l===LS.lg ? 'selected' : ''}>${esc(l)}</option>`).join('')}</optgroup></select></div>
-      <div class="f"><label for="lvSe" class="lab">Season</label><select id="lvSe">${seasons.map(y => `<option value="${y}" ${y===se ? 'selected' : ''}>${y}</option>`).join('')}</select></div>
-      <div class="f"><label for="lvSp" class="lab">${(isEM || isINTL) ? 'Event' : 'Split'}</label><select id="lvSp">${sps.map(x => `<option value="${esc(x[0])}" ${x[0]===sp ? 'selected' : ''}>${esc(x[1])}</option>`).join('')}</select></div></div>`;
+      <div class="f"><label for="lvSe" class="lab">Season</label><select id="lvSe">${seasons.map(y => `<option value="${y}" ${y===se ? 'selected' : ''}>${y}</option>`).join('')||'<option value="">No seasons available</option>'}</select></div>
+      <div class="f"><label for="lvSp" class="lab">Event</label><select id="lvSp">${sps.map(x => `<option value="${esc(x[0])}" ${x[0]===sp ? 'selected' : ''}>${esc(x[1])}</option>`).join('')||'<option value="">No events available</option>'}</select></div><div class="f"><label for="lvStage" class="lab">Stage</label><select id="lvStage" ${stages.length<=1?'disabled':''}>${(stages.length?stages:[['all','All stages']]).map(x=>`<option value="${esc(x[0])}" ${x[0]===LS.stage?'selected':''}>${esc(x[1])}</option>`).join('')}</select></div></div>`;
     const pl = (name, key, w, l, y) => key ? `<button type="button" class="pl" data-o="${esc(role + '|' + key)}" data-se="${se}" data-w="${esc(w || '')}" data-l="${esc(l || '')}"${y ? ` data-y="${y}"` : ''}>${esc(name)}</button>` : esc(name);
     const tbl = (head, rows) => `<div class="tmtl"><table><thead><tr>${head.map(([t, n]) => `<th class="${n ? 'n' : ''}">${t}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
-    if(isEM){
-      const ev = ((EMV[role] || {})[se] || []).find(x => x[0]===sp);
+    if(!seasons.length){h+='<p class="teamsnote">No data is available for this role and competition. Choose another role or competition.</p>';
+    } else if(isEM){
+      const eventRecord=tournamentEvents.find(x=>x.event===sp&&x.stage===LS.stage);
+      const ev=eventRecord?[eventRecord.event,eventRecord.count,eventRecord.rows]:null;
       if(!ev) h += `<p class="teamsnote">No EMEA Masters games for ${esc(lw)} players in ${se}.</p>`;
-      else { const evl = ev[0]==='Season' ? 'season, all events' : ev[0];
+      else { const evl = (ev[0]==='Season' ? 'season, all events' : ev[0])+(hasStage?' · '+(stageLabels[LS.stage]||LS.stage):'');
         h += `<h2 class="tn">EMEA Masters ${se} · ${esc(evl)}</h2><p class="sub">${ev[1]} ${esc(lw)} players</p>`;
         h += tbl([['Place'], ['Player'], ['Team'], ['Games', 1], ['Wins', 1], ['EM stat score', 1]], ev[2].map(r => `<tr><td>${r[6]!=null ? '#' + r[6] : '·'}</td><td>${pl(r[0], r[1], `em_${se}_${ev[0]}`, 'EM')}</td><td>${teamCell(r[2] || '')}</td><td class="n">${r[3]}</td><td class="n">${r[4]}</td><td class="n">${fmtR(r[5])}</td></tr>`));
-        h += `<p class="teamsnote">EMEA Masters games only, each player compared with the other EM players of his role in that event. Small samples are shown; read the games column. Display only, not part of the Flexpick rating.</p>`; }
+        h += `<p class="teamsnote">EMEA Masters games only, each player compared with the other EM players of his role in that event. Small samples are shown; read the games column.${stageNote} Display only, not part of the Flexpick rating.</p>`; }
     } else if(isINTL){
-      const ev = ((INTLV[role] || {})[se] || []).find(x => x[0]===LS.lg);
+      const eventRecord=tournamentEvents.find(x=>x.event===LS.lg&&x.stage===LS.stage);
+      const ev=eventRecord?[eventRecord.event,eventRecord.count,eventRecord.rows]:null;
       const tName = INTL_NAMES[LS.lg] || LS.lg;
       if(!ev) h += `<p class="teamsnote">No ${esc(tName)} games for ${esc(lw)} players in ${se}.</p>`;
       else {
         h += `<h2 class="tn">${esc(tName)} ${se}</h2><p class="sub">${ev[1]} ${esc(lw)} players</p>`;
         h += tbl([['Place'], ['Player'], ['Team'], ['Games', 1], ['Wins', 1], ['Tournament stat score', 1]], ev[2].map(r => `<tr><td>${r[6]!=null ? '#' + r[6] : '·'}</td><td>${pl(r[0], r[1], `it_${se}_${LS.lg}`, LS.lg)}</td><td>${teamCell(r[2] || '')}</td><td class="n">${r[3]}</td><td class="n">${r[4]}</td><td class="n">${fmtR(r[5])}</td></tr>`));
-        h += `<p class="teamsnote">${esc(tName)} ${se} games only, separated from regional league stats and compared with the other ${esc(lw)} players in that tournament. Small samples are shown; read the games column. Display only, not part of the regional league rating.</p>`; }
+        h += `<p class="teamsnote">${esc(tName)} ${se} games only, separated from regional league stats and compared with the other ${esc(lw)} players in that tournament. Small samples are shown; read the games column.${stageNote} Display only, not part of the regional league rating.</p>`; }
     } else if(sp){
       const x = ents.find(z => z[0]===se && String(z[1])===sp);
       if(!x) h += '<p class="teamsnote">No data for this split.</p>';
@@ -2934,9 +3028,11 @@ ${(MT && MT.sec || []).map(([title,list])=>`<section class="blk"><h2>${esc(title
     h += '<p class="teamsnote" id="lvMsg"></p>';
     V.innerHTML = h;
     $('lvRole').onchange = e => lvStep(() => { LS.role = e.target.value; });
-    $('lvLg').onchange = e => lvStep(() => { LS.lg = e.target.value; LS.sp = ''; });
+    $('lvLg').onchange = e => lvStep(() => { LS.lg = e.target.value; LS.sp = ''; LS.stage='main'; });
     $('lvSe').onchange = e => lvStep(() => { LS.se = +e.target.value; LS.sp = (isEM || isINTL) ? 'Season' : ''; });
     $('lvSp').onchange = e => lvStep(() => { LS.sp = e.target.value; });
+    if($('lvStage'))$('lvStage').onchange=e=>lvStep(()=>{LS.stage=e.target.value;});
+    mountLeagueChoices();
     V.querySelectorAll('button.pl').forEach(b => b.onclick = () => lvOpen(b.dataset.o, +b.dataset.se, b.dataset.w, b.dataset.l, b.textContent, b.dataset.y ? +b.dataset.y : null));
   }
   function syncFilterChoices(){
